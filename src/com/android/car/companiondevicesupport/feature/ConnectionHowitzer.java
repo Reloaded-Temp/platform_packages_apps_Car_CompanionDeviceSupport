@@ -76,7 +76,7 @@ public class ConnectionHowitzer {
 
                 @Override
                 public void onDeviceError(ConnectedDevice device,
-                        ConnectedDeviceManager.DeviceError error) {
+                        @ConnectedDeviceManager.DeviceError int error) {
                     logd(TAG, "A device error occurred " + error + ".");
                 }
             };
