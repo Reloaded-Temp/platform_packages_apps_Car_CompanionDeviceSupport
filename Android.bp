@@ -14,28 +14,66 @@
 // limitations under the License.
 //
 
+android_library {
+    name: "CompanionDeviceSupport-aidl",
+
+    srcs: [
+        "src/com/android/car/companiondevicesupport/api/**/*.java",
+        "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
+    ],
+
+    static_libs: [
+        "connected-device-lib",
+    ],
+
+    aidl: {
+        local_include_dirs: [
+            "src/com/android/car/companiondevicesupport/api",
+        ],
+    },
+}
+
 android_app {
     name: "CompanionDeviceSupport",
-    srcs: ["src/**/*.java", "src/**/*.kt"],
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    exclude_srcs: [
+        "src/com/android/car/companiondevicesupport/api/**/*.java",
+        "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
+    ],
+
     resource_dirs: ["res"],
+
     platform_apis: true,
+
     certificate: "platform",
+
     privileged: true,
+
     libs: ["android.car"],
+
     static_libs: [
+        "CompanionDeviceSupport-aidl",
         "EncryptionRunner",
         "connected-device-lib",
     ],
+
     optimize: {
         enabled: false,
     },
+
     dex_preopt: {
         enabled: false,
     },
+
     product_variables: {
         pdk: {
             enabled: false,
         },
     },
+
     required: ["privapp_whitelist_com.android.car.companiondevicesupport"]
 }

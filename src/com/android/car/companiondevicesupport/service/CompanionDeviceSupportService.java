@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
+import com.android.car.companiondevicesupport.api.external.ExternalBinder;
 import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.internal.annotations.GuardedBy;
@@ -56,6 +57,8 @@ public class CompanionDeviceSupportService extends Service {
 
     private ConnectedDeviceManager mConnectedDeviceManager;
 
+    private ExternalBinder mExternalBinder;
+
     private ConnectionHowitzer mConnectionHowitzer;
 
     @Override
@@ -63,6 +66,7 @@ public class CompanionDeviceSupportService extends Service {
         super.onCreate();
         logd(TAG, "Service created.");
         mConnectedDeviceManager = new ConnectedDeviceManager(this);
+        mExternalBinder = new ExternalBinder(mConnectedDeviceManager);
         registerReceiver(mBleBroadcastReceiver,
                 new IntentFilter(BluetoothAdapter.ACTION_BLE_STATE_CHANGED));
         if (BluetoothAdapter.getDefaultAdapter().isLeEnabled()) {
@@ -72,7 +76,7 @@ public class CompanionDeviceSupportService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mExternalBinder;
     }
 
     @Override

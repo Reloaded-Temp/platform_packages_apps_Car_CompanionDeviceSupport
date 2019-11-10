@@ -22,12 +22,14 @@ import android.content.Context;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
+import com.android.car.connecteddevice.ConnectedDeviceManager.ConnectionCallback;
+import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceCallback;
 import com.android.car.connecteddevice.model.ConnectedDevice;
+import com.android.car.connecteddevice.util.ByteUtils;
 
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 
 /** Reference feature used to validate the performance of the connected device connection. */
 public class ConnectionHowitzer {
@@ -42,44 +44,42 @@ public class ConnectionHowitzer {
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
-    private final ConnectedDeviceManager.ConnectionCallback mConnectionCallback =
-            new ConnectedDeviceManager.ConnectionCallback() {
-                @Override
-                public void onDeviceConnected(ConnectedDevice device) {
-                    logd(TAG, "Device " + device.getDeviceId() + " connected.");
-                    mConnectedDeviceManager.registerDeviceCallback(device, mFeatureId,
-                            mDeviceCallback, mExecutor);
-                    // TODO (b/143789390) Add remote trigger instead of doing this on every
-                    // connection.
-                    sendMessage(device, LARGE_MESSAGE_SIZE);
-                }
+    private final ConnectionCallback mConnectionCallback = new ConnectionCallback() {
+        @Override
+        public void onDeviceConnected(ConnectedDevice device) {
+            logd(TAG, "Device " + device.getDeviceId() + " connected.");
+            mConnectedDeviceManager.registerDeviceCallback(device, mFeatureId,
+                    mDeviceCallback, mExecutor);
+            // TODO (b/143789390) Add remote trigger instead of doing this on every
+            // connection.
+            sendMessage(device, LARGE_MESSAGE_SIZE);
+        }
 
-                @Override
-                public void onDeviceDisconnected(ConnectedDevice device) {
-                    logd(TAG, "Device " + device.getDeviceId() + " disconnected.");
-                    mConnectedDeviceManager.unregisterDeviceCallback(device, mFeatureId,
-                            mDeviceCallback);
-                }
-            };
+        @Override
+        public void onDeviceDisconnected(ConnectedDevice device) {
+            logd(TAG, "Device " + device.getDeviceId() + " disconnected.");
+            mConnectedDeviceManager.unregisterDeviceCallback(device, mFeatureId,
+                    mDeviceCallback);
+        }
+    };
 
-    private final ConnectedDeviceManager.DeviceCallback mDeviceCallback =
-            new ConnectedDeviceManager.DeviceCallback() {
-                @Override
-                public void onSecureChannelEstablished(ConnectedDevice device) {
-                    logd(TAG, "Secure channel established.");
-                }
+    private final DeviceCallback mDeviceCallback = new DeviceCallback() {
+        @Override
+        public void onSecureChannelEstablished(ConnectedDevice device) {
+            logd(TAG, "Secure channel established.");
+        }
 
-                @Override
-                public void onMessageReceived(ConnectedDevice device, byte[] message) {
-                    logd(TAG, "Received a new message of " + message.length + " bytes.");
-                }
+        @Override
+        public void onMessageReceived(ConnectedDevice device, byte[] message) {
+            logd(TAG, "Received a new message of " + message.length + " bytes.");
+        }
 
-                @Override
-                public void onDeviceError(ConnectedDevice device,
-                        @ConnectedDeviceManager.DeviceError int error) {
-                    logd(TAG, "A device error occurred " + error + ".");
-                }
-            };
+        @Override
+        public void onDeviceError(ConnectedDevice device,
+                @ConnectedDeviceManager.DeviceError int error) {
+            logd(TAG, "A device error occurred " + error + ".");
+        }
+    };
 
     public ConnectionHowitzer(Context context, ConnectedDeviceManager connectedDeviceManager) {
         mConnectedDeviceManager = connectedDeviceManager;
@@ -106,8 +106,7 @@ public class ConnectionHowitzer {
     }
 
     private void sendMessage(ConnectedDevice device, int messageSize) {
-        byte[] message = new byte[messageSize];
-        ThreadLocalRandom.current().nextBytes(message);
+        byte[] message = ByteUtils.randomBytes(messageSize);
         mConnectedDeviceManager.sendMessageUnsecurely(device, mFeatureId, message);
     }
 }
