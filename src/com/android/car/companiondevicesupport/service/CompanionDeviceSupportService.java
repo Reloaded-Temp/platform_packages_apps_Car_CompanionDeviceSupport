@@ -17,16 +17,22 @@
 package com.android.car.companiondevicesupport.service;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
+import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.UserHandle;
 
 import com.android.car.companiondevicesupport.api.external.ExternalBinder;
+import com.android.car.companiondevicesupport.api.internal.InternalBinder;
 import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.internal.annotations.GuardedBy;
@@ -41,6 +47,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CompanionDeviceSupportService extends Service {
 
     private static final String TAG = "CompanionDeviceSupportService";
+    /**
+     * When a client calls {@link Context#bindService(Intent, ServiceConnection, int)} to get the
+     * IAssociatedDeviceManager, this action is required in the param {@link Intent}.
+     */
+    public static final String ACTION_BIND_INTERNAL =
+            "com.android.car.companiondevicesupport.BIND_INTERNAL";
+    /**
+     * When a client calls {@link Context#bindService(Intent, ServiceConnection, int)} to get the
+     * IConnectedDeviceManager, this action is required in the param {@link Intent}.
+     */
+    public static final String ACTION_BIND_CONNECTED_DEVICE_MANAGER =
+            "com.android.car.companiondevicesupport.BIND_CONNECTED_DEVICE_MANAGER";
 
     private final BroadcastReceiver mBleBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -58,6 +76,7 @@ public class CompanionDeviceSupportService extends Service {
     private ConnectedDeviceManager mConnectedDeviceManager;
 
     private ExternalBinder mExternalBinder;
+    private InternalBinder mInternalBinder;
 
     private ConnectionHowitzer mConnectionHowitzer;
 
@@ -65,8 +84,6 @@ public class CompanionDeviceSupportService extends Service {
     public void onCreate() {
         super.onCreate();
         logd(TAG, "Service created.");
-        mConnectedDeviceManager = new ConnectedDeviceManager(this);
-        mExternalBinder = new ExternalBinder(mConnectedDeviceManager);
         registerReceiver(mBleBroadcastReceiver,
                 new IntentFilter(BluetoothAdapter.ACTION_BLE_STATE_CHANGED));
         if (BluetoothAdapter.getDefaultAdapter().isLeEnabled()) {
@@ -76,7 +93,20 @@ public class CompanionDeviceSupportService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mExternalBinder;
+        logd(TAG, "Service bound.");
+        if (intent == null || intent.getAction() == null) {
+            return null;
+        }
+        String action = intent.getAction();
+        switch (action) {
+            case ACTION_BIND_INTERNAL:
+                return mInternalBinder;
+            case ACTION_BIND_CONNECTED_DEVICE_MANAGER:
+                return mExternalBinder;
+            default:
+                loge(TAG, "Unexpected action: " + action);
+                return null;
+        }
     }
 
     @Override
@@ -110,7 +140,6 @@ public class CompanionDeviceSupportService extends Service {
                 return;
             }
             mConnectedDeviceManager.cleanup();
-            mConnectionHowitzer.cleanup();
             mIsEveryFeatureInitialized = false;
         } finally {
             mLock.unlock();
@@ -125,12 +154,13 @@ public class CompanionDeviceSupportService extends Service {
                 logd(TAG, "Features are already initialized. No need to initialize again.");
                 return;
             }
+            mConnectedDeviceManager = new ConnectedDeviceManager(this);
+            mExternalBinder = new ExternalBinder(mConnectedDeviceManager);
+            mInternalBinder = new InternalBinder(mConnectedDeviceManager);
             mConnectedDeviceManager.start();
-            mConnectionHowitzer = new ConnectionHowitzer(this, mConnectedDeviceManager);
             mIsEveryFeatureInitialized = true;
         } finally {
             mLock.unlock();
         }
-
     }
 }
