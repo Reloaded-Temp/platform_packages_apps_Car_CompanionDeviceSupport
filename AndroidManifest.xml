@@ -43,6 +43,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+        <service
+            android:name=".feature.notificationmsg.NotificationMsgService"
+            android:exported="true">
+        </service>
 
         <activity android:name=".activity.AssociationActivity"
                   android:exported="true">

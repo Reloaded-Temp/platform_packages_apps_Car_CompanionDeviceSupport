@@ -43,6 +43,15 @@ public class InternalBinder extends IAssociatedDeviceManager.Stub {
     @Override
     public void startAssociation(IAssociationCallback callback) {
         AssociationCallback associationCallback = new AssociationCallback() {
+
+            @Override
+            public void onAssociationStartSuccess(String deviceName) {
+                try {
+                    callback.onAssociationStartSuccess(deviceName);
+                } catch (RemoteException exception) {
+                    loge(TAG, "onAssociationStartSuccess failed.", exception);
+                }
+            }
             @Override
             public void onAssociationStartFailure() {
                 try {

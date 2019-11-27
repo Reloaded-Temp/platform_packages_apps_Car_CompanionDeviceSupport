@@ -19,6 +19,9 @@ package com.android.car.companiondevicesupport.api.internal;
 /** Callback for triggered association events. */
 oneway interface IAssociationCallback {
 
+    /** Triggered when IHU starts advertising for association successfully. */
+    void onAssociationStartSuccess(in String deviceName);
+
     /** Triggered when IHU failed to start advertising for association. */
     void onAssociationStartFailure();
 

@@ -20,9 +20,9 @@ import static com.android.car.companiondevicesupport.service.CompanionDeviceSupp
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.annotation.NonNull;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -77,6 +77,10 @@ public class AssociationActivity extends FragmentActivity {
 
     private final IAssociationCallback mAssociationCallback = new IAssociationCallback.Stub() {
         @Override
+        public void onAssociationStartSuccess(String deviceName) {
+            runOnUiThread(() -> showAssociationDialog(deviceName));
+        }
+        @Override
         public void onAssociationStartFailure() {
             dismissSelectCarDialogFragment();
             loge(TAG, "Failed to start association.");
@@ -125,8 +129,6 @@ public class AssociationActivity extends FragmentActivity {
         mButton.setOnClickListener(v -> {
             try {
                 mAssociatedDeviceManager.startAssociation(mAssociationCallback);
-                mHandler.postDelayed(AssociationActivity.this::showAssociationDialog,
-                        SHOW_DIALOG_DELAY_MS);
             } catch (RemoteException e) {
                 loge(TAG, "Failed to start association.", e);
             }
@@ -150,8 +152,8 @@ public class AssociationActivity extends FragmentActivity {
         unbindService(mConnection);
     }
 
-    private void showAssociationDialog() {
-        SelectCarDialogFragment fragment = new SelectCarDialogFragment();
+    private void showAssociationDialog(String deviceName) {
+        SelectCarDialogFragment fragment = SelectCarDialogFragment.newInstance(deviceName);
         fragment.setOnCancelListener((d, which) -> stopAssociation());
         fragment.show(getSupportFragmentManager(), SELECT_CAR_DIALOG_TAG);
     }
@@ -211,12 +213,23 @@ public class AssociationActivity extends FragmentActivity {
 
     /** Dialog fragment notifies the user to select the car. */
     public static class SelectCarDialogFragment extends DialogFragment {
+        private static final String DEVICE_NAME_KEY = "deviceName";
         private DialogInterface.OnClickListener mOnCancelListener;
+
+        static SelectCarDialogFragment newInstance(@NonNull String deviceName) {
+            Bundle bundle = new Bundle();
+            bundle.putString(DEVICE_NAME_KEY, deviceName);
+            SelectCarDialogFragment fragment = new SelectCarDialogFragment();
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            Bundle bundle = getArguments();
+            String deviceName = bundle.getString(DEVICE_NAME_KEY);
             return new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.associated_device_select_device,
-                            BluetoothAdapter.getDefaultAdapter().getName()))
+                    .setTitle(getString(R.string.associated_device_select_device, deviceName))
                     .setNegativeButton(getString(R.string.cancel), mOnCancelListener)
                     .setCancelable(false)
                     .create();

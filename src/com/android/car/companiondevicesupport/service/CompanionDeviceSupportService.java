@@ -19,17 +19,14 @@ package com.android.car.companiondevicesupport.service;
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.UserHandle;
 
 import com.android.car.companiondevicesupport.api.external.ExternalBinder;
 import com.android.car.companiondevicesupport.api.internal.InternalBinder;

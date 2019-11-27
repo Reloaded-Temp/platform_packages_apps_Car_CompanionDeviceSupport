@@ -58,6 +58,8 @@ android_app {
     static_libs: [
         "CompanionDeviceSupport-aidl",
         "EncryptionRunner",
+        "androidx.legacy_legacy-support-v4",
+        "car-messenger-common-bp",
         "com.google.android.material_material",
         "connected-device-lib",
     ],
