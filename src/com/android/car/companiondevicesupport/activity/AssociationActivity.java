@@ -16,7 +16,7 @@
 
 package com.android.car.companiondevicesupport.activity;
 
-import static com.android.car.companiondevicesupport.service.CompanionDeviceSupportService.ACTION_BIND_INTERNAL;
+import static com.android.car.companiondevicesupport.service.CompanionDeviceSupportService.ACTION_BIND_ASSOCIATION;
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
@@ -41,8 +41,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
-import com.android.car.companiondevicesupport.api.internal.IAssociatedDeviceManager;
-import com.android.car.companiondevicesupport.api.internal.IAssociationCallback;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
 /** Activity class for association */
 public class AssociationActivity extends FragmentActivity {
@@ -142,7 +142,7 @@ public class AssociationActivity extends FragmentActivity {
     public void onStart() {
         super.onStart();
         Intent intent = new Intent(this, CompanionDeviceSupportService.class);
-        intent.setAction(ACTION_BIND_INTERNAL);
+        intent.setAction(ACTION_BIND_ASSOCIATION);
         bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
     }
 

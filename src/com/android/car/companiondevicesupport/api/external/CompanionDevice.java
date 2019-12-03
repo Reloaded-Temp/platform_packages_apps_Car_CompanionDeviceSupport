@@ -26,7 +26,7 @@ import com.android.car.connecteddevice.model.ConnectedDevice;
 import java.util.Objects;
 
 /** Representation of a connected device.  */
-public class CompanionDevice implements Parcelable {
+public final class CompanionDevice implements Parcelable {
 
     private final String mDeviceId;
 

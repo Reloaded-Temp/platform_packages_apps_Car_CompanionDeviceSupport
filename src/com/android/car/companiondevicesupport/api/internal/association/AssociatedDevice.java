@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal;
+package com.android.car.companiondevicesupport.api.internal.association;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;

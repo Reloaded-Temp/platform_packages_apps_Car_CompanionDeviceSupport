@@ -35,7 +35,7 @@
             android:singleUser="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.android.car.companiondevicesupport.BIND_INTERNAL" />
+                <action android:name="com.android.car.companiondevicesupport.BIND_ASSOCIATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>

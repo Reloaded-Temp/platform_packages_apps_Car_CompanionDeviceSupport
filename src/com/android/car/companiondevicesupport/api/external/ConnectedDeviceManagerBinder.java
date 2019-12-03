@@ -33,9 +33,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /** Binder for exposing ConnectedDeviceManager to features. */
-public class ExternalBinder extends IConnectedDeviceManager.Stub {
+public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
 
-    private static final String TAG = "ExternalBinder";
+    private static final String TAG = "ConnectedDeviceManagerBinder";
 
     private final ConnectedDeviceManager mConnectedDeviceManager;
 
@@ -51,7 +51,7 @@ public class ExternalBinder extends IConnectedDeviceManager.Stub {
 
     private final Executor mCallbackExecutor = Executors.newSingleThreadExecutor();
 
-    public ExternalBinder(ConnectedDeviceManager connectedDeviceManager) {
+    public ConnectedDeviceManagerBinder(ConnectedDeviceManager connectedDeviceManager) {
         mConnectedDeviceManager = connectedDeviceManager;
     }
 

@@ -28,8 +28,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.android.car.companiondevicesupport.api.external.ExternalBinder;
-import com.android.car.companiondevicesupport.api.internal.InternalBinder;
+import com.android.car.companiondevicesupport.api.external.ConnectedDeviceManagerBinder;
+import com.android.car.companiondevicesupport.api.internal.association.AssociationBinder;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
+import com.android.car.companiondevicesupport.api.internal.trust.TrustedDeviceManagerBinder;
 import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.internal.annotations.GuardedBy;
@@ -44,12 +46,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CompanionDeviceSupportService extends Service {
 
     private static final String TAG = "CompanionDeviceSupportService";
+
     /**
      * When a client calls {@link Context#bindService(Intent, ServiceConnection, int)} to get the
-     * IAssociatedDeviceManager, this action is required in the param {@link Intent}.
+     * {@link IAssociatedDeviceManager}, this action is required in the param {@link Intent}.
      */
-    public static final String ACTION_BIND_INTERNAL =
-            "com.android.car.companiondevicesupport.BIND_INTERNAL";
+    public static final String ACTION_BIND_ASSOCIATION =
+            "com.android.car.companiondevicesupport.BIND_ASSOCIATION";
+
     /**
      * When a client calls {@link Context#bindService(Intent, ServiceConnection, int)} to get the
      * IConnectedDeviceManager, this action is required in the param {@link Intent}.
@@ -72,8 +76,11 @@ public class CompanionDeviceSupportService extends Service {
 
     private ConnectedDeviceManager mConnectedDeviceManager;
 
-    private ExternalBinder mExternalBinder;
-    private InternalBinder mInternalBinder;
+    private ConnectedDeviceManagerBinder mConnectedDeviceManagerBinder;
+
+    private AssociationBinder mAssociationBinder;
+
+    private TrustedDeviceManagerBinder mTrustedDeviceManagerBinder;
 
     private ConnectionHowitzer mConnectionHowitzer;
 
@@ -96,10 +103,10 @@ public class CompanionDeviceSupportService extends Service {
         }
         String action = intent.getAction();
         switch (action) {
-            case ACTION_BIND_INTERNAL:
-                return mInternalBinder;
+            case ACTION_BIND_ASSOCIATION:
+                return mAssociationBinder;
             case ACTION_BIND_CONNECTED_DEVICE_MANAGER:
-                return mExternalBinder;
+                return mConnectedDeviceManagerBinder;
             default:
                 loge(TAG, "Unexpected action: " + action);
                 return null;
@@ -152,8 +159,9 @@ public class CompanionDeviceSupportService extends Service {
                 return;
             }
             mConnectedDeviceManager = new ConnectedDeviceManager(this);
-            mExternalBinder = new ExternalBinder(mConnectedDeviceManager);
-            mInternalBinder = new InternalBinder(mConnectedDeviceManager);
+            mConnectedDeviceManagerBinder =
+                    new ConnectedDeviceManagerBinder(mConnectedDeviceManager);
+            mAssociationBinder = new AssociationBinder(mConnectedDeviceManager);
             mConnectedDeviceManager.start();
             mIsEveryFeatureInitialized = true;
         } finally {

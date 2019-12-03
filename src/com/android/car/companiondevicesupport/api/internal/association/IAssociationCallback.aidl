@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal;
+package com.android.car.companiondevicesupport.api.internal.association;
 
 /** Callback for triggered association events. */
 oneway interface IAssociationCallback {

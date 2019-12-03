@@ -22,6 +22,10 @@ android_library {
         "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
     ],
 
+    manifest: "AndroidManifest_aidl.xml",
+
+    resource_dirs: [],
+
     static_libs: [
         "connected-device-lib",
     ],

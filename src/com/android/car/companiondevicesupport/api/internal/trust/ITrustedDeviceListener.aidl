@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal;
+package com.android.car.companiondevicesupport.api.internal.trust;
 
-parcelable AssociatedDevice;
+/** Callback for triggered trusted device events. */
+oneway interface ITrustedDeviceListener {
+
+    /** Triggered when an escrow token is received from a new device. */
+    void onReceivedNewEscrowToken(in byte[] token);
+}
