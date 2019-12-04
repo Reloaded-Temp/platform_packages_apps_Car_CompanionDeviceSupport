@@ -15,7 +15,8 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.companiondevicesupport">
+          package="com.android.car.companiondevicesupport"
+          android:sharedUserId="android.uid.system">
 
     <!--  Needed for BLE scanning/advertising -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -33,6 +34,26 @@
             android:name=".service.CompanionDeviceSupportService"
             android:singleUser="true"
             android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.BIND_INTERNAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.BIND_CONNECTED_DEVICE_MANAGER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </service>
+
+        <activity android:name=".activity.AssociationActivity"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.title"
+                       android:value="@string/app_name" />
+            <meta-data android:name="com.android.settings.category"
+                       android:value="com.android.settings.category.ia.system" />
+        </activity>
     </application>
 </manifest>
