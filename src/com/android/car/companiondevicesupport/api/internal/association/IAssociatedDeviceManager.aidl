@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal;
+package com.android.car.companiondevicesupport.api.internal.association;
 
-import com.android.car.companiondevicesupport.api.internal.AssociatedDevice;
-import com.android.car.companiondevicesupport.api.internal.IAssociationCallback;
+import com.android.car.companiondevicesupport.api.internal.association.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
 /** Manager of devices associated with the car. */
 interface IAssociatedDeviceManager {

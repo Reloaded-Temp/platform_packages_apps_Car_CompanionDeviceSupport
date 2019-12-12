@@ -16,13 +16,13 @@
 
 package com.android.car.companiondevicesupport.activity;
 
-import static com.android.car.companiondevicesupport.service.CompanionDeviceSupportService.ACTION_BIND_INTERNAL;
+import static com.android.car.companiondevicesupport.service.CompanionDeviceSupportService.ACTION_BIND_ASSOCIATION;
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.annotation.NonNull;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,8 +41,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
-import com.android.car.companiondevicesupport.api.internal.IAssociatedDeviceManager;
-import com.android.car.companiondevicesupport.api.internal.IAssociationCallback;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
+import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
 /** Activity class for association */
 public class AssociationActivity extends FragmentActivity {
@@ -76,6 +76,10 @@ public class AssociationActivity extends FragmentActivity {
     };
 
     private final IAssociationCallback mAssociationCallback = new IAssociationCallback.Stub() {
+        @Override
+        public void onAssociationStartSuccess(String deviceName) {
+            runOnUiThread(() -> showAssociationDialog(deviceName));
+        }
         @Override
         public void onAssociationStartFailure() {
             dismissSelectCarDialogFragment();
@@ -125,8 +129,6 @@ public class AssociationActivity extends FragmentActivity {
         mButton.setOnClickListener(v -> {
             try {
                 mAssociatedDeviceManager.startAssociation(mAssociationCallback);
-                mHandler.postDelayed(AssociationActivity.this::showAssociationDialog,
-                        SHOW_DIALOG_DELAY_MS);
             } catch (RemoteException e) {
                 loge(TAG, "Failed to start association.", e);
             }
@@ -140,7 +142,7 @@ public class AssociationActivity extends FragmentActivity {
     public void onStart() {
         super.onStart();
         Intent intent = new Intent(this, CompanionDeviceSupportService.class);
-        intent.setAction(ACTION_BIND_INTERNAL);
+        intent.setAction(ACTION_BIND_ASSOCIATION);
         bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
     }
 
@@ -150,8 +152,8 @@ public class AssociationActivity extends FragmentActivity {
         unbindService(mConnection);
     }
 
-    private void showAssociationDialog() {
-        SelectCarDialogFragment fragment = new SelectCarDialogFragment();
+    private void showAssociationDialog(String deviceName) {
+        SelectCarDialogFragment fragment = SelectCarDialogFragment.newInstance(deviceName);
         fragment.setOnCancelListener((d, which) -> stopAssociation());
         fragment.show(getSupportFragmentManager(), SELECT_CAR_DIALOG_TAG);
     }
@@ -211,12 +213,23 @@ public class AssociationActivity extends FragmentActivity {
 
     /** Dialog fragment notifies the user to select the car. */
     public static class SelectCarDialogFragment extends DialogFragment {
+        private static final String DEVICE_NAME_KEY = "deviceName";
         private DialogInterface.OnClickListener mOnCancelListener;
+
+        static SelectCarDialogFragment newInstance(@NonNull String deviceName) {
+            Bundle bundle = new Bundle();
+            bundle.putString(DEVICE_NAME_KEY, deviceName);
+            SelectCarDialogFragment fragment = new SelectCarDialogFragment();
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            Bundle bundle = getArguments();
+            String deviceName = bundle.getString(DEVICE_NAME_KEY);
             return new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.associated_device_select_device,
-                            BluetoothAdapter.getDefaultAdapter().getName()))
+                    .setTitle(getString(R.string.associated_device_select_device, deviceName))
                     .setNegativeButton(getString(R.string.cancel), mOnCancelListener)
                     .setCancelable(false)
                     .create();

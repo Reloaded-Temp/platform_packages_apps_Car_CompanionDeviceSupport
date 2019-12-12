@@ -50,14 +50,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 
 @RunWith(AndroidJUnit4.class)
-public class ExternalBinderTest {
+public class ConnectedDeviceManagerBinderTest {
 
     private final ParcelUuid mRecipientId = new ParcelUuid(UUID.randomUUID());
 
     @Mock
     private ConnectedDeviceManager mMockConnectedDeviceManager;
 
-    private ExternalBinder mExternalBinder;
+    private ConnectedDeviceManagerBinder mBinder;
 
     private MockitoSession mMockingSession;
 
@@ -66,7 +66,7 @@ public class ExternalBinderTest {
         mMockingSession = mockitoSession()
                 .initMocks(this)
                 .startMocking();
-        mExternalBinder = new ExternalBinder(mMockConnectedDeviceManager);
+        mBinder = new ConnectedDeviceManagerBinder(mMockConnectedDeviceManager);
     }
 
     @After
@@ -84,13 +84,13 @@ public class ExternalBinderTest {
         CompanionDevice expectedDevice = new CompanionDevice(connectedDevice);
         when(mMockConnectedDeviceManager.getActiveUserConnectedDevices())
                 .thenReturn(Collections.singletonList(connectedDevice));
-        List<CompanionDevice> returnedDevices = mExternalBinder.getActiveUserConnectedDevices();
+        List<CompanionDevice> returnedDevices = mBinder.getActiveUserConnectedDevices();
         assertThat(returnedDevices).containsExactly(expectedDevice);
     }
 
     @Test
     public void registerActiveUserConnectionCallback_mirrorsConnectedDeviceManager() {
-        mExternalBinder.registerActiveUserConnectionCallback(
+        mBinder.registerActiveUserConnectionCallback(
                 createConnectionCallback(new Semaphore(0)));
         verify(mMockConnectedDeviceManager).registerActiveUserConnectionCallback(
                 any(ConnectionCallback.class), any(Executor.class));
@@ -99,8 +99,8 @@ public class ExternalBinderTest {
     @Test
     public void unregisterConnectionCallback_mirrorsConnectedDeviceManager() {
         IConnectionCallback callback = createConnectionCallback(new Semaphore(0));
-        mExternalBinder.registerActiveUserConnectionCallback(callback);
-        mExternalBinder.unregisterConnectionCallback(callback);
+        mBinder.registerActiveUserConnectionCallback(callback);
+        mBinder.unregisterConnectionCallback(callback);
         verify(mMockConnectedDeviceManager).unregisterConnectionCallback(
                 any(ConnectionCallback.class));
     }
@@ -111,7 +111,7 @@ public class ExternalBinderTest {
         CompanionDevice companionDevice = new CompanionDevice(UUID.randomUUID().toString(),
                 /* deviceName = */ null, /* isActiveUser = */ false,
                 /* hasSecureChannel = */ false);
-        mExternalBinder.registerDeviceCallback(companionDevice, mRecipientId,
+        mBinder.registerDeviceCallback(companionDevice, mRecipientId,
                 deviceCallback);
         verify(mMockConnectedDeviceManager).registerDeviceCallback(
                 refEq(companionDevice.toConnectedDevice()), refEq(mRecipientId.getUuid()),
@@ -124,8 +124,8 @@ public class ExternalBinderTest {
         CompanionDevice companionDevice = new CompanionDevice(UUID.randomUUID().toString(),
                 /* deviceName = */ null, /* isActiveUser = */ false,
                 /* hasSecureChannel = */ false);
-        mExternalBinder.registerDeviceCallback(companionDevice, mRecipientId, deviceCallback);
-        mExternalBinder.unregisterDeviceCallback(companionDevice, mRecipientId, deviceCallback);
+        mBinder.registerDeviceCallback(companionDevice, mRecipientId, deviceCallback);
+        mBinder.unregisterDeviceCallback(companionDevice, mRecipientId, deviceCallback);
         verify(mMockConnectedDeviceManager).unregisterDeviceCallback(
                 refEq(companionDevice.toConnectedDevice()), refEq(mRecipientId.getUuid()),
                 any(DeviceCallback.class));
@@ -133,7 +133,7 @@ public class ExternalBinderTest {
 
     @Test
     public void connectToActiveUserdevice_mirrorsConnectedDeviceManager() {
-        mExternalBinder.connectToActiveUserDevice();
+        mBinder.connectToActiveUserDevice();
         verify(mMockConnectedDeviceManager).connectToActiveUserDevice();
     }
 
@@ -143,7 +143,7 @@ public class ExternalBinderTest {
                 /* deviceName = */ null, /* isActiveUser = */ false,
                 /* hasSecureChannel = */ true);
         byte[] message = ByteUtils.randomBytes(10);
-        mExternalBinder.sendMessageSecurely(companionDevice, mRecipientId, message);
+        mBinder.sendMessageSecurely(companionDevice, mRecipientId, message);
         verify(mMockConnectedDeviceManager).sendMessageSecurely(
                 refEq(companionDevice.toConnectedDevice()),
                 refEq(mRecipientId.getUuid()), refEq(message));
@@ -155,7 +155,7 @@ public class ExternalBinderTest {
                 /* deviceName = */ null, /* isActiveUser = */ false,
                 /* hasSecureChannel = */ false);
         byte[] message = ByteUtils.randomBytes(10);
-        mExternalBinder.sendMessageUnsecurely(companionDevice, mRecipientId, message);
+        mBinder.sendMessageUnsecurely(companionDevice, mRecipientId, message);
         verify(mMockConnectedDeviceManager).sendMessageUnsecurely(
                 refEq(companionDevice.toConnectedDevice()),
                 refEq(mRecipientId.getUuid()), refEq(message));

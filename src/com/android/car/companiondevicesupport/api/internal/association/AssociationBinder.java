@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal;
+package com.android.car.companiondevicesupport.api.internal.association;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
@@ -27,8 +27,8 @@ import com.android.car.connecteddevice.AssociationCallback;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Binder for exposing ConnectedDeviceManager to internal features. */
-public class InternalBinder extends IAssociatedDeviceManager.Stub {
+/** Binder for exposing connected device association actions to internal features. */
+public class AssociationBinder extends IAssociatedDeviceManager.Stub {
 
     private static final String TAG = "InternalBinder";
 
@@ -36,13 +36,22 @@ public class InternalBinder extends IAssociatedDeviceManager.Stub {
     private AssociationCallback mAssociationCallback;
     private IAssociationCallback mIAssociationCallback;
 
-    public InternalBinder(ConnectedDeviceManager connectedDeviceManager) {
+    public AssociationBinder(ConnectedDeviceManager connectedDeviceManager) {
         mConnectedDeviceManager = connectedDeviceManager;
     }
 
     @Override
     public void startAssociation(IAssociationCallback callback) {
         AssociationCallback associationCallback = new AssociationCallback() {
+
+            @Override
+            public void onAssociationStartSuccess(String deviceName) {
+                try {
+                    callback.onAssociationStartSuccess(deviceName);
+                } catch (RemoteException exception) {
+                    loge(TAG, "onAssociationStartSuccess failed.", exception);
+                }
+            }
             @Override
             public void onAssociationStartFailure() {
                 try {
@@ -57,7 +66,7 @@ public class InternalBinder extends IAssociatedDeviceManager.Stub {
                 try {
                     callback.onAssociationError(error);
                 } catch (RemoteException exception) {
-                    loge(TAG, "onAssociationError failed. Error: " + error + ".", exception);
+                    loge(TAG, "onAssociationError failed. Error: " + error + "", exception);
                 }
             }
 
@@ -67,7 +76,7 @@ public class InternalBinder extends IAssociatedDeviceManager.Stub {
                 try {
                     callback.onVerificationCodeAvailable(code);
                 } catch (RemoteException exception) {
-                    loge(TAG, "onVerificationCodeAvailable failed. Code: " + code + ".", exception);
+                    loge(TAG, "onVerificationCodeAvailable failed. Code: " + code + "", exception);
                 }
             }
 
