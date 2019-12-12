@@ -16,9 +16,11 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">CompanionDeviceSupport</string>
+    <string name="app_name" translatable="false">Companion Device Support</string>
+    <!-- Default value for associated device list item [CHAR LIMIT = 20] -->
+    <string name="default_device_name">Associated Device</string>
     <!-- Label for button to add an associated device [CHAR LIMIT=50] -->
-    <string name="add_device_title">Add associated device</string>
+    <string name="add_device_title">Add Associated Device</string>
     <!-- Confirm pairing code dialog title [CHAR LIMIT=60]-->
     <string name="associated_device_pairing_code_title">Please accept the pairing code</string>
     <!-- Message shown when user associates a device successfully [CHAR LIMIT=100]-->

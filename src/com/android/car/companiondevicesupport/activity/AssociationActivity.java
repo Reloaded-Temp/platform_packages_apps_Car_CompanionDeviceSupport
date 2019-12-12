@@ -29,41 +29,41 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.widget.Button;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
+import com.android.car.ui.toolbar.Toolbar;
+
 /** Activity class for association */
 public class AssociationActivity extends FragmentActivity {
     private static final String TAG = "CompanionAssociationActivity";
-    // Arbitrary delay time to show car selecting dialog as there is a delay for the bluetooth
-    // adapter to change its name.
-    private static final long SHOW_DIALOG_DELAY_MS = 200L;
+    private static final String ASSOCIATION_FRAGMENT_TAG = "AssociationSettingFragment";
     private static final String SELECT_CAR_DIALOG_TAG = "SelectCarDialog";
     private static final String PAIRING_CODE_DIALOG_TAG = "PairingCodeDialog";
     private static final String ASSOCIATED_DIALOG_TAG = "AssociatedDialog";
 
-    private Button mButton;
+    private AssociatedDeviceViewModel mModel;
     private IAssociatedDeviceManager mAssociatedDeviceManager;
-
-    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mAssociatedDeviceManager = IAssociatedDeviceManager.Stub.asInterface(service);
-            mButton.setEnabled(true);
+            try {
+                mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
+            } catch (RemoteException e) {
+                loge(TAG, "Failed to get associated device list", e);
+            }
             logd(TAG, "Service connected:" + name.getClassName());
         }
 
@@ -71,7 +71,7 @@ public class AssociationActivity extends FragmentActivity {
         public void onServiceDisconnected(ComponentName name) {
             mAssociatedDeviceManager = null;
             logd(TAG, "Service disconnected: " + name.getClassName());
-            mButton.setEnabled(false);
+            finish();
         }
     };
 
@@ -124,17 +124,26 @@ public class AssociationActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
-        setContentView(R.layout.settings_activity);
-        mButton = findViewById(R.id.add_device_button);
-        mButton.setOnClickListener(v -> {
-            try {
-                mAssociatedDeviceManager.startAssociation(mAssociationCallback);
-            } catch (RemoteException e) {
-                loge(TAG, "Failed to start association.", e);
+        mModel = ViewModelProviders.of(this).get(AssociatedDeviceViewModel.class);
+        setContentView(R.layout.base_activity);
+        mModel.isSelected().observe(this, status -> {
+            if (status) {
+                mModel.setSelected(false);
+                if (mAssociatedDeviceManager == null) {
+                    loge(TAG, "AssociatedDeviceManager is null.");
+                    return;
+                }
+                try {
+                    mAssociatedDeviceManager.startAssociation(mAssociationCallback);
+                } catch (RemoteException e) {
+                    loge(TAG, "Failed to start association.", e);
+                }
             }
         });
         if (saveInstanceState != null) {
             registerDialogFragmentListeners();
+        } else {
+            showAssociationFragment();
         }
     }
 
@@ -150,6 +159,13 @@ public class AssociationActivity extends FragmentActivity {
     public void onStop() {
         super.onStop();
         unbindService(mConnection);
+    }
+
+    private void showAssociationFragment() {
+        AssociationFragment associationFragment = new AssociationFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, associationFragment, ASSOCIATION_FRAGMENT_TAG)
+                .commit();
     }
 
     private void showAssociationDialog(String deviceName) {
