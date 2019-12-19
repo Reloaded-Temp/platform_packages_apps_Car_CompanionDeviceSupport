@@ -33,4 +33,7 @@ interface IAssociatedDeviceManager {
 
     /** Confirms the paring code. */
     void acceptVerification();
+
+    /** Remove the associated device of the given identifier for the active user. */
+    void removeAssociatedDevice(in String deviceId);
 }

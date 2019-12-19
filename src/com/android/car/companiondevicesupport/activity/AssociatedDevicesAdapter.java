@@ -16,6 +16,10 @@
 
 package com.android.car.companiondevicesupport.activity;
 
+import static com.android.car.connecteddevice.util.SafeLog.loge;
+
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +39,9 @@ import java.util.List;
  */
 class AssociatedDevicesAdapter extends
         RecyclerView.Adapter<AssociatedDevicesAdapter.DeviceViewHolder> {
+    private static final String TAG = "AssociatedDevicesAdapter";
     private final List<AssociatedDevice> mDevices = new ArrayList<>();
+    private OnDeleteClickListener mListener;
 
     @Override
     public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -46,7 +52,14 @@ class AssociatedDevicesAdapter extends
 
     @Override
     public void onBindViewHolder(DeviceViewHolder holder, int position) {
-        holder.mTextView.setText(mDevices.get(position).getDeviceName());
+        holder.mDeviceNameView.setText(mDevices.get(position).getDeviceName());
+        holder.mIconContainer.setOnClickListener(v -> {
+            if (mListener == null) {
+                loge(TAG, "OnDeleteClickListener is null.");
+                return;
+            }
+            mListener.onDeleteClick(mDevices.get(position));
+        });
     }
 
     @Override
@@ -54,16 +67,27 @@ class AssociatedDevicesAdapter extends
         return mDevices.size();
     }
 
-    void setDevices(List<AssociatedDevice> devices) {
+    void setDevices(@NonNull List<AssociatedDevice> devices) {
         mDevices.clear();
         mDevices.addAll(devices);
     }
 
+    void setOnDeleteClickListener(@Nullable OnDeleteClickListener listener) {
+        mListener = listener;
+    }
+
     class DeviceViewHolder extends RecyclerView.ViewHolder {
-        TextView mTextView;
+        TextView mDeviceNameView;
+        View mIconContainer;
+
         DeviceViewHolder(View view) {
             super(view);
-            mTextView = view.findViewById(R.id.device_name);
+            mDeviceNameView = view.findViewById(R.id.device_list_item);
+            mIconContainer = view.findViewById(R.id.device_list_item_delete_icon_container);
         }
+    }
+
+    public interface OnDeleteClickListener {
+        void onDeleteClick(AssociatedDevice device);
     }
 }

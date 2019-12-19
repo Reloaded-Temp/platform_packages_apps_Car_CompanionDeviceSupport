@@ -123,4 +123,9 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         mConnectedDeviceManager.notifyOutOfBandAccepted();
     }
 
+    @Override
+    public void removeAssociatedDevice(String deviceId) {
+        mConnectedDeviceManager.removeActiveUserAssociatedDevice(deviceId);
+    }
+
 }

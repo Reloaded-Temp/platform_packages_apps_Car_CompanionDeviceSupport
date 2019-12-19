@@ -16,14 +16,11 @@
 
 package com.android.car.companiondevicesupport.api.internal.trust;
 
-import com.android.car.companiondevicesupport.api.internal.trust.ITrustEnrollmentCallback;
+import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 
-/** Manager of trusted devices with the car. */
-interface ITrustEnrollmentManager {
+/** Callback for triggered trusted device enrollment events. */
+oneway interface IOnValidateCredentialsRequestListener {
 
-    /** Register for enrollment triggered events. */
-    void registerCallback(in ITrustEnrollmentCallback callback);
-
-    /** Remove a previously registered callback. */
-    void unregisterCallback(in ITrustEnrollmentCallback callback);
+    /** Triggered when credentials validation is needed to authenticate a new escrow token. */
+    void onValidateCredentialsRequest();
 }

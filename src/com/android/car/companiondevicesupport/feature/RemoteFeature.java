@@ -16,6 +16,7 @@
 
 package com.android.car.companiondevicesupport.feature;
 
+import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.annotation.CallSuper;
@@ -79,6 +80,7 @@ public abstract class RemoteFeature {
         } catch (RemoteException e) {
             loge(TAG, "Error while stopping remote feature.", e);
         }
+        mContext.unbindService(mServiceConnection);
     }
 
     /** Return the {@link Context} registered with the feature. */
@@ -125,6 +127,7 @@ public abstract class RemoteFeature {
             mConnectedDeviceManager = IConnectedDeviceManager.Stub.asInterface(service);
             try {
                 mConnectedDeviceManager.registerActiveUserConnectionCallback(mConnectionCallback);
+                logd(TAG, "Successfully bound to ConnectedDeviceManager.");
                 List<CompanionDevice> activeUserConnectedDevices =
                         mConnectedDeviceManager.getActiveUserConnectedDevices();
                 if (activeUserConnectedDevices.isEmpty()) {
@@ -164,20 +167,17 @@ public abstract class RemoteFeature {
 
     private final IDeviceCallback mDeviceCallback = new IDeviceCallback.Stub() {
         @Override
-        public void onSecureChannelEstablished(CompanionDevice companionDevice)
-                throws RemoteException {
+        public void onSecureChannelEstablished(CompanionDevice companionDevice) {
             RemoteFeature.this.onSecureChannelEstablished(companionDevice);
         }
 
         @Override
-        public void onMessageReceived(CompanionDevice companionDevice, byte[] message)
-                throws RemoteException {
+        public void onMessageReceived(CompanionDevice companionDevice, byte[] message) {
             RemoteFeature.this.onMessageReceived(companionDevice, message);
         }
 
         @Override
-        public void onDeviceError(CompanionDevice companionDevice, int error)
-                throws RemoteException {
+        public void onDeviceError(CompanionDevice companionDevice, int error) {
             RemoteFeature.this.onDeviceError(companionDevice, error);
         }
     };

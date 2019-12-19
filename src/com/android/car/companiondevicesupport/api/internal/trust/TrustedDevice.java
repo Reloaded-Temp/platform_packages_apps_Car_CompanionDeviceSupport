@@ -22,7 +22,7 @@ import android.os.Parcelable;
 
 import java.util.Objects;
 
-/** Representation of a trusted device.  */
+/** Representation of a trusted device. */
 public final class TrustedDevice implements Parcelable {
 
     private static final String TAG = "TrustedDevice";

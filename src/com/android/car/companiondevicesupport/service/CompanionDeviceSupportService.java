@@ -31,11 +31,11 @@ import android.os.IBinder;
 import com.android.car.companiondevicesupport.api.external.ConnectedDeviceManagerBinder;
 import com.android.car.companiondevicesupport.api.internal.association.AssociationBinder;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
-import com.android.car.companiondevicesupport.api.internal.trust.TrustedDeviceManagerBinder;
 import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -80,14 +80,16 @@ public class CompanionDeviceSupportService extends Service {
 
     private AssociationBinder mAssociationBinder;
 
-    private TrustedDeviceManagerBinder mTrustedDeviceManagerBinder;
-
     private ConnectionHowitzer mConnectionHowitzer;
 
     @Override
     public void onCreate() {
         super.onCreate();
         logd(TAG, "Service created.");
+        mConnectedDeviceManager = new ConnectedDeviceManager(this);
+        mConnectedDeviceManagerBinder =
+                new ConnectedDeviceManagerBinder(mConnectedDeviceManager);
+        mAssociationBinder = new AssociationBinder(mConnectedDeviceManager);
         registerReceiver(mBleBroadcastReceiver,
                 new IntentFilter(BluetoothAdapter.ACTION_BLE_STATE_CHANGED));
         if (BluetoothAdapter.getDefaultAdapter().isLeEnabled()) {
@@ -108,7 +110,7 @@ public class CompanionDeviceSupportService extends Service {
             case ACTION_BIND_CONNECTED_DEVICE_MANAGER:
                 return mConnectedDeviceManagerBinder;
             default:
-                loge(TAG, "Unexpected action: " + action);
+                loge(TAG, "Unexpected action found while binding: " + action);
                 return null;
         }
     }
@@ -151,21 +153,20 @@ public class CompanionDeviceSupportService extends Service {
     }
 
     private void initializeFeatures() {
-        mLock.lock();
-        try {
-            logd(TAG, "Initializing features.");
-            if (mIsEveryFeatureInitialized) {
-                logd(TAG, "Features are already initialized. No need to initialize again.");
-                return;
+        // Room cannot be accessed on main thread.
+        Executors.defaultThreadFactory().newThread(() -> {
+            mLock.lock();
+            try {
+                logd(TAG, "Initializing features.");
+                if (mIsEveryFeatureInitialized) {
+                    logd(TAG, "Features are already initialized. No need to initialize again.");
+                    return;
+                }
+                mConnectedDeviceManager.start();
+                mIsEveryFeatureInitialized = true;
+            } finally {
+                mLock.unlock();
             }
-            mConnectedDeviceManager = new ConnectedDeviceManager(this);
-            mConnectedDeviceManagerBinder =
-                    new ConnectedDeviceManagerBinder(mConnectedDeviceManager);
-            mAssociationBinder = new AssociationBinder(mConnectedDeviceManager);
-            mConnectedDeviceManager.start();
-            mIsEveryFeatureInitialized = true;
-        } finally {
-            mLock.unlock();
-        }
+        }).start();
     }
 }

@@ -29,5 +29,5 @@
     <!-- Feature ids -->
     <string name="connection_howitzer_feature_id" translatable="false">b75d6a81-635b-4560-bd8d-9cdf83f32ae7</string>
     <string name="calendar_sync_feature_id" translatable="false">5a1a16fd-1ebd-4dbe-bfa7-37e40de0fd80</string>
-
+    <string name="trusted_device_feature_id" translatable="false">baf7b76f-d419-40ce-8aeb-2b80c6510123</string>
 </resources>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal.trust;
+package com.android.car.companiondevicesupport.feature.trust;
 
-/** Callback for triggered trusted device events. */
-oneway interface ITrustedDeviceListener {
+/** Constants for trusted device feature. */
+public class TrustedDeviceConstants {
 
-    /** Triggered when an escrow token is received from a new device. */
-    void onReceivedNewEscrowToken(in byte[] token);
+    private TrustedDeviceConstants() { }
+
+    /**
+     * Intent extra key for a boolean signalling a new escrow token is being enrolled.
+     */
+    public static final String INTENT_EXTRA_ENROLL_NEW_TOKEN = "trusted.device.enrolling.token";
 }

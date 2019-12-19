@@ -17,6 +17,7 @@
 package com.android.car.companiondevicesupport.activity;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -33,9 +34,11 @@ import java.util.List;
 public class AssociatedDeviceViewModel extends ViewModel {
     private final MutableLiveData<List<AssociatedDevice>> mDevices = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mIsSelected = new MutableLiveData<>(false);
+    private final MutableLiveData<AssociatedDevice> mDeviceToRemove = new MutableLiveData<>(null);
 
     /**
      * Set the associated devices.
+     *
      * @param devices Associated devices.
      */
     public void setDevices(@NonNull List<AssociatedDevice> devices) {
@@ -44,10 +47,20 @@ public class AssociatedDeviceViewModel extends ViewModel {
 
     /**
      * Set the select status of the add associated device button.
+     *
      * @param isSelected Select status.
      */
     public void setSelected(boolean isSelected) {
         mIsSelected.setValue(isSelected);
+    }
+
+    /**
+     * Set the associated device to remove.
+     *
+     * @param device The device.
+     */
+    public void setDeviceToRemove(@Nullable AssociatedDevice device) {
+        mDeviceToRemove.setValue(device);
     }
 
     @NonNull
@@ -57,5 +70,11 @@ public class AssociatedDeviceViewModel extends ViewModel {
 
     public LiveData<Boolean> isSelected() {
         return mIsSelected;
+    }
+
+    /** Get the associated device to remove. The associated device could be null. */
+    @NonNull
+    public LiveData<AssociatedDevice> getDeviceToRemove() {
+        return mDeviceToRemove;
     }
 }
