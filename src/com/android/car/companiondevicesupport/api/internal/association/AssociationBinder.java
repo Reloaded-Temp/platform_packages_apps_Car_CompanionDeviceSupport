@@ -81,7 +81,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
             }
 
             @Override
-            public void onAssociationCompleted() {
+            public void onAssociationCompleted(String deviceId) {
                 try {
                     callback.onAssociationCompleted();
                 } catch (RemoteException exception) {
