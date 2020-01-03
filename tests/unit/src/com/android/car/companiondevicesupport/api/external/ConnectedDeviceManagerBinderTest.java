@@ -161,6 +161,25 @@ public class ConnectedDeviceManagerBinderTest {
                 refEq(mRecipientId.getUuid()), refEq(message));
     }
 
+    @Test
+    public void registerDeviceAssociationCallback_mirrorsConnectedDeviceManager() {
+        IDeviceAssociationCallback associationCallback = createDeviceAssociationCallback(
+                new Semaphore(0));
+        mBinder.registerDeviceAssociationCallback(associationCallback);
+        verify(mMockConnectedDeviceManager).registerDeviceAssociationCallback(
+                any(DeviceAssociationCallback.class), any(Executor.class));
+    }
+
+    @Test
+    public void unregisterDeviceAssociationCallback_mirrorsConnectedDeviceManager() {
+        IDeviceAssociationCallback associationCallback = createDeviceAssociationCallback(
+                new Semaphore(0));
+        mBinder.registerDeviceAssociationCallback(associationCallback);
+        mBinder.unregisterDeviceAssociationCallback(associationCallback);
+        verify(mMockConnectedDeviceManager).unregisterDeviceAssociationCallback(
+                any(DeviceAssociationCallback.class));
+    }
+
     @NonNull
     private IConnectionCallback createConnectionCallback(@NonNull final Semaphore semaphore) {
         return spy(new IConnectionCallback.Stub() {
@@ -191,6 +210,26 @@ public class ConnectedDeviceManagerBinderTest {
 
             @Override
             public void onDeviceError(CompanionDevice companionDevice, int error) {
+                semaphore.release();
+            }
+        });
+    }
+
+    @NonNull
+    private IDeviceAssociationCallback createDeviceAssociationCallback(
+            @NonNull final Semaphore semaphore) {
+        return spy(new IDeviceAssociationCallback.Stub() {
+            @Override
+            public void onAssociatedDeviceAdded(String deviceId) {
+                semaphore.release();
+            }
+            @Override
+            public void onAssociatedDeviceRemoved(String deviceId) {
+                semaphore.release();
+            }
+
+            @Override
+            public void onAssociatedDeviceUpdated(AssociatedDevice device) {
                 semaphore.release();
             }
         });

@@ -21,6 +21,7 @@ import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.os.RemoteException;
 
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.AssociationCallback;
 

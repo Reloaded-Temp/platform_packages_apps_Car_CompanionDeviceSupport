@@ -174,7 +174,7 @@ public class NotificationMsgService extends Service {
             // TODO (b/144314168): put in some reconnection flakiness logic here.
             if (mActiveSecureConnectedDevices.containsKey(companionDevice.getDeviceId())) {
                 mNotificationMsgDelegate.onActiveSecureDeviceDisconnected(companionDevice);
-                mActiveSecureConnectedDevices.remove(companionDevice);
+                mActiveSecureConnectedDevices.remove(companionDevice.getDeviceId());
             }
 
         }

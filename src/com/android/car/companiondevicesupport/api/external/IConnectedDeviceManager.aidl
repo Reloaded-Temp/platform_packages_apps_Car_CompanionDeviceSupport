@@ -20,6 +20,7 @@ import android.os.ParcelUuid;
 
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
+import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.external.IDeviceCallback;
 
 /** Manager of devices connected to the car. */
@@ -86,4 +87,18 @@ interface IConnectedDeviceManager {
      */
     void sendMessageUnsecurely(in CompanionDevice companionDevice, in ParcelUuid recipientId,
             in byte[] message);
+
+    /**
+     * Register a callback for associated devic erelated events.
+     *
+     * @param callback {@link IDeviceAssociationCallback} to register.
+     */
+    void registerDeviceAssociationCallback(in IDeviceAssociationCallback callback);
+
+    /**
+     * Unregister a device association callback from manager.
+     *
+     * @param callback {@link IDeviceAssociationCallback} to unregister.
+     */
+    void unregisterDeviceAssociationCallback(in IDeviceAssociationCallback callback);
 }

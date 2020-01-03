@@ -38,7 +38,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
-import com.android.car.companiondevicesupport.api.internal.association.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;

@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.car.companiondevicesupport.api.internal.association.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.R;
 
 import java.util.ArrayList;
