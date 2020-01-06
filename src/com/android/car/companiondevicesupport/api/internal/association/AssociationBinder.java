@@ -21,6 +21,7 @@ import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.os.RemoteException;
 
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.AssociationCallback;
 
@@ -81,7 +82,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
             }
 
             @Override
-            public void onAssociationCompleted() {
+            public void onAssociationCompleted(String deviceId) {
                 try {
                     callback.onAssociationCompleted();
                 } catch (RemoteException exception) {
@@ -121,6 +122,11 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     @Override
     public void acceptVerification() {
         mConnectedDeviceManager.notifyOutOfBandAccepted();
+    }
+
+    @Override
+    public void removeAssociatedDevice(String deviceId) {
+        mConnectedDeviceManager.removeActiveUserAssociatedDevice(deviceId);
     }
 
 }

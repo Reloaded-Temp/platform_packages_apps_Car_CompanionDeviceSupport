@@ -16,17 +16,42 @@
 
 package com.android.car.companiondevicesupport.api.internal.trust;
 
-import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceListener;
+import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceAgentDelegate;
+import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceCallback;
+import com.android.car.companiondevicesupport.api.internal.trust.IOnValidateCredentialsRequestListener;
+import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 
-/** Manager of trusted devices with the car. */
+/**
+ * Manager of trusted devices with the car to be used by any service/activity that needs to interact
+ * with trusted devices.
+ */
 interface ITrustedDeviceManager {
+
+    /** Indicate the escrow token has been added for a user and corresponding handle. */
+    void onEscrowTokenAdded(in int userId, in long handle);
 
     /** Indicate the escrow token has been activated for a user and corresponding handle. */
     void onEscrowTokenActivated(in int userId, in long handle);
 
-    /** Add a new listener for trusted device events. */
-    void addTrustedDeviceListener(in ITrustedDeviceListener listener);
+    /** Register a new callback for trusted device events. */
+    void registerTrustedDeviceCallback(in ITrustedDeviceCallback callback);
+
+    /** Remove a previously registered callback. */
+    void unregisterTrustedDeviceCallback(in ITrustedDeviceCallback callback);
+
+    /** Add a new listener for enrollment triggered events. */
+    void addOnValidateCredentialsRequestListener(in IOnValidateCredentialsRequestListener listener);
 
     /** Remove a previously added listener. */
-    void removeTrustedDeviceListener(in ITrustedDeviceListener listener);
+    void removeOnValidateCredentialsRequestListener(
+            in IOnValidateCredentialsRequestListener listener);
+
+    /** Set a delegate for TrustAgent operation calls. */
+    void setTrustedDeviceAgentDelegate(in @nullable ITrustedDeviceAgentDelegate trustAgentDelegate);
+
+    /** Returns a list of trusted devices for user. */
+    List<TrustedDevice> getTrustedDevicesForActiveUser();
+
+    /** Remove a trusted device and invalidate any credentials associated with it. */
+    void removeTrustedDevice(in TrustedDevice trustedDevice);
 }
