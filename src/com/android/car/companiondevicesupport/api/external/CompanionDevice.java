@@ -116,7 +116,8 @@ public final class CompanionDevice implements Parcelable {
         return "CompanionDevice{deviceId=" + mDeviceId
                 + ", deviceName=" + mDeviceName
                 + ", isActiveUser=" + mIsActiveUser
-                + ", hasSecureChannel=" + mHasSecureChannel;
+                + ", hasSecureChannel=" + mHasSecureChannel
+                + "}";
     }
 
     /** Returns {@link ConnectedDevice} equivalent of this device. */

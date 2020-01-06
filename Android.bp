@@ -62,9 +62,13 @@ android_app {
     static_libs: [
         "CompanionDeviceSupport-aidl",
         "EncryptionRunner",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
         "androidx.legacy_legacy-support-v4",
         "car-messenger-common-bp",
+        "car-ui-lib-bp",
         "com.google.android.material_material",
+        "companion-feature-calendarsync-protos",
         "connected-device-lib",
     ],
 
