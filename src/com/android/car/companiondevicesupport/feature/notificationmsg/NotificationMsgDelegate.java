@@ -59,7 +59,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate implements
     private CompanionDevice mCompanionDevice;
 
     public NotificationMsgDelegate(Context context, String className) {
-        super(context, NotificationMsgService.NOTIFICATION_MSG_CHANNEL_ID, className);
+        super(context, className);
     }
 
     @Override
@@ -169,8 +169,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate implements
         for (MessagingStyleMessage messagingStyleMessage : messages) {
             createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
         }
-
-        postNotification(convoKey, convoInfo);
+        //TODO (b/146500180): post using app-specific channel id
+        postNotification(convoKey, convoInfo, NotificationMsgService.NOTIFICATION_MSG_CHANNEL_ID);
     }
 
     private void initializeNewMessage(String deviceAddress,
@@ -187,7 +187,9 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate implements
         }
 
         createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
-        postNotification(convoKey, mNotificationInfos.get(convoKey));
+        //TODO (b/146500180): post using app-specific channel id
+        postNotification(convoKey, mNotificationInfos.get(convoKey),
+                NotificationMsgService.NOTIFICATION_MSG_CHANNEL_ID);
     }
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
@@ -195,11 +197,11 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate implements
         Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage);
         addMessageToNotificationInfo(message, convoKey);
         SenderKey senderKey = message.getSenderKey();
-        if (!mSenderLargeIcons.containsKey(senderKey)) {
+        if (!mSenderLargeIcons.containsKey(senderKey)
+                && messagingStyleMessage.getSender().getIcon() != null) {
             byte[] iconArray = messagingStyleMessage.getSender().getIcon().toByteArray();
             mSenderLargeIcons.put(senderKey,
                     BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length));
         }
-
     }
 }

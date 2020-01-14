@@ -16,6 +16,7 @@
 
 package com.android.car.companiondevicesupport.feature.notificationmsg;
 
+import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 import static com.android.car.messenger.common.BaseNotificationDelegate.ACTION_DISMISS_NOTIFICATION;
@@ -25,20 +26,27 @@ import static com.android.car.messenger.common.BaseNotificationDelegate.EXTRA_CO
 import static com.android.car.messenger.common.BaseNotificationDelegate.EXTRA_REMOTE_INPUT_KEY;
 
 import android.annotation.Nullable;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioAttributes;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.provider.Settings;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
+import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectedDeviceManager;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
@@ -62,12 +70,15 @@ public class NotificationMsgService extends Service {
 
     /* NOTIFICATIONS */
     static final String NOTIFICATION_MSG_CHANNEL_ID = "NOTIFICATION_MSG_CHANNEL_ID";
+    private static final String APP_RUNNING_CHANNEL_ID = "APP_RUNNING_CHANNEL_ID";
+    private static final int SERVICE_STARTED_NOTIFICATION_ID = Integer.MAX_VALUE;
 
     private IConnectedDeviceManager mConnectedDeviceManager;
     private NotificationMsgDelegate mNotificationMsgDelegate;
     private final IBinder binder = new LocalBinder();
     private final Map<String, CompanionDevice> mActiveSecureConnectedDevices = new HashMap<>();
-    // TODO(b/144314168): Change to a real UUID.
+    private NotificationManager mNotificationManager;
+    // TODO(ritwikam): Move to a config file
     private final static ParcelUuid mFeatureUuid = ParcelUuid.fromString(
             "b2337f58-18ff-4f92-a0cf-4df63ab2c889");
 
@@ -90,7 +101,10 @@ public class NotificationMsgService extends Service {
         cdmIntent.setAction(CompanionDeviceSupportService.ACTION_BIND_CONNECTED_DEVICE_MANAGER);
         bindServiceAsUser(cdmIntent, mConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
 
+        mNotificationManager = getSystemService(NotificationManager.class);
         mNotificationMsgDelegate = new NotificationMsgDelegate(this, this.getClass().getName());
+        sendServiceRunningNotification();
+        setupNotificationChannel();
     }
 
     @Override
@@ -134,6 +148,48 @@ public class NotificationMsgService extends Service {
         void onMessageReceived(CompanionDevice device, PhoneToCarMessage message);
     }
 
+    private void setupNotificationChannel() {
+        if (mNotificationManager == null) {
+            loge(TAG, "Failed to get NotificationManager instance");
+            return;
+        }
+
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build();
+        NotificationChannel msgChannel = new NotificationChannel(NOTIFICATION_MSG_CHANNEL_ID,
+                getString(R.string.notification_msg_channel_name),
+                NotificationManager.IMPORTANCE_HIGH);
+        msgChannel.setDescription(getString(R.string.notification_msg_channel_description));
+        msgChannel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attributes);
+        mNotificationManager.createNotificationChannel(msgChannel);
+    }
+
+    /**
+     * Posts a service running (silent/hidden) notification, so we don't throw ANR after service
+     * is started.
+     */
+    private void sendServiceRunningNotification() {
+        if (mNotificationManager == null) {
+            loge(TAG, "Failed to get NotificationManager instance");
+            return;
+        }
+
+        // Create notification channel for app running notification
+        NotificationChannel appRunningNotificationChannel =
+                new NotificationChannel(APP_RUNNING_CHANNEL_ID,
+                        getString(R.string.app_running_msg_channel_name),
+                        NotificationManager.IMPORTANCE_MIN);
+        mNotificationManager.createNotificationChannel(appRunningNotificationChannel);
+
+        final Notification notification =
+                new NotificationCompat.Builder(this, APP_RUNNING_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_message)
+                        .setContentTitle(getString(R.string.app_running_msg_notification_title))
+                        .setContentText(getString(R.string.app_running_msg_notification_content))
+                        .build();
+        startForeground(SERVICE_STARTED_NOTIFICATION_ID, notification);
+    }
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -173,10 +229,43 @@ public class NotificationMsgService extends Service {
                 throws RemoteException {
             // TODO (b/144314168): put in some reconnection flakiness logic here.
             if (mActiveSecureConnectedDevices.containsKey(companionDevice.getDeviceId())) {
+                mConnectedDeviceManager.unregisterDeviceCallback(companionDevice,
+                        mFeatureUuid, mDeviceCallback);
                 mNotificationMsgDelegate.onActiveSecureDeviceDisconnected(companionDevice);
                 mActiveSecureConnectedDevices.remove(companionDevice.getDeviceId());
             }
 
+        }
+    };
+
+    private final IDeviceCallback mDeviceCallback = new IDeviceCallback.Stub() {
+        @Override
+        public void onSecureChannelEstablished(CompanionDevice companionDevice)
+                throws RemoteException {
+            mActiveSecureConnectedDevices.put(companionDevice.getDeviceId(), companionDevice);
+            mNotificationMsgDelegate.onActiveSecureDeviceConnected(companionDevice);
+        }
+
+        @Override
+        public void onMessageReceived(CompanionDevice companionDevice, byte[] message)
+                throws RemoteException {
+            if (mActiveSecureConnectedDevices.containsKey(companionDevice.getDeviceId())) {
+                try {
+                    PhoneToCarMessage phoneToCarMessage = PhoneToCarMessage.parseFrom(message);
+                    mNotificationMsgDelegate.onMessageReceived(companionDevice, phoneToCarMessage);
+                } catch (IOException e) {
+                    loge(TAG, "Unable to parse PhoneToCarMessage.", e);
+                }
+            } else {
+                logd(TAG, "Dropping message for disconnected device: "
+                        + companionDevice.getDeviceId());
+            }
+        }
+
+        @Override
+        public void onDeviceError(CompanionDevice companionDevice, int error)
+                throws RemoteException {
+            // NO-OP
         }
     };
 
@@ -246,39 +335,8 @@ public class NotificationMsgService extends Service {
      */
     private void initializeCompanionDevice(CompanionDevice companionDevice) {
         try {
-            mConnectedDeviceManager.registerDeviceCallback(companionDevice, mFeatureUuid, new
-                    IDeviceCallback.Stub() {
-                        @Override
-                        public void onSecureChannelEstablished(CompanionDevice companionDevice)
-                                throws RemoteException {
-                            mActiveSecureConnectedDevices.put(companionDevice.getDeviceId(),
-                                    companionDevice);
-                            mNotificationMsgDelegate.onActiveSecureDeviceConnected(
-                                    companionDevice);
-                        }
-
-                        @Override
-                        public void onMessageReceived(CompanionDevice companionDevice,
-                                byte[] message) throws RemoteException {
-                            if (mActiveSecureConnectedDevices.containsKey(
-                                    companionDevice.getDeviceId())) {
-                                try {
-                                    PhoneToCarMessage phoneToCarMessage =
-                                            PhoneToCarMessage.parseFrom(message);
-                                    mNotificationMsgDelegate.onMessageReceived(companionDevice,
-                                            phoneToCarMessage);
-                                } catch (IOException e) {
-                                    loge(TAG, "Unable to parse PhoneToCarMessage.", e);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onDeviceError(CompanionDevice companionDevice, int error)
-                                throws RemoteException {
-                            // NO-OP
-                        }
-                    });
+            mConnectedDeviceManager.registerDeviceCallback(companionDevice, mFeatureUuid,
+                    mDeviceCallback);
         } catch (RemoteException e) {
             loge(TAG, "Failed to register device callback for " + companionDevice.getDeviceId(), e);
         }
