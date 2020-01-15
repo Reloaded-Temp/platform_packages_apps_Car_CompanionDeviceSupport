@@ -87,11 +87,9 @@ public class ConnectionHowitzer {
         mConnectedDeviceManager.registerActiveUserConnectionCallback(mConnectionCallback,
                 mExecutor);
 
-        for (ConnectedDevice device : mConnectedDeviceManager.getActiveUserConnectedDevices()) {
-            if (device.getBelongsToActiveUser()) {
-                // Already connected to active user's device. No further action needed.
-                return;
-            }
+        if (!mConnectedDeviceManager.getActiveUserConnectedDevices().isEmpty()) {
+            // Already connected to active user's device. No further action needed.
+            return;
         }
 
         connectedDeviceManager.connectToActiveUserDevice();

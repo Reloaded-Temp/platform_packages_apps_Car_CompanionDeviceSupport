@@ -180,10 +180,14 @@ public class AssociationActivity extends FragmentActivity {
 
     private void showAssociationDialog(String deviceName) {
         SelectCarDialogFragment fragment = SelectCarDialogFragment.newInstance(deviceName);
-        fragment.setOnCancelListener((d, which) -> stopAssociation());
+        fragment.setOnCancelListener(this::stopAssociation);
         fragment.show(getSupportFragmentManager(), SELECT_CAR_DIALOG_TAG);
     }
 
+    /**
+     * {@link dismissSelectCarDialogFragment()}
+     * @param device
+     */
     private void showRemoveDeviceDialog(AssociatedDevice device) {
         Bundle bundle = new Bundle();
         bundle.putString(RemoveDeviceDialogFragment.DEVICE_NAME_KEY, device.getDeviceName());
@@ -214,7 +218,7 @@ public class AssociationActivity extends FragmentActivity {
                 (SelectCarDialogFragment) getSupportFragmentManager()
                         .findFragmentByTag(SELECT_CAR_DIALOG_TAG);
         if (selectCarDialogFragment != null) {
-            selectCarDialogFragment.setOnCancelListener((d, which) -> stopAssociation());
+            selectCarDialogFragment.setOnCancelListener(this::stopAssociation);
         }
 
         PairingCodeDialogFragment pairingCodeDialogFragment =
@@ -253,7 +257,7 @@ public class AssociationActivity extends FragmentActivity {
                 loge(TAG, "Failed to stop association. Service not connected.");
                 return;
             }
-            mAssociatedDeviceManager.stopAssociation(mAssociationCallback);
+            mAssociatedDeviceManager.stopAssociation();
         } catch (RemoteException e) {
             loge(TAG, "Error while stopping association process.", e);
         }
@@ -278,7 +282,7 @@ public class AssociationActivity extends FragmentActivity {
     /** Dialog fragment notifies the user to select the car. */
     public static class SelectCarDialogFragment extends DialogFragment {
         private static final String DEVICE_NAME_KEY = "deviceName";
-        private DialogInterface.OnClickListener mOnCancelListener;
+        private OnCancelListener mOnCancelListener;
 
         static SelectCarDialogFragment newInstance(@NonNull String deviceName) {
             Bundle bundle = new Bundle();
@@ -294,13 +298,28 @@ public class AssociationActivity extends FragmentActivity {
             String deviceName = bundle.getString(DEVICE_NAME_KEY);
             return new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.associated_device_select_device, deviceName))
-                    .setNegativeButton(getString(R.string.cancel), mOnCancelListener)
+                    .setNegativeButton(getString(R.string.cancel),
+                            (d, w) -> mOnCancelListener.onCancel())
                     .setCancelable(false)
                     .create();
         }
 
-        void setOnCancelListener(DialogInterface.OnClickListener onCancelListener) {
-            mOnCancelListener = onCancelListener;
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            if (mOnCancelListener == null) {
+                loge(TAG, "OnCancelListener is null.");
+                return;
+            }
+            mOnCancelListener.onCancel();
+        }
+
+        void setOnCancelListener(OnCancelListener listener) {
+            mOnCancelListener = listener;
+        }
+
+        /** Listener for cancel event. */
+        interface OnCancelListener {
+            void onCancel();
         }
     }
 

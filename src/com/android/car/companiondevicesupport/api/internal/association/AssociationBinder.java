@@ -24,6 +24,7 @@ import android.os.RemoteException;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.AssociationCallback;
+import com.android.car.connecteddevice.util.RemoteCallbackBinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +32,16 @@ import java.util.List;
 /** Binder for exposing connected device association actions to internal features. */
 public class AssociationBinder extends IAssociatedDeviceManager.Stub {
 
-    private static final String TAG = "InternalBinder";
+    private static final String TAG = "AssociationBinder";
 
     private final ConnectedDeviceManager mConnectedDeviceManager;
+    /**
+     * {@link #mRemoteCallbackBinder} and {@link #mAssociationCallback} can only be modified
+     * together through {@link #startAssociation(IAssociationCallback)} or
+     * {@link #stopAssociation()} from the association thread.
+     */
+    private RemoteCallbackBinder mRemoteCallbackBinder;
     private AssociationCallback mAssociationCallback;
-    private IAssociationCallback mIAssociationCallback;
 
     public AssociationBinder(ConnectedDeviceManager connectedDeviceManager) {
         mConnectedDeviceManager = connectedDeviceManager;
@@ -90,22 +96,24 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
                 }
             }
         };
+        mRemoteCallbackBinder = new RemoteCallbackBinder(callback.asBinder(), iBinder ->
+                stopAssociation());
         mAssociationCallback = associationCallback;
-        mIAssociationCallback = callback;
         mConnectedDeviceManager.startAssociation(associationCallback);
     }
 
     @Override
-    public void stopAssociation(IAssociationCallback callback) {
-        if (callback != mIAssociationCallback) {
-            loge(TAG, "Unexpected IAssociationCallback.");
+    public void stopAssociation() {
+        if (mRemoteCallbackBinder == null) {
+            loge(TAG, "AssociationClient is null");
             return;
         }
         if (mAssociationCallback == null) {
-            loge(TAG, "Association callback is null.");
-            return;
+            loge(TAG, "AssociationCallback is null.");
         }
         mConnectedDeviceManager.stopAssociation(mAssociationCallback);
+        mRemoteCallbackBinder.cleanUp();
+        mRemoteCallbackBinder = null;
     }
 
     @Override
@@ -128,5 +136,4 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     public void removeAssociatedDevice(String deviceId) {
         mConnectedDeviceManager.removeActiveUserAssociatedDevice(deviceId);
     }
-
 }
