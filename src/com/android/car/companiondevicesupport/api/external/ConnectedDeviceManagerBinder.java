@@ -155,11 +155,6 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
     }
 
     @Override
-    public void connectToActiveUserDevice() {
-        mConnectedDeviceManager.connectToActiveUserDevice();
-    }
-
-    @Override
     public boolean sendMessageSecurely(CompanionDevice companionDevice, ParcelUuid recipientId,
             byte[] message) {
         try {

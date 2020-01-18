@@ -64,10 +64,6 @@ public abstract class LocalFeature {
             mConnectedDeviceManager.registerDeviceCallback(device, mFeatureId,
                     mDeviceCallback, mExecutor);
         }
-
-        if (activeUsersDevices.isEmpty()) {
-            mConnectedDeviceManager.connectToActiveUserDevice();
-        }
     }
 
     /** Stop execution and clean up callbacks established by this feature. */

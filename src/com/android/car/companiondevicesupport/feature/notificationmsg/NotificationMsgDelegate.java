@@ -42,8 +42,7 @@ import java.util.List;
  * Posts Message notifications sent from the {@link CompanionDevice}, and relays user interaction
  *  with the messages back to the device.
  **/
-public class NotificationMsgDelegate extends BaseNotificationDelegate implements
-        NotificationMsgService.OnCompanionDeviceEventCallback {
+public class NotificationMsgDelegate extends BaseNotificationDelegate {
     private static final String TAG = "NotificationMsgDelegate";
 
     /** The different {@link PhoneToCarMessage} Message Types. **/
@@ -55,25 +54,10 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate implements
     /** Key for the Reply string in a {@link Action#getActionDataMap()}. **/
     private static final String REPLY_KEY = "REPLY";
 
-    /** The companion device for the active user, that is connected with a secure channel. **/
-    private CompanionDevice mCompanionDevice;
-
     public NotificationMsgDelegate(Context context, String className) {
         super(context, className);
     }
 
-    @Override
-    public void onActiveSecureDeviceConnected(CompanionDevice device) {
-        mCompanionDevice = device;
-    }
-
-    @Override
-    public void onActiveSecureDeviceDisconnected(CompanionDevice device) {
-        cleanupMessagesAndNotifications(key -> key.matches(mCompanionDevice.getDeviceId()));
-        mCompanionDevice = null;
-    }
-
-    @Override
     public void onMessageReceived(CompanionDevice device, PhoneToCarMessage message) {
         String notificationKey = message.getNotificationKey();
 

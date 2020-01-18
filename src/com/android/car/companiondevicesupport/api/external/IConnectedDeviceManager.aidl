@@ -64,9 +64,6 @@ interface IConnectedDeviceManager {
     void unregisterDeviceCallback(in CompanionDevice companionDevice, in ParcelUuid recipientId,
             in IDeviceCallback callback);
 
-    /** Connect to a companionDevice for the active user if available. */
-    void connectToActiveUserDevice();
-
     /**
      * Securely send message to a companionDevice.
      *

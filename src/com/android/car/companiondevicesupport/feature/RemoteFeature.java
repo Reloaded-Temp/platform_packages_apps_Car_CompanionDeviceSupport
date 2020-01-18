@@ -130,10 +130,6 @@ public abstract class RemoteFeature {
                 logd(TAG, "Successfully bound to ConnectedDeviceManager.");
                 List<CompanionDevice> activeUserConnectedDevices =
                         mConnectedDeviceManager.getActiveUserConnectedDevices();
-                if (activeUserConnectedDevices.isEmpty()) {
-                    mConnectedDeviceManager.connectToActiveUserDevice();
-                    return;
-                }
                 for (CompanionDevice device : activeUserConnectedDevices) {
                     mConnectedDeviceManager.registerDeviceCallback(device, mFeatureId,
                             mDeviceCallback);
