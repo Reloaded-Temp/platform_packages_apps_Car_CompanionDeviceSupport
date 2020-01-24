@@ -30,11 +30,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
-import android.media.AudioAttributes;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
@@ -79,8 +77,8 @@ public class NotificationMsgService extends Service {
         mNotificationManager = getSystemService(NotificationManager.class);
         mNotificationMsgDelegate = new NotificationMsgDelegate(this, this.getClass().getName());
         mNotificationMsgFeature = new NotificationMsgFeature(this, mNotificationMsgDelegate);
+        mNotificationMsgFeature.start();
         sendServiceRunningNotification();
-        setupNotificationChannel();
     }
 
     @Override
@@ -110,23 +108,6 @@ public class NotificationMsgService extends Service {
         }
 
         return START_STICKY;
-    }
-
-    private void setupNotificationChannel() {
-        if (mNotificationManager == null) {
-            loge(TAG, "Failed to get NotificationManager instance");
-            return;
-        }
-
-        AudioAttributes attributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                .build();
-        NotificationChannel msgChannel = new NotificationChannel(NOTIFICATION_MSG_CHANNEL_ID,
-                getString(R.string.notification_msg_channel_name),
-                NotificationManager.IMPORTANCE_HIGH);
-        msgChannel.setDescription(getString(R.string.notification_msg_channel_description));
-        msgChannel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attributes);
-        mNotificationManager.createNotificationChannel(msgChannel);
     }
 
     /**
@@ -192,5 +173,4 @@ public class NotificationMsgService extends Service {
     private ConversationKey getConversationKey(Intent intent) {
         return intent.getParcelableExtra(EXTRA_CONVERSATION_KEY);
     }
-
 }

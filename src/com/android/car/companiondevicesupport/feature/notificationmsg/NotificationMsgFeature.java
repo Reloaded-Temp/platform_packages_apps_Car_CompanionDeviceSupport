@@ -69,6 +69,12 @@ public class NotificationMsgFeature extends RemoteFeature {
 
     @Override
     protected void onMessageReceived(CompanionDevice device, byte[] message) {
+        if (mSecureDeviceForActiveUser == null && device.hasSecureChannel()
+                && device.isActiveUser()) {
+            logw(TAG, "stored secure device is null, but message was received on a"
+                    + " secure device!" + device);
+            mSecureDeviceForActiveUser = device;
+        }
         if (!isSecureDeviceForActiveUser(device.getDeviceId())) {
             logd(TAG, device + ": skipped message from unsecure device");
             return;
@@ -85,6 +91,7 @@ public class NotificationMsgFeature extends RemoteFeature {
 
     @Override
     protected void onSecureChannelEstablished(CompanionDevice device) {
+        logd(TAG, "received secure device: " + device);
         mSecureDeviceForActiveUser = device;
     }
 
@@ -118,6 +125,7 @@ public class NotificationMsgFeature extends RemoteFeature {
     }
 
     private boolean isSecureDeviceForActiveUser(String deviceId) {
-        return mSecureDeviceForActiveUser.getDeviceId().equals(deviceId);
+        return (mSecureDeviceForActiveUser != null)
+                && mSecureDeviceForActiveUser.getDeviceId().equals(deviceId);
     }
 }
