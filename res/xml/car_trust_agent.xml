@@ -14,11 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources>
-    <dimen name="car_button_height">@*android:dimen/car_button_height</dimen>
-    <dimen name="icon_size">@*android:dimen/car_primary_icon_size</dimen>
-    <dimen name="list_item_margin_top">@dimen/car_ui_preference_content_margin_top</dimen>
-    <dimen name="list_item_margin_bottom">@dimen/car_ui_preference_content_margin_bottom</dimen>
-    <dimen name="list_item_margin_end">@dimen/car_ui_preference_icon_margin_end</dimen>
-</resources>
+<trust-agent xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:priv-android="http://schemas.android.com/apk/prv/res/android"
+             android:settingsActivity=".feature.trust.ui.TrustedDeviceActivity"
+             priv-android:unlockProfile="true" />

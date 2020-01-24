@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -43,16 +42,19 @@ public class AssociationFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        AssociatedDeviceViewModel model = ViewModelProviders.of(getActivity())
-                .get(AssociatedDeviceViewModel.class);
-        model.getDevices().observe(this, devices -> mAdapter.setDevices(devices));
-
         mAdapter = new AssociatedDevicesAdapter();
         CarUiRecyclerView deviceList = view.findViewById(R.id.associated_device_list);
         deviceList.setLayoutManager(new LinearLayoutManager(getContext()));
         deviceList.setAdapter(mAdapter);
 
-        Button button = view.findViewById(R.id.add_device_button);
-        button.setOnClickListener(v -> model.setSelected(true));
+        AssociatedDeviceViewModel model = ViewModelProviders.of(getActivity())
+                .get(AssociatedDeviceViewModel.class);
+        model.getDevices().observe(this, devices -> {
+            mAdapter.setDevices(devices);
+            mAdapter.notifyDataSetChanged();
+        });
+        View addIconContainer = view.findViewById(R.id.add_device_button);
+        addIconContainer.setOnClickListener(v -> model.setSelected(true));
+        mAdapter.setOnDeleteClickListener(model::setDeviceToRemove);
     }
 }

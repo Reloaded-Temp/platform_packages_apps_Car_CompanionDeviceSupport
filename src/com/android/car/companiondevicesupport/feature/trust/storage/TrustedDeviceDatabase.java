@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.car.companiondevicesupport.api.internal.trust;
+package com.android.car.companiondevicesupport.feature.trust.storage;
 
-import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
 
-/** Callback for triggered trusted device enrollment events. */
-oneway interface ITrustEnrollmentCallback {
+/** Database for trusted device feature. */
+@Database(entities = { TrustedDeviceEntity.class }, version = 1, exportSchema = false)
+public abstract class TrustedDeviceDatabase extends RoomDatabase {
 
-    /** Triggered when enrollment for a new device should begin. */
-    void onTrustedDeviceEnrolling();
+    /** Name of trusted device database. */
+    public static final String DATABASE_NAME = "trusted-device-database";
 
-    /** Triggered when a new device has been enrolled. */
-    void onTrustedDeviceEnrolled(in TrustedDevice device);
-
-    /** Triggered when credentials validation is needed to authenticate a new escrow token. */
-    void onValidateCredentialsRequest();
+    /** Return the DAO for the trusted device table. */
+    public abstract TrustedDeviceDao trustedDeviceDao();
 }

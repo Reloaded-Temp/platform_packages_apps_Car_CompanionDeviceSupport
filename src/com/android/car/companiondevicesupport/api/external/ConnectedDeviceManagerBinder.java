@@ -23,6 +23,7 @@ import android.os.RemoteException;
 
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.ConnectedDeviceManager.ConnectionCallback;
+import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceAssociationCallback;
 import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceCallback;
 import com.android.car.connecteddevice.model.ConnectedDevice;
 
@@ -43,6 +44,9 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
     // Need to maintain a mapping in order to support unregistering callbacks.
     private final ConcurrentHashMap<IConnectionCallback, ConnectionCallback> mConnectionCallbacks =
             new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<IDeviceAssociationCallback, DeviceAssociationCallback>
+            mAssociationCallbacks = new ConcurrentHashMap<>();
 
     // aidl callback -> device callback
     // Need to maintain a mapping in order to support unregistering callbacks.
@@ -173,5 +177,52 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
             byte[] message) {
         mConnectedDeviceManager.sendMessageUnsecurely(companionDevice.toConnectedDevice(),
                 recipientId.getUuid(), message);
+    }
+
+    @Override
+    public void registerDeviceAssociationCallback(IDeviceAssociationCallback callback) {
+        DeviceAssociationCallback associationCallback = new DeviceAssociationCallback() {
+            @Override
+            public void onAssociatedDeviceAdded(String deviceId) {
+                try {
+                    callback.onAssociatedDeviceAdded(deviceId);
+                } catch (RemoteException exception) {
+                    loge(TAG, "onAssociatedDeviceAdded failed.", exception);
+                }
+            }
+
+            @Override
+            public void onAssociatedDeviceRemoved(String deviceId) {
+                try {
+                    callback.onAssociatedDeviceRemoved(deviceId);
+                } catch (RemoteException exception) {
+                    loge(TAG, "onAssociatedDeviceRemoved failed.", exception);
+                }
+            }
+
+            @Override
+            public void onAssociatedDeviceUpdated(
+                    com.android.car.connecteddevice.model.AssociatedDevice device) {
+                try {
+                    callback.onAssociatedDeviceUpdated(new AssociatedDevice(device));
+                } catch (RemoteException exception) {
+                    loge(TAG, "onAssociatedDeviceUpdated failed.", exception);
+                }
+            }
+        };
+
+        mConnectedDeviceManager.registerDeviceAssociationCallback(associationCallback,
+                mCallbackExecutor);
+        mAssociationCallbacks.put(callback, associationCallback);
+    }
+
+    @Override
+    public void unregisterDeviceAssociationCallback(IDeviceAssociationCallback callback) {
+        DeviceAssociationCallback associationCallback = mAssociationCallbacks.get(callback);
+        if (associationCallback == null) {
+            return;
+        }
+        mConnectedDeviceManager.unregisterDeviceAssociationCallback(associationCallback);
+        mAssociationCallbacks.remove(callback);
     }
 }

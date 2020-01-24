@@ -37,7 +37,7 @@
         <service
             android:name=".service.CompanionDeviceSupportService"
             android:singleUser="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.android.car.companiondevicesupport.BIND_ASSOCIATION" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -47,11 +47,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".feature.notificationmsg.NotificationMsgService"
-            android:exported="true">
-        </service>
-
         <activity android:name=".activity.AssociationActivity"
                   android:exported="true">
             <intent-filter>
@@ -64,7 +59,44 @@
                        android:value="com.android.settings.category.ia.system" />
         </activity>
 
-        <service android:name=".feature.calendarsync.CalendarSyncService"
-                 android:exported="false" />
+        <!-- Feature specific elements below here -->
+
+        <!-- calendarsync -->
+        <service
+            android:name=".feature.calendarsync.CalendarSyncService"
+            android:exported="false" />
+
+        <!-- notificationmsg -->
+        <service
+            android:name=".feature.notificationmsg.NotificationMsgService"
+            android:exported="true">
+        </service>
+
+        <!-- trust -->
+        <service
+            android:name=".feature.trust.TrustedDeviceManagerService"
+            android:singleUser="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.trust.BIND_ENROLLMENT_MANAGER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.trust.BIND_TRUST_MANAGER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".feature.trust.TrustedDeviceAgentService"
+            android:permission="android.permission.BIND_TRUST_AGENT"
+            android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.service.trust.TrustAgentService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.service.trust.trustagent"
+                       android:resource="@xml/car_trust_agent"/>
+        </service>
+        <activity android:name=".feature.trust.ui.TrustedDeviceActivity" android:exported="true" />
     </application>
 </manifest>

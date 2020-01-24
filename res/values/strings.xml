@@ -27,6 +27,8 @@
     <string name="associated_device_success">Device has been associated successfully</string>
     <!-- Adding an associated device [CHAR LIMIT=NONE]-->
     <string name="associated_device_select_device">Select <xliff:g id="car_name" example="MyCar">%1$s</xliff:g> on your phone</string>
+    <!-- Title for remove device dialog [CHAR LIMIT=40]-->
+    <string name="remove_associated_device_title">Remove associated device</string>
 
     <!-- Accept button text [CHAR LIMIT=20] -->
     <string name="accept">Accept</string>
