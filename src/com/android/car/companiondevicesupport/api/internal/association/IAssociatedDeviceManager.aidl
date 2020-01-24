@@ -26,7 +26,7 @@ interface IAssociatedDeviceManager {
     void startAssociation(in IAssociationCallback callback);
 
     /** Stops the association with current device. */
-    void stopAssociation(in IAssociationCallback callback);
+    void stopAssociation();
 
     /** Returns {@link List<AssociatedDevice>} of devices associated with the given user. */
     List<AssociatedDevice> getActiveUserAssociatedDevices();

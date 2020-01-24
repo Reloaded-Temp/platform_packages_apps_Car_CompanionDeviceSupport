@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 final class CalendarImporter {
     private static final String TAG = "CalendarImporter";
 
-    private static final int INVALID_CALENDAR_ID = -1;
+    static final int INVALID_CALENDAR_ID = -1;
 
     private static final Pattern CALENDAR_ID_PATTERN = Pattern.compile(".*/calendars/(\\d+)\\?.*");
     private static final int CALENDAR_ID_GROUP = 1;
@@ -88,7 +88,15 @@ final class CalendarImporter {
         return createCalendar(calendar);
     }
 
-    private int findCalendar(@NonNull final String uuid) {
+    /**
+     * Provides the calendar identifier used by the system.
+     * <p>
+     * This identifier is system-specific and is used to know to which calendar an events belongs.
+     *
+     * @param uuid The UUID of the calendar to find.
+     * @return The identifier of the calendar or {@link #INVALID_CALENDAR_ID} if nothing was found.
+     */
+    int findCalendar(@NonNull final String uuid) {
         Cursor cursor = mContentResolver.query(
                 CalendarContract.Calendars.CONTENT_URI,
                 new String[]{

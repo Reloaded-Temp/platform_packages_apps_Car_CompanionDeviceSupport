@@ -37,8 +37,8 @@ android_library {
     },
 }
 
-android_app {
-    name: "CompanionDeviceSupport",
+android_library {
+    name: "CompanionDeviceSupport-lib",
 
     srcs: [
         "src/**/*.java",
@@ -53,9 +53,9 @@ android_app {
 
     platform_apis: true,
 
-    certificate: "platform",
-
-    privileged: true,
+    optimize: {
+        enabled: false,
+    },
 
     libs: [
         "android.car",
@@ -69,8 +69,9 @@ android_app {
         "androidx-constraintlayout_constraintlayout-solver",
         "androidx.legacy_legacy-support-v4",
         "androidx.room_room-runtime",
-        "car-messenger-common-bp",
-        "car-ui-lib-bp",
+        "car-messenger-common",
+        "car-messenger-protos",
+        "car-ui-lib",
         "com.google.android.material_material",
         "companion-feature-calendarsync-protos",
         "connected-device-lib",
@@ -78,6 +79,21 @@ android_app {
 
     plugins: [
         "androidx.room_room-compiler-plugin",
+    ],
+}
+
+android_app {
+    name: "CompanionDeviceSupport",
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    privileged: true,
+
+    static_libs: [
+        "CompanionDeviceSupport-aidl",
+        "CompanionDeviceSupport-lib",
     ],
 
     optimize: {

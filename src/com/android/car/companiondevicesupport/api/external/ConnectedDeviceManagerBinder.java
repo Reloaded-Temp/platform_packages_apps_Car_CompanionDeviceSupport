@@ -16,8 +16,11 @@
 
 package com.android.car.companiondevicesupport.api.external;
 
+import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.annotation.Nullable;
+import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
 
@@ -26,10 +29,13 @@ import com.android.car.connecteddevice.ConnectedDeviceManager.ConnectionCallback
 import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceAssociationCallback;
 import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceCallback;
 import com.android.car.connecteddevice.model.ConnectedDevice;
+import com.android.car.connecteddevice.util.RemoteCallbackBinder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -40,20 +46,23 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
 
     private final ConnectedDeviceManager mConnectedDeviceManager;
 
-    // aidl callback -> connection callback
+    // aidl callback binder -> connection callback
     // Need to maintain a mapping in order to support unregistering callbacks.
-    private final ConcurrentHashMap<IConnectionCallback, ConnectionCallback> mConnectionCallbacks =
+    private final ConcurrentHashMap<IBinder, ConnectionCallback> mConnectionCallbacks =
             new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<IDeviceAssociationCallback, DeviceAssociationCallback>
+    // aidl callback binder -> device association callback
+    // Need to maintain a mapping in order to support unregistering callbacks.
+    private final ConcurrentHashMap<IBinder, DeviceAssociationCallback>
             mAssociationCallbacks = new ConcurrentHashMap<>();
 
-    // aidl callback -> device callback
+    // aidl callback binder  -> device callback
     // Need to maintain a mapping in order to support unregistering callbacks.
-    private final ConcurrentHashMap<IDeviceCallback, DeviceCallback> mDeviceCallbacks =
+    private final ConcurrentHashMap<IBinder, DeviceCallback> mDeviceCallbacks =
             new ConcurrentHashMap<>();
 
     private final Executor mCallbackExecutor = Executors.newSingleThreadExecutor();
+    private final Set<RemoteCallbackBinder> mCallbackBinders = new CopyOnWriteArraySet<>();
 
     public ConnectedDeviceManagerBinder(ConnectedDeviceManager connectedDeviceManager) {
         mConnectedDeviceManager = connectedDeviceManager;
@@ -93,17 +102,30 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
         };
         mConnectedDeviceManager.registerActiveUserConnectionCallback(connectionCallback,
                 mCallbackExecutor);
-        mConnectionCallbacks.put(callback, connectionCallback);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(),
+                iBinder -> unregisterConnectionCallback(callback));
+        mCallbackBinders.add(remoteBinder);
+        mConnectionCallbacks.put(callback.asBinder(), connectionCallback);
     }
 
     @Override
     public void unregisterConnectionCallback(IConnectionCallback callback) {
-        ConnectionCallback connectionCallback = mConnectionCallbacks.get(callback);
+        IBinder binder = callback.asBinder();
+        RemoteCallbackBinder remoteBinder = findRemoteCallbackBinder(binder);
+        if (remoteBinder == null) {
+            loge(TAG, "RemoteCallbackBinder is null, IConnectionCallback was not " +
+                    "previously registered.");
+            return;
+        }
+        ConnectionCallback connectionCallback = mConnectionCallbacks.get(binder);
         if (connectionCallback == null) {
+            loge(TAG, "ConnectionCallback is null.");
             return;
         }
         mConnectedDeviceManager.unregisterConnectionCallback(connectionCallback);
-        mConnectionCallbacks.remove(callback);
+        remoteBinder.cleanUp();
+        mCallbackBinders.remove(remoteBinder);
+        mConnectionCallbacks.remove(binder);
     }
 
     @Override
@@ -139,24 +161,32 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
         };
         mConnectedDeviceManager.registerDeviceCallback(companionDevice.toConnectedDevice(),
                 recipientId.getUuid(), deviceCallback, mCallbackExecutor);
-        mDeviceCallbacks.put(callback, deviceCallback);
+        mDeviceCallbacks.put(callback.asBinder(), deviceCallback);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(),
+                iBinder -> unregisterDeviceCallback(companionDevice, recipientId, callback));
+        mCallbackBinders.add(remoteBinder);
     }
 
     @Override
     public void unregisterDeviceCallback(CompanionDevice companionDevice, ParcelUuid recipientId,
             IDeviceCallback callback) {
-        DeviceCallback deviceCallback = mDeviceCallbacks.get(callback);
+        IBinder binder = callback.asBinder();
+        RemoteCallbackBinder remoteBinder = findRemoteCallbackBinder(binder);
+        if (remoteBinder == null) {
+            loge(TAG, "RemoteCallbackBinder is null, IDeviceCallback was not previously " +
+                    "registered. Ignoring call to unregister.");
+            return;
+        }
+        DeviceCallback deviceCallback = mDeviceCallbacks.remove(binder);
         if (deviceCallback == null) {
+            loge(TAG, "No DeviceCallback associated with given callback. " +
+                    "Cannot unregister.");
             return;
         }
         mConnectedDeviceManager.unregisterDeviceCallback(companionDevice.toConnectedDevice(),
                 recipientId.getUuid(), deviceCallback);
-        mDeviceCallbacks.remove(callback);
-    }
-
-    @Override
-    public void connectToActiveUserDevice() {
-        mConnectedDeviceManager.connectToActiveUserDevice();
+        remoteBinder.cleanUp();
+        mCallbackBinders.remove(remoteBinder);
     }
 
     @Override
@@ -213,16 +243,38 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
 
         mConnectedDeviceManager.registerDeviceAssociationCallback(associationCallback,
                 mCallbackExecutor);
-        mAssociationCallbacks.put(callback, associationCallback);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(),
+                iBinder -> unregisterDeviceAssociationCallback(callback));
+        mCallbackBinders.add(remoteBinder);
+        mAssociationCallbacks.put(callback.asBinder(), associationCallback);
     }
 
     @Override
     public void unregisterDeviceAssociationCallback(IDeviceAssociationCallback callback) {
-        DeviceAssociationCallback associationCallback = mAssociationCallbacks.get(callback);
+        IBinder binder = callback.asBinder();
+        RemoteCallbackBinder remoteBinder = findRemoteCallbackBinder(binder);
+        if (remoteBinder == null) {
+            loge(TAG, "RemoteCallbackBinder is null, IDeviceAssociationCallback was " +
+                    "not previously registered.");
+            return;
+        }
+        DeviceAssociationCallback associationCallback = mAssociationCallbacks.remove(binder);
         if (associationCallback == null) {
+            loge(TAG, "DeviceAssociationCallback is null.");
             return;
         }
         mConnectedDeviceManager.unregisterDeviceAssociationCallback(associationCallback);
-        mAssociationCallbacks.remove(callback);
+        remoteBinder.cleanUp();
+        mCallbackBinders.remove(remoteBinder);
+    }
+
+    @Nullable
+    private RemoteCallbackBinder findRemoteCallbackBinder(IBinder binder) {
+        for (RemoteCallbackBinder remoteBinder : mCallbackBinders) {
+            if (remoteBinder.getCallbackBinder().equals(binder)) {
+                return remoteBinder;
+            }
+        }
+        return null;
     }
 }

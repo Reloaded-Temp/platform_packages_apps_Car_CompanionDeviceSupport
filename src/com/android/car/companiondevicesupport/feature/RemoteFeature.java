@@ -31,9 +31,11 @@ import android.os.ParcelUuid;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectedDeviceManager;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
+import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.external.IDeviceCallback;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 
@@ -77,6 +79,7 @@ public abstract class RemoteFeature {
                 mConnectedDeviceManager.unregisterDeviceCallback(device, mFeatureId,
                         mDeviceCallback);
             }
+            mConnectedDeviceManager.unregisterDeviceAssociationCallback(mDeviceAssociationCallback);
         } catch (RemoteException e) {
             loge(TAG, "Error while stopping remote feature.", e);
         }
@@ -121,19 +124,26 @@ public abstract class RemoteFeature {
     /** Called when an error has occurred with the connection. */
     protected void onDeviceError(@NonNull CompanionDevice device, int error) { }
 
+    /** Called when a new {@link AssociatedDevice} is added for the given user. */
+    protected void onAssociatedDeviceAdded(@NonNull String deviceId) { }
+
+    /** Called when an {@link AssociatedDevice} is removed for the given user.  */
+    protected void onAssociatedDeviceRemoved(@NonNull String deviceId) { }
+
+    /** Called when an {@link AssociatedDevice} is updated for the given user. */
+    protected void onAssociatedDeviceUpdated(@NonNull AssociatedDevice device) { }
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mConnectedDeviceManager = IConnectedDeviceManager.Stub.asInterface(service);
             try {
                 mConnectedDeviceManager.registerActiveUserConnectionCallback(mConnectionCallback);
+                mConnectedDeviceManager
+                        .registerDeviceAssociationCallback(mDeviceAssociationCallback);
                 logd(TAG, "Successfully bound to ConnectedDeviceManager.");
                 List<CompanionDevice> activeUserConnectedDevices =
                         mConnectedDeviceManager.getActiveUserConnectedDevices();
-                if (activeUserConnectedDevices.isEmpty()) {
-                    mConnectedDeviceManager.connectToActiveUserDevice();
-                    return;
-                }
                 for (CompanionDevice device : activeUserConnectedDevices) {
                     mConnectedDeviceManager.registerDeviceCallback(device, mFeatureId,
                             mDeviceCallback);
@@ -179,6 +189,24 @@ public abstract class RemoteFeature {
         @Override
         public void onDeviceError(CompanionDevice companionDevice, int error) {
             RemoteFeature.this.onDeviceError(companionDevice, error);
+        }
+    };
+
+    private final IDeviceAssociationCallback mDeviceAssociationCallback =
+            new IDeviceAssociationCallback.Stub() {
+        @Override
+        public void onAssociatedDeviceAdded(String deviceId) {
+            RemoteFeature.this.onAssociatedDeviceAdded(deviceId);
+        }
+
+        @Override
+        public void onAssociatedDeviceRemoved(String deviceId) {
+            RemoteFeature.this.onAssociatedDeviceRemoved(deviceId);
+        }
+
+        @Override
+        public void onAssociatedDeviceUpdated(AssociatedDevice device) {
+            RemoteFeature.this.onAssociatedDeviceUpdated(device);
         }
     };
 }

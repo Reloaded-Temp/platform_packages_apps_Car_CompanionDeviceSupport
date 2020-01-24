@@ -86,15 +86,6 @@ public class ConnectionHowitzer {
         mFeatureId = UUID.fromString(context.getString(R.string.connection_howitzer_feature_id));
         mConnectedDeviceManager.registerActiveUserConnectionCallback(mConnectionCallback,
                 mExecutor);
-
-        for (ConnectedDevice device : mConnectedDeviceManager.getActiveUserConnectedDevices()) {
-            if (device.getBelongsToActiveUser()) {
-                // Already connected to active user's device. No further action needed.
-                return;
-            }
-        }
-
-        connectedDeviceManager.connectToActiveUserDevice();
     }
 
     /** Clean up callbacks established by this feature. */

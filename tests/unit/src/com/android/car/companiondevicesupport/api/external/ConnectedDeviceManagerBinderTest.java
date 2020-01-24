@@ -132,12 +132,6 @@ public class ConnectedDeviceManagerBinderTest {
     }
 
     @Test
-    public void connectToActiveUserdevice_mirrorsConnectedDeviceManager() {
-        mBinder.connectToActiveUserDevice();
-        verify(mMockConnectedDeviceManager).connectToActiveUserDevice();
-    }
-
-    @Test
     public void sendMessageSecurely_mirrorsConnectedDeviceManager() {
         CompanionDevice companionDevice = new CompanionDevice(UUID.randomUUID().toString(),
                 /* deviceName = */ null, /* isActiveUser = */ false,

@@ -38,4 +38,16 @@
     <string name="confirm">Confirm</string>
     <!-- Cancel button text [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
+
+    <!-- NotificationMsg Feature strings-->
+    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <string name="notification_msg_channel_name">Companion Device Text Message Notifications Channel</string>
+    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <string name="notification_msg_channel_description">Phone Text Message Receiver Service</string>
+    <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <string name="app_running_msg_channel_name">Phone Text Message service running</string>
+    <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <string name="app_running_msg_notification_title">Phone Text Messaging service is active</string>
+    <string name="app_running_msg_notification_content">Receiving Messages via Companion Device</string>
+
 </resources>
