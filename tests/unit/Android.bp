@@ -27,10 +27,12 @@ android_test {
 
     static_libs: [
         "CompanionDeviceSupport-aidl",
+        "CompanionDeviceSupport-lib",
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "connected-device-lib",
+        "libprotobuf-java-lite",
         "mockito-target-extended-minus-junit4",
         "testables",
         "truth-prebuilt",

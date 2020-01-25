@@ -25,7 +25,7 @@
     <string name="associated_device_pairing_code_title">Please accept the pairing code</string>
     <!-- Message shown when user associates a device successfully [CHAR LIMIT=100]-->
     <string name="associated_device_success">Device has been associated successfully</string>
-    <!-- Adding an associated device [CHAR LIMIT=NONE]-->
+    <!-- Adding an associated device [CHAR LIMIT=100]-->
     <string name="associated_device_select_device">Select <xliff:g id="car_name" example="MyCar">%1$s</xliff:g> on your phone</string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
     <string name="remove_associated_device_title">Remove associated device</string>
@@ -40,14 +40,19 @@
     <string name="cancel">Cancel</string>
 
     <!-- NotificationMsg Feature strings-->
-    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=80]-->
     <string name="notification_msg_channel_name">Companion Device Text Message Notifications Channel</string>
-    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=50]-->
     <string name="notification_msg_channel_description">Phone Text Message Receiver Service</string>
-    <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=100]-->
     <string name="app_running_msg_channel_name">Phone Text Message service running</string>
-    <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=50]-->
     <string name="app_running_msg_notification_title">Phone Text Messaging service is active</string>
     <string name="app_running_msg_notification_content">Receiving Messages via Companion Device</string>
-
+    <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
+    <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> and all its data has been removed</string>
+    <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
+    <string name="device_removed_failure_toast_text">Failed to remove <xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g></string>
+    <!-- Toast message to show when the association activity failed to refresh the associated device list [CHAR LIMIT=60] -->
+    <string name="refresh_list_failure_toast_text">Failed to refresh the associated device list</string>
 </resources>

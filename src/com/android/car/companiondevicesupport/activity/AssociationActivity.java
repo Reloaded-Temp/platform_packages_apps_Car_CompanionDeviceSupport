@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
@@ -40,6 +41,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
+import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
@@ -51,19 +53,194 @@ public class AssociationActivity extends FragmentActivity {
     private static final String PAIRING_CODE_DIALOG_TAG = "PairingCodeDialog";
     private static final String ASSOCIATED_DIALOG_TAG = "AssociatedDialog";
     private static final String REMOVE_DEVICE_DIALOG_TAG = "RemoveDeviceDialog";
+    private static final String DEVICE_TO_REMOVE_KEY = "DeviceToRemoveKey";
 
     private AssociatedDeviceViewModel mModel;
     private IAssociatedDeviceManager mAssociatedDeviceManager;
     private AssociatedDevice mDeviceToRemove;
+
+    @Override
+    public void onCreate(Bundle saveInstanceState) {
+        super.onCreate(saveInstanceState);
+        setContentView(R.layout.base_activity);
+        observeViewModel();
+        if (saveInstanceState != null) {
+            mDeviceToRemove = saveInstanceState.getParcelable(DEVICE_TO_REMOVE_KEY);
+            registerDialogFragmentListeners();
+        } else {
+            showAssociationFragment();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, CompanionDeviceSupportService.class);
+        intent.setAction(ACTION_BIND_ASSOCIATION);
+        bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try {
+            mAssociatedDeviceManager.unregisterDeviceAssociationCallback();
+            mAssociatedDeviceManager.unregisterAssociationCallback();
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to unregister DeviceAssociationCallback. ", e);
+        }
+        unbindService(mConnection);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(DEVICE_TO_REMOVE_KEY, mDeviceToRemove);
+    }
+
+    private void observeViewModel() {
+        mModel = ViewModelProviders.of(this).get(AssociatedDeviceViewModel.class);
+        mModel.isSelected().observe(this, isSelected -> {
+            if (isSelected) {
+                mModel.setSelected(false);
+                if (mAssociatedDeviceManager == null) {
+                    loge(TAG, "AssociatedDeviceManager is null.");
+                    return;
+                }
+                try {
+                    mAssociatedDeviceManager.startAssociation();
+                } catch (RemoteException e) {
+                    loge(TAG, "Failed to start association.", e);
+                }
+            }
+        });
+        mModel.getDeviceToRemove().observe(this, device -> {
+            if (device != null) {
+                mModel.setDeviceToRemove(null);
+                logd(TAG, "device: "+ device.getDeviceId() + " selected.");
+                mDeviceToRemove = device;
+                runOnUiThread(() -> showRemoveDeviceDialog(device));
+            }
+        });
+    }
+
+    private void showAssociationFragment() {
+        AssociationFragment associationFragment = new AssociationFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, associationFragment, ASSOCIATION_FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void showAssociationDialog(String deviceName) {
+        SelectCarDialogFragment fragment = SelectCarDialogFragment.newInstance(deviceName);
+        fragment.setOnCancelListener(this::stopAssociation);
+        fragment.show(getSupportFragmentManager(), SELECT_CAR_DIALOG_TAG);
+    }
+
+    private void showRemoveDeviceDialog(AssociatedDevice device) {
+        RemoveDeviceDialogFragment removeDeviceDialogFragment =
+                RemoveDeviceDialogFragment.newInstance(device.getDeviceName(),
+                        (d, which) -> removeAssociatedDevice(device));
+        removeDeviceDialogFragment.show(getSupportFragmentManager(), REMOVE_DEVICE_DIALOG_TAG);
+    }
+
+    private void dismissSelectCarDialogFragment() {
+        SelectCarDialogFragment selectCarDialogFragment =
+                (SelectCarDialogFragment) getSupportFragmentManager()
+                        .findFragmentByTag(SELECT_CAR_DIALOG_TAG);
+        if (selectCarDialogFragment == null) {
+            loge(TAG, "Failed to retrieve select car dialog.");
+            stopAssociation();
+            return;
+        }
+        selectCarDialogFragment.dismiss();
+    }
+
+    private void registerDialogFragmentListeners() {
+        SelectCarDialogFragment selectCarDialogFragment =
+                (SelectCarDialogFragment) getSupportFragmentManager()
+                        .findFragmentByTag(SELECT_CAR_DIALOG_TAG);
+        if (selectCarDialogFragment != null) {
+            selectCarDialogFragment.setOnCancelListener(this::stopAssociation);
+        }
+
+        PairingCodeDialogFragment pairingCodeDialogFragment =
+                (PairingCodeDialogFragment) getSupportFragmentManager()
+                .findFragmentByTag(PAIRING_CODE_DIALOG_TAG);
+        if (pairingCodeDialogFragment != null) {
+            pairingCodeDialogFragment.setOnAcceptListener((d, which) -> acceptVerification());
+            pairingCodeDialogFragment.setOnRejectListener((d, which) -> stopAssociation());
+        }
+
+        RemoveDeviceDialogFragment removeDeviceDialogFragment =
+                (RemoveDeviceDialogFragment) getSupportFragmentManager()
+                .findFragmentByTag(REMOVE_DEVICE_DIALOG_TAG);
+        if (removeDeviceDialogFragment != null) {
+            removeDeviceDialogFragment.setOnConfirmListener((d, which) -> {
+                removeAssociatedDevice(mDeviceToRemove);
+            });
+        }
+    }
+
+    private void acceptVerification() {
+        if (mAssociatedDeviceManager == null) {
+            loge(TAG, "Failed to accept verification. Service not connected.");
+            return;
+        }
+        try {
+            mAssociatedDeviceManager.acceptVerification();
+        } catch (RemoteException e) {
+            loge(TAG, "Error while accepting verification.", e);
+        }
+    }
+
+    private void stopAssociation() {
+        if (mAssociatedDeviceManager == null) {
+            loge(TAG, "Failed to stop association. Service not connected.");
+            return;
+        }
+        try {
+            mAssociatedDeviceManager.stopAssociation();
+        } catch (RemoteException e) {
+            loge(TAG, "Error while stopping association process.", e);
+        }
+    }
+
+    private void refreshDeviceList() {
+        try {
+            mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to get associated device list", e);
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                    getString(R.string.refresh_list_failure_toast_text),
+                    Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void removeAssociatedDevice(
+            AssociatedDevice device) {
+        try {
+            mAssociatedDeviceManager.removeAssociatedDevice(device.getDeviceId());
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to remove associated device: " + device, e);
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                    getString(R.string.device_removed_failure_toast_text, device.getDeviceName()),
+                    Toast.LENGTH_SHORT).show());
+            return;
+        }
+    }
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mAssociatedDeviceManager = IAssociatedDeviceManager.Stub.asInterface(service);
             try {
+                mAssociatedDeviceManager.registerAssociationCallback(mAssociationCallback);
+                mAssociatedDeviceManager
+                        .registerDeviceAssociationCallback(mDeviceAssociationCallback);
                 mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
             } catch (RemoteException e) {
-                loge(TAG, "Failed to get associated device list", e);
+                loge(TAG, "Initial set failed onServiceConnected", e);
             }
             logd(TAG, "Service connected:" + name.getClassName());
         }
@@ -76,7 +253,8 @@ public class AssociationActivity extends FragmentActivity {
         }
     };
 
-    private final IAssociationCallback mAssociationCallback = new IAssociationCallback.Stub() {
+    private final IAssociationCallback mAssociationCallback =
+            new IAssociationCallback.Stub() {
         @Override
         public void onAssociationStartSuccess(String deviceName) {
             runOnUiThread(() -> showAssociationDialog(deviceName));
@@ -116,168 +294,36 @@ public class AssociationActivity extends FragmentActivity {
         public void onAssociationCompleted() {
             runOnUiThread(() -> {
                 AssociatedDialogFragment fragment = new AssociatedDialogFragment();
-                fragment.show(getSupportFragmentManager(), ASSOCIATED_DIALOG_TAG);
-                refreshDeviceList();
+                try {
+                    fragment.show(getSupportFragmentManager(), ASSOCIATED_DIALOG_TAG);
+                } catch (IllegalStateException e) {
+                    // No valid FragmentManager if the activity has been destroyed before.
+                }
             });
         }
 
     };
 
-    @Override
-    public void onCreate(Bundle saveInstanceState) {
-        super.onCreate(saveInstanceState);
-        mModel = ViewModelProviders.of(this).get(AssociatedDeviceViewModel.class);
-        setContentView(R.layout.base_activity);
-        mModel.isSelected().observe(this, status -> {
-            if (status) {
-                mModel.setSelected(false);
-                if (mAssociatedDeviceManager == null) {
-                    loge(TAG, "AssociatedDeviceManager is null.");
-                    return;
-                }
-                try {
-                    mAssociatedDeviceManager.startAssociation(mAssociationCallback);
-                } catch (RemoteException e) {
-                    loge(TAG, "Failed to start association.", e);
-                }
-            }
-        });
-        mModel.getDeviceToRemove().observe(this, device -> {
-            if (device != null) {
-                mModel.setDeviceToRemove(null);
-                logd(TAG, "device: "+ device.getDeviceId() + " selected.");
-                mDeviceToRemove = device;
-                runOnUiThread(() -> showRemoveDeviceDialog(device));
-            }
-        });
-        if (saveInstanceState != null) {
-            registerDialogFragmentListeners();
-        } else {
-            showAssociationFragment();
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, CompanionDeviceSupportService.class);
-        intent.setAction(ACTION_BIND_ASSOCIATION);
-        bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        unbindService(mConnection);
-    }
-
-    private void showAssociationFragment() {
-        AssociationFragment associationFragment = new AssociationFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, associationFragment, ASSOCIATION_FRAGMENT_TAG)
-                .commit();
-    }
-
-    private void showAssociationDialog(String deviceName) {
-        SelectCarDialogFragment fragment = SelectCarDialogFragment.newInstance(deviceName);
-        fragment.setOnCancelListener(this::stopAssociation);
-        fragment.show(getSupportFragmentManager(), SELECT_CAR_DIALOG_TAG);
-    }
-
-    /**
-     * {@link dismissSelectCarDialogFragment()}
-     * @param device
-     */
-    private void showRemoveDeviceDialog(AssociatedDevice device) {
-        Bundle bundle = new Bundle();
-        bundle.putString(RemoveDeviceDialogFragment.DEVICE_NAME_KEY, device.getDeviceName());
-        RemoveDeviceDialogFragment removeDeviceDialogFragment =
-                new RemoveDeviceDialogFragment();
-        removeDeviceDialogFragment.setArguments(bundle);
-        removeDeviceDialogFragment.setOnConfirmListener((d, which) -> {
-            removeAssociatedDevice(device.getDeviceId());
+    private final IDeviceAssociationCallback mDeviceAssociationCallback =
+            new IDeviceAssociationCallback.Stub() {
+        @Override
+        public void onAssociatedDeviceAdded(String deviceId) {
             refreshDeviceList();
-        });
-        removeDeviceDialogFragment.show(getSupportFragmentManager(), REMOVE_DEVICE_DIALOG_TAG);
-    }
-
-    private void dismissSelectCarDialogFragment() {
-        SelectCarDialogFragment selectCarDialogFragment =
-                (SelectCarDialogFragment) getSupportFragmentManager()
-                        .findFragmentByTag(SELECT_CAR_DIALOG_TAG);
-        if (selectCarDialogFragment == null) {
-            loge(TAG, "Failed to retrieve select car dialog.");
-            stopAssociation();
-            return;
-        }
-        selectCarDialogFragment.dismiss();
-    }
-
-    private void registerDialogFragmentListeners() {
-        SelectCarDialogFragment selectCarDialogFragment =
-                (SelectCarDialogFragment) getSupportFragmentManager()
-                        .findFragmentByTag(SELECT_CAR_DIALOG_TAG);
-        if (selectCarDialogFragment != null) {
-            selectCarDialogFragment.setOnCancelListener(this::stopAssociation);
         }
 
-        PairingCodeDialogFragment pairingCodeDialogFragment =
-                (PairingCodeDialogFragment) getSupportFragmentManager()
-                .findFragmentByTag(PAIRING_CODE_DIALOG_TAG);
-        if (pairingCodeDialogFragment != null) {
-            pairingCodeDialogFragment.setOnAcceptListener((d, which) -> acceptVerification());
-            pairingCodeDialogFragment.setOnRejectListener((d, which) -> stopAssociation());
+        @Override
+        public void onAssociatedDeviceRemoved(String deviceId) {
+            refreshDeviceList();
+            runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                    getString(R.string.device_removed_success_toast_text, deviceId),
+                    Toast.LENGTH_SHORT).show());
         }
-        RemoveDeviceDialogFragment removeDeviceDialogFragment =
-                (RemoveDeviceDialogFragment) getSupportFragmentManager()
-                .findFragmentByTag(REMOVE_DEVICE_DIALOG_TAG);
-        if (removeDeviceDialogFragment != null) {
-            removeDeviceDialogFragment.setOnConfirmListener((d, which) -> {
-                removeAssociatedDevice(mDeviceToRemove.getDeviceId());
-                refreshDeviceList();
-            });
-        }
-    }
 
-    private void acceptVerification() {
-        try {
-            if (mAssociatedDeviceManager == null) {
-                loge(TAG, "Failed to accept verification. Service not connected.");
-                return;
-            }
-            mAssociatedDeviceManager.acceptVerification();
-        } catch (RemoteException e) {
-            loge(TAG, "Error while accepting verification.", e);
+        @Override
+        public void onAssociatedDeviceUpdated(AssociatedDevice device) {
+            refreshDeviceList();
         }
-    }
-
-    private void stopAssociation() {
-        try {
-            if (mAssociatedDeviceManager == null) {
-                loge(TAG, "Failed to stop association. Service not connected.");
-                return;
-            }
-            mAssociatedDeviceManager.stopAssociation();
-        } catch (RemoteException e) {
-            loge(TAG, "Error while stopping association process.", e);
-        }
-    }
-
-    private void refreshDeviceList() {
-        try {
-            mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
-        } catch (RemoteException e) {
-            loge(TAG, "Failed to get associated device list", e);
-        }
-    }
-
-    private void removeAssociatedDevice(String deviceId) {
-        try {
-            mAssociatedDeviceManager.removeAssociatedDevice(deviceId);
-        } catch (RemoteException e) {
-            loge(TAG, "Failed to remove associated device: " + deviceId, e);
-        }
-    }
+    };
 
     /** Dialog fragment notifies the user to select the car. */
     public static class SelectCarDialogFragment extends DialogFragment {
@@ -366,9 +412,19 @@ public class AssociationActivity extends FragmentActivity {
 
     /** Dialog fragment to confirm removing an associated device. */
     public static class RemoveDeviceDialogFragment extends DialogFragment {
-        private static final String DEVICE_NAME_KEY = "device_name_key";
+        private static final String DEVICE_NAME_KEY = "device_name";
 
         private DialogInterface.OnClickListener mOnConfirmListener;
+
+        static RemoveDeviceDialogFragment newInstance(@NonNull String deviceName,
+                DialogInterface.OnClickListener listener) {
+            Bundle bundle = new Bundle();
+            bundle.putString(DEVICE_NAME_KEY, deviceName);
+            RemoveDeviceDialogFragment fragment = new RemoveDeviceDialogFragment();
+            fragment.setArguments(bundle);
+            fragment.setOnConfirmListener(listener);
+            return fragment;
+        }
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
