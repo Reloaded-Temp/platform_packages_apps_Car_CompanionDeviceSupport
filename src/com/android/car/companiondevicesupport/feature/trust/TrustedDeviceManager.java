@@ -159,18 +159,12 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
         logd(TAG, "Enrollment completed successfully! Sending handle to connected device and "
                 + "persisting trusted device record.");
-        try {
-            mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice,
-                    ByteUtils.longToBytes(handle));
-            TrustedDeviceEntity entity = new TrustedDeviceEntity();
-            entity.id = mPendingDevice.getDeviceId();
-            entity.userId = userId;
-            entity.handle = handle;
-            mDatabase.addOrReplaceTrustedDevice(entity);
-        } catch (RemoteException e) {
-            loge(TAG, "Error while sending handle to device.", e);
-        }
-
+        mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice, ByteUtils.longToBytes(handle));
+        TrustedDeviceEntity entity = new TrustedDeviceEntity();
+        entity.id = mPendingDevice.getDeviceId();
+        entity.userId = userId;
+        entity.handle = handle;
+        mDatabase.addOrReplaceTrustedDevice(entity);
         mPendingDevice = null;
     }
 

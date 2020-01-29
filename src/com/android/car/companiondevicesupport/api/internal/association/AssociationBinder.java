@@ -63,9 +63,13 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
 
     @Override
     public void registerAssociationCallback(IAssociationCallback callback) {
+        logd(TAG, "registerAssociationCallback called");
         mRemoteAssociationCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
                 iBinder -> stopAssociation());
         mIAssociationCallback = callback;
+        if (mIAssociationCallback == null) {
+            logd(TAG, "mIAssociationCallback is null");
+        }
     }
 
     @Override

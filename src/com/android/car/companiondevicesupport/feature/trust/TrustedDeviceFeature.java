@@ -38,12 +38,6 @@ class TrustedDeviceFeature extends RemoteFeature {
                 ParcelUuid.fromString(context.getString(R.string.trusted_device_feature_id)));
     }
 
-    /** Send a message securely to a device. */
-    void sendMessageSecurely(@NonNull CompanionDevice device, @NonNull byte[] message)
-            throws RemoteException {
-        getConnectedDeviceManager().sendMessageSecurely(device, getFeatureId(), message);
-    }
-
     /** Set a {@link Callback} for events from the device. Set {@code null} to clear. */
     void setCallback(@Nullable Callback callback) {
         mCallback = callback;
