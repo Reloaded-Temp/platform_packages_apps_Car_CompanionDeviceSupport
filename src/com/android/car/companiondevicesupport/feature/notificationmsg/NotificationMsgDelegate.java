@@ -101,6 +101,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     protected CarToPhoneMessage dismiss(ConversationKey convoKey) {
         clearNotifications(key -> key.equals(convoKey));
+        excludeFromNotification(convoKey);
         // TODO(b/144924164): add a request id to the action.
         Action action = Action.newBuilder()
                 .setActionName(Action.ActionName.DISMISS)
@@ -113,11 +114,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     }
 
     protected CarToPhoneMessage markAsRead(ConversationKey convoKey) {
-        ConversationNotificationInfo info = mNotificationInfos.get(convoKey);
-        for (MessageKey key : info.mMessageKeys) {
-            Message message = mMessages.get(key);
-            message.markMessageAsRead();
-        }
+        excludeFromNotification(convoKey);
         // TODO(b/144924164): add a request id to the action.
         Action action = Action.newBuilder()
                 .setActionName(Action.ActionName.MARK_AS_READ)
@@ -127,6 +124,18 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 .setNotificationKey(convoKey.getSubKey())
                 .setActionRequest(action)
                 .build();
+    }
+
+    /**
+     * Excludes messages from a notification so that the messages are not shown to the user once
+     * the notification gets updated with newer messages.
+     */
+    private void excludeFromNotification(ConversationKey convoKey) {
+        ConversationNotificationInfo info = mNotificationInfos.get(convoKey);
+        for (MessageKey key : info.mMessageKeys) {
+            Message message = mMessages.get(key);
+            message.excludeFromNotification();
+        }
     }
 
     protected CarToPhoneMessage reply(ConversationKey convoKey, String message) {
