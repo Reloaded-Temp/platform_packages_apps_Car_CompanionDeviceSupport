@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /** Manager for the feature of unlocking the head unit with a user's trusted device. */
@@ -73,6 +74,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
+    private final AtomicBoolean mIsWaitingForCredentials = new AtomicBoolean(false);
+
     private TrustedDeviceDao mDatabase;
 
     private ITrustedDeviceAgentDelegate mTrustAgentDelegate;
@@ -82,8 +85,6 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private byte[] mPendingToken;
 
     private PendingCredentials mPendingCredentials;
-
-    private boolean mIsWaitingForCredentials;
 
 
     TrustedDeviceManager(@NonNull Context context) {
@@ -100,7 +101,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mPendingToken = null;
         mPendingDevice = null;
         mPendingCredentials = null;
-        mIsWaitingForCredentials = false;
+        mIsWaitingForCredentials.set(false);
         mTrustedDeviceCallbacks.clear();
         mEnrollmentCallbacks.clear();
         mTrustedDeviceFeature.stop();
@@ -144,7 +145,13 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     public void onEscrowTokenAdded(int userId, long handle) {
         logd(TAG, "Escrow token has been successfully added.");
         mPendingToken = null;
-        mIsWaitingForCredentials = true;
+
+        if (mEnrollmentCallbacks.size() == 0) {
+            mIsWaitingForCredentials.set(true);
+            return;
+        }
+
+        mIsWaitingForCredentials.set(false);
         mEnrollmentCallbacks.invoke(callback -> {
             try {
                 callback.onValidateCredentialsRequest();
@@ -220,8 +227,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mEnrollmentCallbacks.add(listener, mExecutor);
 
         // A token has been added and is waiting on user credential validation.
-        if (mIsWaitingForCredentials) {
-            mIsWaitingForCredentials = false;
+        if (mIsWaitingForCredentials.getAndSet(false)) {
             mExecutor.execute(() -> {
                 try {
                     listener.onValidateCredentialsRequest();
