@@ -17,13 +17,23 @@
 package com.android.car.companiondevicesupport.api.internal.association;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
 /** Manager of devices associated with the car. */
 interface IAssociatedDeviceManager {
 
+    /**
+     * Registers a callback for association.
+     * @param callback {@link IAssociationCallback} to register.
+     */
+    void registerAssociationCallback(in IAssociationCallback callback);
+
+    /** Unregisters the association callback from manager. */
+    void unregisterAssociationCallback();
+
     /** Starts the association with a new device. */
-    void startAssociation(in IAssociationCallback callback);
+    void startAssociation();
 
     /** Stops the association with current device. */
     void stopAssociation();
@@ -36,4 +46,14 @@ interface IAssociatedDeviceManager {
 
     /** Remove the associated device of the given identifier for the active user. */
     void removeAssociatedDevice(in String deviceId);
+
+    /**
+     * Registers a callback for associated device related events.
+     *
+     * @param callback {@link IDeviceAssociationCallback} to register.
+     */
+    void registerDeviceAssociationCallback(in IDeviceAssociationCallback callback);
+
+    /** Unregisters the device association callback from manager. */
+    void unregisterDeviceAssociationCallback();
 }

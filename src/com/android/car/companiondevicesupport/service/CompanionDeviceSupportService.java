@@ -31,9 +31,12 @@ import android.os.IBinder;
 import com.android.car.companiondevicesupport.api.external.ConnectedDeviceManagerBinder;
 import com.android.car.companiondevicesupport.api.internal.association.AssociationBinder;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
-import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
+import com.android.car.companiondevicesupport.feature.LocalFeature;
+import com.android.car.companiondevicesupport.feature.howitzer.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -68,6 +71,8 @@ public class CompanionDeviceSupportService extends Service {
         }
     };
 
+    private final List<LocalFeature> mLocalFeatures = new ArrayList<>();
+
     private final AtomicBoolean mIsEveryFeatureInitialized = new AtomicBoolean(false);
 
     private ConnectedDeviceManager mConnectedDeviceManager;
@@ -81,6 +86,7 @@ public class CompanionDeviceSupportService extends Service {
         super.onCreate();
         logd(TAG, "Service created.");
         mConnectedDeviceManager = new ConnectedDeviceManager(this);
+        mLocalFeatures.add(new ConnectionHowitzer(this, mConnectedDeviceManager));
         mConnectedDeviceManagerBinder =
                 new ConnectedDeviceManagerBinder(mConnectedDeviceManager);
         mAssociationBinder = new AssociationBinder(mConnectedDeviceManager);
@@ -150,6 +156,9 @@ public class CompanionDeviceSupportService extends Service {
                 return;
             }
             mConnectedDeviceManager.start();
+            for (LocalFeature feature : mLocalFeatures) {
+                feature.start();
+            }
             mIsEveryFeatureInitialized.set(false);
         }).start();
     }

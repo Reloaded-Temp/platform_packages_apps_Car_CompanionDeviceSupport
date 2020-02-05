@@ -42,7 +42,7 @@ public class AssociatedDeviceViewModel extends ViewModel {
      * @param devices Associated devices.
      */
     public void setDevices(@NonNull List<AssociatedDevice> devices) {
-        mDevices.setValue(devices);
+        mDevices.postValue(devices);
     }
 
     /**

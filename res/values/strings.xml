@@ -21,14 +21,24 @@
     <string name="default_device_name">Associated Device</string>
     <!-- Label for button to add an associated device [CHAR LIMIT=50] -->
     <string name="add_device_title">Add Associated Device</string>
-    <!-- Confirm pairing code dialog title [CHAR LIMIT=60]-->
-    <string name="associated_device_pairing_code_title">Please accept the pairing code</string>
+    <!-- title for adding associated device [CHAR LIMIT=50]-->
+    <string name="add_associated_device_title">Connect a companion device</string>
+    <!-- Instruction for adding associated device [CHAR LIMIT=100] -->
+    <string name="add_associated_device_instruction">You can use your phone as a companion device to help you managing your driving experience</string>
+    <!-- Instruction for opening Companion App [CHAR LIMIT=60] -->
+    <string name="associated_device_install_app">Make sure you have <b>Companion App</b> installed on your phone</string>
+    <!-- Title for confirm pairing code fragment [CHAR LIMIT=60]-->
+    <string name="associated_device_pairing_code_title">Confirm code on phone</string>
+    <!-- Message text shown in confirm pairing code fragment [CHAR LIMIT=100]-->
+    <string name="associated_device_pairing_message">Confirm that this matches the code show on your phone</string>
     <!-- Message shown when user associates a device successfully [CHAR LIMIT=100]-->
     <string name="associated_device_success">Device has been associated successfully</string>
-    <!-- Adding an associated device [CHAR LIMIT=NONE]-->
-    <string name="associated_device_select_device">Select <xliff:g id="car_name" example="MyCar">%1$s</xliff:g> on your phone</string>
+    <!-- Adding an associated device [CHAR LIMIT=40]-->
+    <string name="associated_device_select_device">Open the app and connect to <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g></string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
-    <string name="remove_associated_device_title">Remove associated device</string>
+    <string name="remove_associated_device_title">Remove <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g>?</string>
+    <!-- Message for remove device dialog [CHAR LIMIT=100] -->
+    <string name="remove_associated_device_message">All data synced from your phone will be deleted from the car</string>
 
     <!-- Accept button text [CHAR LIMIT=20] -->
     <string name="accept">Accept</string>
@@ -38,16 +48,36 @@
     <string name="confirm">Confirm</string>
     <!-- Cancel button text [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
+    <!-- Remove button text [CHAR LIMIT=20]-->
+    <string name="remove">Remove</string>
+    <!-- Forget button text [CHAR LIMIT=40]-->
+    <string name="forget">Forget this device</string>
+    <!-- Disable button text [CHAR LIMIT=20]-->
+    <string name="disable">Disable</string>
+    <!-- Enable button text [CHAR LIMIT=20]-->
+    <string name="enable">Enable</string>
+
+    <!-- Connected status text [CHAR LIMIT=20]-->
+    <string name="connected">Connected</string>
+    <!-- Disconnected status text [CHAR LIMIT=20]-->
+    <string name="disconnected">Disconnected</string>
+    <!-- Unknown status text [CHAR LIMIT=20]-->
+    <string name="unknown">Unknown</string>
 
     <!-- NotificationMsg Feature strings-->
-    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=80]-->
     <string name="notification_msg_channel_name">Companion Device Text Message Notifications Channel</string>
-    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=NONE]-->
+    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=50]-->
     <string name="notification_msg_channel_description">Phone Text Message Receiver Service</string>
-    <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=100]-->
     <string name="app_running_msg_channel_name">Phone Text Message service running</string>
-    <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=NONE]-->
+    <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=50]-->
     <string name="app_running_msg_notification_title">Phone Text Messaging service is active</string>
     <string name="app_running_msg_notification_content">Receiving Messages via Companion Device</string>
-
+    <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
+    <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> and all its data has been removed</string>
+    <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
+    <string name="device_removed_failure_toast_text">Failed to remove <xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g></string>
+    <!-- Toast message to show when the association activity failed to refresh the associated device list [CHAR LIMIT=60] -->
+    <string name="refresh_list_failure_toast_text">Failed to refresh the associated device list</string>
 </resources>

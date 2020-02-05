@@ -69,6 +69,12 @@ public class NotificationMsgFeature extends RemoteFeature {
 
     @Override
     protected void onMessageReceived(CompanionDevice device, byte[] message) {
+        if (mSecureDeviceForActiveUser == null && device.hasSecureChannel()
+                && device.isActiveUser()) {
+            logw(TAG, "stored secure device is null, but message was received on a"
+                    + " secure device!" + device);
+            mSecureDeviceForActiveUser = device;
+        }
         if (!isSecureDeviceForActiveUser(device.getDeviceId())) {
             logd(TAG, device + ": skipped message from unsecure device");
             return;
@@ -85,6 +91,7 @@ public class NotificationMsgFeature extends RemoteFeature {
 
     @Override
     protected void onSecureChannelEstablished(CompanionDevice device) {
+        logd(TAG, "received secure device: " + device);
         mSecureDeviceForActiveUser = device;
     }
 
@@ -108,16 +115,17 @@ public class NotificationMsgFeature extends RemoteFeature {
             logw(TAG, "Could not send message to device: " + deviceId);
             return;
         }
-        try {
-            getConnectedDeviceManager().sendMessageSecurely(mSecureDeviceForActiveUser,
-                    getFeatureId(), message);
-        } catch (RemoteException e) {
-            loge(TAG, "RemoteException thrown while sending message", e);
-            // TODO (b/144924164): Notify Delegate action request failed.
-        }
+
+        sendMessageSecurely(deviceId, message);
+    }
+
+    @Override
+    protected void onMessageFailedToSend(String deviceId, byte[] message, boolean isTransient) {
+        // TODO (b/144924164): Notify Delegate action request failed.
     }
 
     private boolean isSecureDeviceForActiveUser(String deviceId) {
-        return mSecureDeviceForActiveUser.getDeviceId().equals(deviceId);
+        return (mSecureDeviceForActiveUser != null)
+                && mSecureDeviceForActiveUser.getDeviceId().equals(deviceId);
     }
 }
