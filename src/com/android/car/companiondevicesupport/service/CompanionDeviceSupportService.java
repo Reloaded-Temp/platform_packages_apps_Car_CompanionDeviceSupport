@@ -33,11 +33,9 @@ import com.android.car.companiondevicesupport.api.internal.association.Associati
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.feature.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
-import com.android.internal.annotations.GuardedBy;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Early start service that holds a {@link ConnectedDeviceManager} reference to support companion
@@ -70,17 +68,13 @@ public class CompanionDeviceSupportService extends Service {
         }
     };
 
-    private final Lock mLock = new ReentrantLock();
-    @GuardedBy("mLock")
-    private volatile boolean mIsEveryFeatureInitialized = false;
+    private final AtomicBoolean mIsEveryFeatureInitialized = new AtomicBoolean(false);
 
     private ConnectedDeviceManager mConnectedDeviceManager;
 
     private ConnectedDeviceManagerBinder mConnectedDeviceManagerBinder;
 
     private AssociationBinder mAssociationBinder;
-
-    private ConnectionHowitzer mConnectionHowitzer;
 
     @Override
     public void onCreate() {
@@ -138,35 +132,25 @@ public class CompanionDeviceSupportService extends Service {
     }
 
     private void cleanup() {
-        mLock.lock();
-        try {
-            logd(TAG, "Cleaning up features.");
-            if (!mIsEveryFeatureInitialized) {
-                logd(TAG, "Features are already cleaned up. No need to clean up again.");
-                return;
-            }
-            mConnectedDeviceManager.cleanup();
-            mIsEveryFeatureInitialized = false;
-        } finally {
-            mLock.unlock();
+        logd(TAG, "Cleaning up features.");
+        if (!mIsEveryFeatureInitialized.get()) {
+            logd(TAG, "Features are already cleaned up. No need to clean up again.");
+            return;
         }
+        mConnectedDeviceManager.cleanup();
+        mIsEveryFeatureInitialized.set(false);
     }
 
     private void initializeFeatures() {
         // Room cannot be accessed on main thread.
         Executors.defaultThreadFactory().newThread(() -> {
-            mLock.lock();
-            try {
-                logd(TAG, "Initializing features.");
-                if (mIsEveryFeatureInitialized) {
-                    logd(TAG, "Features are already initialized. No need to initialize again.");
-                    return;
-                }
-                mConnectedDeviceManager.start();
-                mIsEveryFeatureInitialized = true;
-            } finally {
-                mLock.unlock();
+            logd(TAG, "Initializing features.");
+            if (mIsEveryFeatureInitialized.get()) {
+                logd(TAG, "Features are already initialized. No need to initialize again.");
+                return;
             }
+            mConnectedDeviceManager.start();
+            mIsEveryFeatureInitialized.set(false);
         }).start();
     }
 }

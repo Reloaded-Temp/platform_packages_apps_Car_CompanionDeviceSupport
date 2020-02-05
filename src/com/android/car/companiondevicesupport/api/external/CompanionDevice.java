@@ -37,8 +37,8 @@ public final class CompanionDevice implements Parcelable {
     private final boolean mHasSecureChannel;
 
     public CompanionDevice(ConnectedDevice device) {
-        this(device.getDeviceId(), device.getDeviceName(), device.getBelongsToActiveUser(),
-                device.getHasSecureChannel());
+        this(device.getDeviceId(), device.getDeviceName(), device.isAssociatedWithActiveUser(),
+                device.hasSecureChannel());
     }
 
     private CompanionDevice(Parcel in) {

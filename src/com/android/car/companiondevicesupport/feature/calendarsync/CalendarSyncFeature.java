@@ -27,8 +27,14 @@ import android.os.ParcelUuid;
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.feature.RemoteFeature;
+import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendar;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendars;
 import com.android.car.protobuf.InvalidProtocolBufferException;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * An implementation of {@link RemoteFeature} that registers the CalendarSync feature and handles
@@ -43,6 +49,9 @@ final class CalendarSyncFeature extends RemoteFeature {
 
     private final CalendarImporter mCalendarImporter;
     private final CalendarCleaner mCalendarCleaner;
+
+    // Holds the UUIDs for the synced calendars.
+    private final Set<String> mSyncedCalendars = new HashSet<>();
 
     CalendarSyncFeature(@NonNull Context context) {
         super(context, ParcelUuid.fromString(context.getString(R.string.calendar_sync_feature_id)));
@@ -76,7 +85,10 @@ final class CalendarSyncFeature extends RemoteFeature {
         logd(TAG, device + ": received message over secure channel");
         try {
             Calendars calendars = Calendars.parseFrom(message);
+
+            maybeEraseSynchronizedCalendars(calendars.getCalendarList());
             mCalendarImporter.importCalendars(calendars);
+            storeSynchronizedCalendars(calendars.getCalendarList());
         } catch (InvalidProtocolBufferException e) {
             loge(TAG, device + ": error parsing calendar events protobuf", e);
         }
@@ -92,5 +104,31 @@ final class CalendarSyncFeature extends RemoteFeature {
     protected void onDeviceDisconnected(CompanionDevice device) {
         logw(TAG, device + ": disconnected");
         mCalendarCleaner.eraseCalendars();
+    }
+
+    private void storeSynchronizedCalendars(@NonNull List<Calendar> calendars) {
+        mSyncedCalendars.addAll(
+                calendars.stream().map(cal -> cal.getUuid()).collect(Collectors.toSet()));
+    }
+
+    private void maybeEraseSynchronizedCalendars(@NonNull List<Calendar> calendars) {
+        if (calendars.isEmpty()) {
+            mCalendarCleaner.eraseCalendars();
+            mSyncedCalendars.clear();
+            return;
+        }
+        for (Calendar calendar : calendars) {
+            if (!mSyncedCalendars.contains(calendar.getUuid())) {
+                continue;
+            }
+            logw(TAG, String.format("remove calendar: %s", calendar.getUuid()));
+            int calId = mCalendarImporter.findCalendar(calendar.getUuid());
+            if (calId == CalendarImporter.INVALID_CALENDAR_ID) {
+                loge(TAG, "Cannot find calendar to erase: " + calendar.getUuid(), null);
+                continue;
+            }
+            mCalendarCleaner.eraseCalendar(String.valueOf(calId));
+            mSyncedCalendars.remove(calendar.getUuid());
+        }
     }
 }
