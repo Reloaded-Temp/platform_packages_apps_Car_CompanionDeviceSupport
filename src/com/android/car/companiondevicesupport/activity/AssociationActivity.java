@@ -54,6 +54,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Activity class for association */
 public class AssociationActivity extends FragmentActivity {
+
+    /** Intent action used to request a device be associated.*/
+    public static final String ACTION_ASSOCIATION_SETTING =
+            "com.android.car.companiondevicesupport.ASSOCIATION_ACTIVITY";
+
+    /** Data name for associated device. */
+    public static final String ASSOCIATED_DEVICE_DATA_NAME_EXTRA =
+            "com.android.car.companiondevicesupport.ASSOCIATED_DEVICE";
+
     private static final String TAG = "CompanionAssociationActivity";
     private static final String ADD_DEVICE_FRAGMENT_TAG = "AddAssociatedDeviceFragment";
     private static final String DEVICE_DETAIL_FRAGMENT_TAG = "AssociatedDeviceDetailFragment";
@@ -98,6 +107,7 @@ public class AssociationActivity extends FragmentActivity {
             loge(TAG, "Failed to unregister DeviceAssociationCallback. ", e);
         }
         unbindService(mConnection);
+        setDeviceToReturn();
     }
 
     @Override
@@ -242,6 +252,10 @@ public class AssociationActivity extends FragmentActivity {
     }
 
     private void refreshDeviceList() {
+        if (mAssociatedDeviceManager == null) {
+            loge(TAG, "Failed to get associated device list. Service not connected");
+            return;
+        }
         try {
             mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
         } catch (RemoteException e) {
@@ -264,6 +278,40 @@ public class AssociationActivity extends FragmentActivity {
         }
     }
 
+    private void setDeviceToReturn() {
+        if (!isStartedByFeature()) {
+            return;
+        }
+        if (mAssociatedDeviceManager == null) {
+            loge(TAG, "Failed to get associated devices. Service not connected.");
+            setResult(0, new Intent());
+            finish();
+        }
+        List<AssociatedDevice> deviceList = null;
+        try {
+            deviceList = mAssociatedDeviceManager.getActiveUserAssociatedDevices();
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to get associated device list: " + e);
+        }
+        if (deviceList == null || deviceList.size() == 0) {
+            setDeviceToReturn(null);
+        } else {
+            setDeviceToReturn(deviceList.get(0));
+        }
+    }
+
+    private void setDeviceToReturn(AssociatedDevice device) {
+        Intent intent = new Intent();
+        intent.putExtra(ASSOCIATED_DEVICE_DATA_NAME_EXTRA, device);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private boolean isStartedByFeature() {
+        String action = getIntent().getAction();
+        return ACTION_ASSOCIATION_SETTING.equals(action);
+    }
+
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -279,6 +327,10 @@ public class AssociationActivity extends FragmentActivity {
                 }
                 mModel.setDevices(devices);
                 if (devices.size() > 0) {
+                    if (isStartedByFeature()) {
+                        setDeviceToReturn(devices.get(0));
+                        return;
+                    }
                     showAssociatedDeviceDetailFragment();
                 } else if (!mIsInAssociation.get()) {
                     mAssociatedDeviceManager.startAssociation();
@@ -331,8 +383,9 @@ public class AssociationActivity extends FragmentActivity {
         @Override
         public void onAssociationCompleted() {
             mIsInAssociation.set(false);
+            setDeviceToReturn();
+            refreshDeviceList();
             runOnUiThread(() -> {
-                refreshDeviceList();
                 showAssociatedDeviceDetailFragment();
             });
         }
@@ -385,8 +438,8 @@ public class AssociationActivity extends FragmentActivity {
             return new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.remove_associated_device_title, deviceName))
                     .setMessage(getString(R.string.remove_associated_device_message))
-                    .setNegativeButton(getString(R.string.remove), mOnConfirmListener)
-                    .setPositiveButton(getString(R.string.cancel), null)
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setPositiveButton(getString(R.string.remove), mOnConfirmListener)
                     .setCancelable(true)
                     .create();
         }

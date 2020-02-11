@@ -34,11 +34,17 @@
     <!-- Message shown when user associates a device successfully [CHAR LIMIT=100]-->
     <string name="associated_device_success">Device has been associated successfully</string>
     <!-- Adding an associated device [CHAR LIMIT=40]-->
-    <string name="associated_device_select_device">Open the app and connect to <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g></string>
+    <string name="associated_device_select_device">Open the app and connect to &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;b></string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
     <string name="remove_associated_device_title">Remove <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g>?</string>
     <!-- Message for remove device dialog [CHAR LIMIT=100] -->
     <string name="remove_associated_device_message">All data synced from your phone will be deleted from the car</string>
+    <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
+    <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> and all its data has been removed</string>
+    <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
+    <string name="device_removed_failure_toast_text">Failed to remove <xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g></string>
+    <!-- Toast message to show when the association activity failed to refresh the associated device list [CHAR LIMIT=60] -->
+    <string name="refresh_list_failure_toast_text">Failed to refresh the associated device list</string>
 
     <!-- Accept button text [CHAR LIMIT=20] -->
     <string name="accept">Accept</string>
@@ -50,12 +56,18 @@
     <string name="cancel">Cancel</string>
     <!-- Remove button text [CHAR LIMIT=20]-->
     <string name="remove">Remove</string>
+    <!-- Accept button text [CHAR LIMIT=20] -->
+    <string name="ok">OK</string>
+    <!-- Connection switch title [CHAR LIMIT=20]-->
+    <string name="connection">Connection</string>
     <!-- Forget button text [CHAR LIMIT=40]-->
     <string name="forget">Forget this device</string>
     <!-- Disable button text [CHAR LIMIT=20]-->
     <string name="disable">Disable</string>
     <!-- Enable button text [CHAR LIMIT=20]-->
     <string name="enable">Enable</string>
+    <!-- Continue button text [CHAR LIMIT=20]-->
+    <string name="continue_button">Continue</string>
 
     <!-- Connected status text [CHAR LIMIT=20]-->
     <string name="connected">Connected</string>
@@ -74,10 +86,20 @@
     <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=50]-->
     <string name="app_running_msg_notification_title">Phone Text Messaging service is active</string>
     <string name="app_running_msg_notification_content">Receiving Messages via Companion Device</string>
-    <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
-    <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> and all its data has been removed</string>
-    <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
-    <string name="device_removed_failure_toast_text">Failed to remove <xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g></string>
-    <!-- Toast message to show when the association activity failed to refresh the associated device list [CHAR LIMIT=60] -->
-    <string name="refresh_list_failure_toast_text">Failed to refresh the associated device list</string>
+
+    <!-- Title for trusted device feature [CHAR LIMIT=40]-->
+    <string name="trusted_device_feature_title">Unlock profile with phone</string>
+    <!-- Instruction for trusted device feature [CHAR LIMIT=80]-->
+    <string name="trusted_device_feature_instruction">Use your companion device to unlock your profile.</string>
+    <!-- Trusted device item title [CHAR LIMIT=80]-->
+    <string name="trusted_device_item_title">Let &lt;b><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g>&lt;/b> unlock my profile</string>
+    <!-- Title for device not connected dialog [CHAR LIMIT=50]-->
+    <string name="device_not_connected_dialog_title">Your phone must be actively connected</string>
+    <!-- Message for device not connected dialog [CHAR LIMIT=150]-->
+    <string name="device_not_connected_dialog_message">To turn on this feature, make sure your car and phone have bluetooth turned on and are near each other</string>
+
+    <!-- Title for create profile lock dialog [CHAR LIMIT=50]-->
+    <string name="create_profile_lock_dialog_title">Create a primary profile lock</string>
+    <!-- Message for create profile lock dialog [CHAR LIMIT=150]-->
+    <string name="create_profile_lock_dialog_message">To use your phone to unlock your profile, you need a primary profile lock as a backup</string>
 </resources>

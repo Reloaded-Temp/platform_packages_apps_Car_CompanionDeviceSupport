@@ -87,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/device_detail_button_margin"
-            android:text="Connection"
+            android:text="@string/connection"
             android:textSize="@dimen/car_ui_body1_size"
             android:textAppearance="@style/TextAppearance.CarUi"
             app:layout_constraintStart_toEndOf="@id/connection_icon"

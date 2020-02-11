@@ -49,6 +49,7 @@
         <activity android:name=".activity.AssociationActivity"
                   android:exported="true">
             <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.ASSOCIATION_ACTIVITY" />
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -96,6 +97,18 @@
             <meta-data android:name="android.service.trust.trustagent"
                        android:resource="@xml/car_trust_agent"/>
         </service>
-        <activity android:name=".feature.trust.ui.TrustedDeviceActivity" android:exported="true" />
+        <activity
+            android:name=".feature.trust.ui.TrustedDeviceActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.title"
+                       android:value="@string/trusted_device_feature_title" />
+            <meta-data android:name="com.android.settings.category"
+                       android:value="com.android.settings.category.ia.system" />
+        </activity>
     </application>
 </manifest>

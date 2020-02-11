@@ -20,9 +20,9 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.os.RemoteException;
 
 import com.android.car.companiondevicesupport.R;
+import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.feature.RemoteFeature;
 
@@ -33,6 +33,8 @@ class TrustedDeviceFeature extends RemoteFeature {
 
     private Callback mCallback;
 
+    private AssociatedDeviceCallback mAssociatedDeviceCallback;
+
     TrustedDeviceFeature(@NonNull Context context) {
         super(context,
                 ParcelUuid.fromString(context.getString(R.string.trusted_device_feature_id)));
@@ -41,6 +43,16 @@ class TrustedDeviceFeature extends RemoteFeature {
     /** Set a {@link Callback} for events from the device. Set {@code null} to clear. */
     void setCallback(@Nullable Callback callback) {
         mCallback = callback;
+    }
+
+    /** Set an {@link AssociatedDeviceCallback} for associated device events. */
+    void setAssociatedDeviceCallback(@NonNull AssociatedDeviceCallback callback) {
+        mAssociatedDeviceCallback = callback;
+    }
+
+    /** Clear the callback fo associated device events. */
+    void clearAssociatedDeviceCallback() {
+        mAssociatedDeviceCallback = null;
     }
 
     @Override
@@ -57,11 +69,43 @@ class TrustedDeviceFeature extends RemoteFeature {
         }
     }
 
+    @Override
+    protected void onAssociatedDeviceAdded(String deviceId) {
+        if (mAssociatedDeviceCallback != null) {
+            mAssociatedDeviceCallback.onAssociatedDeviceAdded(deviceId);
+        }
+    }
+
+    @Override
+    protected void onAssociatedDeviceRemoved(String deviceId) {
+        if (mAssociatedDeviceCallback != null) {
+            mAssociatedDeviceCallback.onAssociatedDeviceRemoved(deviceId);
+        }
+    }
+
+    @Override
+    protected void onAssociatedDeviceUpdated(AssociatedDevice device) {
+        if (mAssociatedDeviceCallback != null) {
+            mAssociatedDeviceCallback.onAssociatedDeviceUpdated(device);
+        }
+    }
+
     interface Callback {
         /** Called when a new {@link byte[]} message is received for this feature. */
         void onMessageReceived(@NonNull CompanionDevice device, @NonNull byte[] message);
 
         /** Called when an error has occurred with the connection. */
         void onDeviceError(@NonNull CompanionDevice device, int error);
+    }
+
+    interface AssociatedDeviceCallback {
+        /** Called when a new {@link AssociatedDevice} is added for the given user. */
+        void onAssociatedDeviceAdded(@NonNull String deviceId);
+
+        /** Called when an {@link AssociatedDevice} is removed for the given user.  */
+        void onAssociatedDeviceRemoved(@NonNull String deviceId);
+
+        /** Called when an {@link AssociatedDevice} is updated for the given user. */
+        void onAssociatedDeviceUpdated(@NonNull AssociatedDevice device);
     }
 }
