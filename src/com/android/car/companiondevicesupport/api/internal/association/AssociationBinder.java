@@ -22,10 +22,13 @@ import static com.android.car.connecteddevice.util.SafeLog.loge;
 import android.os.RemoteException;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
+import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
 import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.ConnectedDeviceManager.DeviceAssociationCallback;
 import com.android.car.connecteddevice.AssociationCallback;
+import com.android.car.connecteddevice.model.ConnectedDevice;
 import com.android.car.connecteddevice.util.RemoteCallbackBinder;
 
 import java.util.ArrayList;
@@ -41,19 +44,27 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     private final ConnectedDeviceManager mConnectedDeviceManager;
     /**
      * {@link #mRemoteAssociationCallbackBinder} and {@link #mIAssociationCallback} can only be
-     * modified together through {@link #registerAssociationCallback(IAssociationCallback)} or
-     * {@link #unregisterAssociationCallback()} from the association thread.
+     * modified together through {@link #setAssociationCallback(IAssociationCallback)} or
+     * {@link #clearAssociationCallback()} from the association thread.
      */
     private RemoteCallbackBinder mRemoteAssociationCallbackBinder;
     private IAssociationCallback mIAssociationCallback;
     /**
      * {@link #mRemoteDeviceAssociationCallbackBinder} and {@link #mDeviceAssociationCallback} can
      * only be modified together through
-     * {@link #registerDeviceAssociationCallback(IDeviceAssociationCallback)} or
-     * {@link #unregisterDeviceAssociationCallback()} from the association thread.
+     * {@link #setDeviceAssociationCallback(IDeviceAssociationCallback)} or
+     * {@link #clearDeviceAssociationCallback()} from the association thread.
      */
     private RemoteCallbackBinder mRemoteDeviceAssociationCallbackBinder;
     private DeviceAssociationCallback mDeviceAssociationCallback;
+
+    /**
+     * {@link #mRemoteConnectionCallbackBinder} and {@link #mIConnectionCallback} can only be
+     * modified together through {@link #setConnectionCallback(IConnectionCallback)} or
+     * {@link #clearConnectionCallback()} from the association thread.
+     */
+    private RemoteCallbackBinder mRemoteConnectionCallbackBinder;
+    private ConnectedDeviceManager.ConnectionCallback mConnectionCallback;
 
     private final Executor mCallbackExecutor = Executors.newSingleThreadExecutor();
 
@@ -61,9 +72,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         mConnectedDeviceManager = connectedDeviceManager;
     }
 
-    @Override
-    public void registerAssociationCallback(IAssociationCallback callback) {
-        logd(TAG, "registerAssociationCallback called");
+    public void setAssociationCallback(IAssociationCallback callback) {
         mRemoteAssociationCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
                 iBinder -> stopAssociation());
         mIAssociationCallback = callback;
@@ -72,8 +81,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         }
     }
 
-    @Override
-    public void unregisterAssociationCallback() {
+    public void clearAssociationCallback() {
         mIAssociationCallback = null;
         if (mRemoteAssociationCallbackBinder == null) {
             return;
@@ -114,7 +122,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     }
 
     @Override
-    public void registerDeviceAssociationCallback(IDeviceAssociationCallback callback) {
+    public void setDeviceAssociationCallback(IDeviceAssociationCallback callback) {
         mDeviceAssociationCallback = new DeviceAssociationCallback() {
             @Override
             public void onAssociatedDeviceAdded(String deviceId) {
@@ -145,13 +153,13 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
             }
         };
         mRemoteDeviceAssociationCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
-                iBinder -> unregisterDeviceAssociationCallback());
+                iBinder -> clearDeviceAssociationCallback());
         mConnectedDeviceManager.registerDeviceAssociationCallback(mDeviceAssociationCallback,
                 mCallbackExecutor);
     }
 
     @Override
-    public void unregisterDeviceAssociationCallback() {
+    public void clearDeviceAssociationCallback() {
         if (mDeviceAssociationCallback == null) {
             return;
         }
@@ -161,12 +169,71 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         mRemoteDeviceAssociationCallbackBinder = null;
     }
 
+    @Override
+    public List<CompanionDevice> getActiveUserConnectedDevices() {
+        List<ConnectedDevice> connectedDevices =
+                mConnectedDeviceManager.getActiveUserConnectedDevices();
+        List<CompanionDevice> convertedDevices = new ArrayList<>();
+        for (ConnectedDevice device : connectedDevices) {
+            convertedDevices.add(new CompanionDevice(device));
+        }
+        return convertedDevices;
+    }
+
+    @Override
+    public void setConnectionCallback(IConnectionCallback callback) {
+        mConnectionCallback = new ConnectedDeviceManager.ConnectionCallback() {
+
+            @Override
+            public void onDeviceConnected(ConnectedDevice device) {
+                if (callback == null) {
+                    loge(TAG, "No IConnectionCallback has been set, ignoring " +
+                            "onDeviceConnected.");
+                    return;
+                }
+                try {
+                    callback.onDeviceConnected(new CompanionDevice(device));
+                } catch (RemoteException exception) {
+                    loge(TAG, "onDeviceConnected failed.", exception);
+                }
+            }
+
+            @Override
+            public void onDeviceDisconnected(ConnectedDevice device) {
+                if (callback == null) {
+                    loge(TAG, "No IConnectionCallback has been set, ignoring " +
+                            "onDeviceConnected.");
+                    return;
+                }
+                try {
+                    callback.onDeviceDisconnected(new CompanionDevice(device));
+                } catch (RemoteException exception) {
+                    loge(TAG, "onDeviceDisconnected failed.", exception);
+                }
+            }
+        };
+        mRemoteConnectionCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
+                iBinder -> clearConnectionCallback());
+        mConnectedDeviceManager.registerActiveUserConnectionCallback(mConnectionCallback,
+                mCallbackExecutor);
+    }
+
+    public void clearConnectionCallback() {
+        if (mConnectionCallback == null) {
+            return;
+        }
+        mConnectedDeviceManager.unregisterConnectionCallback(mConnectionCallback);
+        mRemoteConnectionCallbackBinder.cleanUp();
+        mRemoteConnectionCallbackBinder = null;
+        mConnectionCallback = null;
+    }
+
     private AssociationCallback mAssociationCallback = new AssociationCallback() {
 
         @Override
         public void onAssociationStartSuccess(String deviceName) {
             if (mIAssociationCallback == null) {
-                loge(TAG, "No IAssociationCallback has been registered, ignoring " +
+                loge(TAG, "No IAssociationCallback has been set, ignoring " +
                         "onAssociationStartSuccess.");
                 return;
             }
@@ -179,7 +246,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         @Override
         public void onAssociationStartFailure() {
             if (mIAssociationCallback == null) {
-                loge(TAG, "No IAssociationCallback has been registered, ignoring " +
+                loge(TAG, "No IAssociationCallback has been set, ignoring " +
                         "onAssociationStartFailure.");
                 return;
             }
@@ -193,7 +260,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         @Override
         public void onAssociationError(int error) {
             if (mIAssociationCallback == null) {
-                loge(TAG, "No IAssociationCallback has been registered, ignoring " +
+                loge(TAG, "No IAssociationCallback has been set, ignoring " +
                         "onAssociationError: " + error + ".");
                 return;
             }
@@ -207,7 +274,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         @Override
         public void onVerificationCodeAvailable(String code) {
             if (mIAssociationCallback == null) {
-                loge(TAG, "No IAssociationCallback has been registered, ignoring " +
+                loge(TAG, "No IAssociationCallback has been set, ignoring " +
                         "onVerificationCodeAvailable, code: " + code);
                 return;
             }
@@ -221,7 +288,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         @Override
         public void onAssociationCompleted(String deviceId) {
             if (mIAssociationCallback == null) {
-                loge(TAG, "No IAssociationCallback has been registered, ignoring " +
+                loge(TAG, "No IAssociationCallback has been set, ignoring " +
                         "onAssociationCompleted, deviceId: " + deviceId);
                 return;
             }

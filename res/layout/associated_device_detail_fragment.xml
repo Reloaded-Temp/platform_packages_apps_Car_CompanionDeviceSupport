@@ -46,7 +46,6 @@
         android:id="@+id/connection_status"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="@string/unknown"
         android:textSize="@dimen/car_ui_body3_size"
         android:layout_marginTop="@dimen/device_detail_margin"
         app:layout_constraintTop_toBottomOf="@id/device_name"

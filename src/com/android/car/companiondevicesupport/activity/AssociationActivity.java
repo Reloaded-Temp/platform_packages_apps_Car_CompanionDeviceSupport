@@ -41,8 +41,10 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
+import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 import com.android.car.ui.toolbar.MenuItem;
@@ -101,10 +103,11 @@ public class AssociationActivity extends FragmentActivity {
     public void onStop() {
         super.onStop();
         try {
-            mAssociatedDeviceManager.unregisterDeviceAssociationCallback();
-            mAssociatedDeviceManager.unregisterAssociationCallback();
+            mAssociatedDeviceManager.clearDeviceAssociationCallback();
+            mAssociatedDeviceManager.clearAssociationCallback();
+            mAssociatedDeviceManager.clearConnectionCallback();
         } catch (RemoteException e) {
-            loge(TAG, "Failed to unregister DeviceAssociationCallback. ", e);
+            loge(TAG, "Error clearing registered callbacks. ", e);
         }
         unbindService(mConnection);
         setDeviceToReturn();
@@ -251,18 +254,30 @@ public class AssociationActivity extends FragmentActivity {
         mIsInAssociation.set(false);
     }
 
-    private void refreshDeviceList() {
+    private void refreshAssociatedDevices() {
         if (mAssociatedDeviceManager == null) {
-            loge(TAG, "Failed to get associated device list. Service not connected");
+            loge(TAG, "Failed to get associated device list. Service not connected.");
             return;
         }
         try {
-            mModel.setDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
+            mModel.setAssociatedDevices(mAssociatedDeviceManager.getActiveUserAssociatedDevices());
         } catch (RemoteException e) {
             loge(TAG, "Failed to get associated device list", e);
             runOnUiThread(() -> Toast.makeText(getApplicationContext(),
                     getString(R.string.refresh_list_failure_toast_text),
                     Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void refreshConnectedDevices() {
+        if (mAssociatedDeviceManager == null) {
+            loge(TAG, "Failed to get connected device list. Service not connected.");
+            return;
+        }
+        try {
+            mModel.setConnectedDevices(mAssociatedDeviceManager.getActiveUserConnectedDevices());
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to get connected device list", e);
         }
     }
 
@@ -317,18 +332,18 @@ public class AssociationActivity extends FragmentActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mAssociatedDeviceManager = IAssociatedDeviceManager.Stub.asInterface(service);
             try {
-                mAssociatedDeviceManager.registerAssociationCallback(mAssociationCallback);
+                mAssociatedDeviceManager.setAssociationCallback(mAssociationCallback);
                 mAssociatedDeviceManager
-                        .registerDeviceAssociationCallback(mDeviceAssociationCallback);
-                List<AssociatedDevice> devices = mAssociatedDeviceManager
+                        .setDeviceAssociationCallback(mDeviceAssociationCallback);
+                mAssociatedDeviceManager.setConnectionCallback(mConnectionCallback);
+                mModel.setConnectedDevices(mAssociatedDeviceManager
+                        .getActiveUserConnectedDevices());
+                List<AssociatedDevice> associatedDevices = mAssociatedDeviceManager
                         .getActiveUserAssociatedDevices();
-                if (devices == null) {
-                    return;
-                }
-                mModel.setDevices(devices);
-                if (devices.size() > 0) {
+                mModel.setAssociatedDevices(associatedDevices);
+                if (!associatedDevices.isEmpty()) {
                     if (isStartedByFeature()) {
-                        setDeviceToReturn(devices.get(0));
+                        setDeviceToReturn(associatedDevices.get(0));
                         return;
                     }
                     showAssociatedDeviceDetailFragment();
@@ -384,7 +399,7 @@ public class AssociationActivity extends FragmentActivity {
         public void onAssociationCompleted() {
             mIsInAssociation.set(false);
             setDeviceToReturn();
-            refreshDeviceList();
+            refreshAssociatedDevices();
             runOnUiThread(() -> {
                 showAssociatedDeviceDetailFragment();
             });
@@ -398,7 +413,7 @@ public class AssociationActivity extends FragmentActivity {
 
         @Override
         public void onAssociatedDeviceRemoved(String deviceId) {
-            refreshDeviceList();
+            refreshAssociatedDevices();
             String deviceName = deviceId;
             if (mDeviceToRemove != null && mDeviceToRemove.getDeviceId().equals(deviceId)) {
                 deviceName = mDeviceToRemove.getDeviceName();
@@ -411,7 +426,18 @@ public class AssociationActivity extends FragmentActivity {
 
         @Override
         public void onAssociatedDeviceUpdated(AssociatedDevice device) {
-            refreshDeviceList();
+            refreshAssociatedDevices();
+        }
+    };
+
+    private final IConnectionCallback mConnectionCallback = new IConnectionCallback.Stub() {
+        @Override
+        public void onDeviceConnected(CompanionDevice companionDevice) {
+            refreshConnectedDevices();
+        }
+        @Override
+        public void onDeviceDisconnected(CompanionDevice companionDevice) {
+            refreshConnectedDevices();
         }
     };
 

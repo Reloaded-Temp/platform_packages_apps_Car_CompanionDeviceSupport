@@ -49,7 +49,7 @@ public class AssociationFragment extends Fragment {
 
         AssociatedDeviceViewModel model = ViewModelProviders.of(getActivity())
                 .get(AssociatedDeviceViewModel.class);
-        model.getDevices().observe(this, devices -> {
+        model.getAssociatedDevices().observe(this, devices -> {
             mAdapter.setDevices(devices);
             mAdapter.notifyDataSetChanged();
         });

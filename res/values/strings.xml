@@ -71,6 +71,8 @@
 
     <!-- Connected status text [CHAR LIMIT=20]-->
     <string name="connected">Connected</string>
+    <!-- Not detected status text [CHAR LIMIT=20]-->
+    <string name="notDetected">Not detected</string>
     <!-- Disconnected status text [CHAR LIMIT=20]-->
     <string name="disconnected">Disconnected</string>
     <!-- Unknown status text [CHAR LIMIT=20]-->
