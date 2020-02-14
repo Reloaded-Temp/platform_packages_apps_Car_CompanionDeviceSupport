@@ -31,7 +31,7 @@ import android.provider.CalendarContract;
 import java.util.ArrayList;
 
 /** A helper class that deals with cleaning up the stored calendar data. */
-final class CalendarCleaner {
+class CalendarCleaner {
     private static final String TAG = "CalendarCleaner";
 
     private static final String CALENDARS_ACCOUNT_NAME_TYPE_SELECTION =

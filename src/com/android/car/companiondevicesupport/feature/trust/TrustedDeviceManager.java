@@ -374,6 +374,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             return;
         }
 
+        TrustedDeviceEventLog.onCredentialsReceived();
+
         if (mTrustAgentDelegate == null) {
             logd(TAG, "No trust agent delegate set yet. Credentials will be delivered once "
                     + "set.");

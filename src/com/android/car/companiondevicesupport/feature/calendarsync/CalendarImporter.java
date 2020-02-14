@@ -46,14 +46,14 @@ import java.util.regex.Pattern;
  * A helper class dealing with the import and deletion of calendar event data that was sent from a
  * mobile device to the head unit.
  */
-final class CalendarImporter {
+class CalendarImporter {
     private static final String TAG = "CalendarImporter";
 
     static final int INVALID_CALENDAR_ID = -1;
 
     private static final Pattern CALENDAR_ID_PATTERN = Pattern.compile(".*/calendars/(\\d+)\\?.*");
     private static final int CALENDAR_ID_GROUP = 1;
-    private static final Pattern EVENT_ID_PATTERN = Pattern.compile(".*/events/(\\d+)");
+    private static final Pattern EVENT_ID_PATTERN = Pattern.compile(".*/events/(\\d+)\\?.*");
     private static final int EVENT_ID_GROUP = 1;
 
     static final String DEFAULT_ACCOUNT_NAME = "CloudlessCalSync";

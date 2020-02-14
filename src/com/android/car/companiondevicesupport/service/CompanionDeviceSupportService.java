@@ -34,6 +34,7 @@ import com.android.car.companiondevicesupport.api.internal.association.IAssociat
 import com.android.car.companiondevicesupport.feature.LocalFeature;
 import com.android.car.companiondevicesupport.feature.howitzer.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
+import com.android.car.connecteddevice.util.EventLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,7 @@ public class CompanionDeviceSupportService extends Service {
     public void onCreate() {
         super.onCreate();
         logd(TAG, "Service created.");
+        EventLog.onServiceStarted();
         mConnectedDeviceManager = new ConnectedDeviceManager(this);
         mLocalFeatures.add(new ConnectionHowitzer(this, mConnectedDeviceManager));
         mConnectedDeviceManagerBinder =
@@ -127,6 +129,7 @@ public class CompanionDeviceSupportService extends Service {
         logd(TAG, "onBluetoothStateChanged: " + BluetoothAdapter.nameForState(state));
         switch (state) {
             case BluetoothAdapter.STATE_BLE_ON:
+                EventLog.onBleOn();
                 initializeFeatures();
                 break;
             case BluetoothAdapter.STATE_OFF:
