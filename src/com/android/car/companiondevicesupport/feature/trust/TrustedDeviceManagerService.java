@@ -33,6 +33,7 @@ public class TrustedDeviceManagerService extends Service {
     public void onCreate() {
         super.onCreate();
         logd(TAG, "Starting trusted device manager service.");
+        TrustedDeviceEventLog.onTrustedDeviceServiceStarted();
         mTrustedDeviceManager = new TrustedDeviceManager(this);
     }
 

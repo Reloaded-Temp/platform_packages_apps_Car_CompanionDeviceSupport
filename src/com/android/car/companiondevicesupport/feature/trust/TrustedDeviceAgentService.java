@@ -46,6 +46,7 @@ public class TrustedDeviceAgentService extends TrustAgentService {
     public void onCreate() {
         super.onCreate();
         logd(TAG, "Starting trust agent service.");
+        TrustedDeviceEventLog.onTrustAgentStarted();
         Intent intent = new Intent(this, TrustedDeviceManagerService.class);
         bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
     }
@@ -82,6 +83,12 @@ public class TrustedDeviceAgentService extends TrustAgentService {
                 loge(TAG, "Error while notifying that an escrow token was activated.", e);
             }
         }
+    }
+
+    @Override
+    public void onDeviceUnlocked() {
+        super.onDeviceUnlocked();
+        TrustedDeviceEventLog.onUserUnlocked();
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {

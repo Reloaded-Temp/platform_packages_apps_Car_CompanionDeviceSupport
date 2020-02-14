@@ -31,6 +31,8 @@ import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calenda
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendars;
 import com.android.car.protobuf.InvalidProtocolBufferException;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,9 +56,16 @@ final class CalendarSyncFeature extends RemoteFeature {
     private final Set<String> mSyncedCalendars = new HashSet<>();
 
     CalendarSyncFeature(@NonNull Context context) {
+        this(context, new CalendarImporter(context.getContentResolver()),
+                new CalendarCleaner(context.getContentResolver()));
+    }
+
+    @VisibleForTesting
+    CalendarSyncFeature(@NonNull Context context, @NonNull CalendarImporter calendarImporter,
+            @NonNull CalendarCleaner calendarCleaner) {
         super(context, ParcelUuid.fromString(context.getString(R.string.calendar_sync_feature_id)));
-        mCalendarImporter = new CalendarImporter(context.getContentResolver());
-        mCalendarCleaner = new CalendarCleaner(context.getContentResolver());
+        mCalendarImporter = calendarImporter;
+        mCalendarCleaner = calendarCleaner;
     }
 
     @Override

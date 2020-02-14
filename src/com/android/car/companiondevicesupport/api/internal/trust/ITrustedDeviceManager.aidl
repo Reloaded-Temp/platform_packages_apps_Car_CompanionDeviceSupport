@@ -16,6 +16,8 @@
 
 package com.android.car.companiondevicesupport.api.internal.trust;
 
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
+import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceAgentDelegate;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.IOnValidateCredentialsRequestListener;
@@ -54,4 +56,13 @@ interface ITrustedDeviceManager {
 
     /** Remove a trusted device and invalidate any credentials associated with it. */
     void removeTrustedDevice(in TrustedDevice trustedDevice);
+
+    /** Returns {@link List<CompanionDevice>} of devices currently connected. */
+    List<CompanionDevice> getActiveUserConnectedDevices();
+
+    /** Register a new callback for associated device events. */
+    void registerAssociatedDeviceCallback(in IDeviceAssociationCallback callback);
+
+    /** Remove a previously registered callback. */
+    void unregisterAssociatedDeviceCallback(IDeviceAssociationCallback callback);
 }

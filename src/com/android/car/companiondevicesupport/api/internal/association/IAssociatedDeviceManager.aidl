@@ -17,6 +17,8 @@
 package com.android.car.companiondevicesupport.api.internal.association;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
+import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
 import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 
@@ -24,13 +26,13 @@ import com.android.car.companiondevicesupport.api.internal.association.IAssociat
 interface IAssociatedDeviceManager {
 
     /**
-     * Registers a callback for association.
+     * Set a callback for association.
      * @param callback {@link IAssociationCallback} to register.
      */
-    void registerAssociationCallback(in IAssociationCallback callback);
+    void setAssociationCallback(in IAssociationCallback callback);
 
-    /** Unregisters the association callback from manager. */
-    void unregisterAssociationCallback();
+    /** Clear the association callback from manager. */
+    void clearAssociationCallback();
 
     /** Starts the association with a new device. */
     void startAssociation();
@@ -48,12 +50,25 @@ interface IAssociatedDeviceManager {
     void removeAssociatedDevice(in String deviceId);
 
     /**
-     * Registers a callback for associated device related events.
+     * Set a callback for associated device related events.
      *
-     * @param callback {@link IDeviceAssociationCallback} to register.
+     * @param callback {@link IDeviceAssociationCallback} to set.
      */
-    void registerDeviceAssociationCallback(in IDeviceAssociationCallback callback);
+    void setDeviceAssociationCallback(in IDeviceAssociationCallback callback);
 
-    /** Unregisters the device association callback from manager. */
-    void unregisterDeviceAssociationCallback();
+    /** Clear the device association callback from manager. */
+    void clearDeviceAssociationCallback();
+
+    /** Returns {@link List<CompanionDevice>} of devices currently connected. */
+    List<CompanionDevice> getActiveUserConnectedDevices();
+
+    /**
+     * Set a callback for connection events for only the currently active user's devices.
+     *
+     * @param callback {@link IConnectionCallback} to set.
+     */
+    void setConnectionCallback(in IConnectionCallback callback);
+
+    /** Clear the connection callback from manager. */
+    void clearConnectionCallback();
 }
