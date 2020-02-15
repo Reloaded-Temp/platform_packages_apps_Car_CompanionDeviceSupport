@@ -59,6 +59,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     /** Length of token generated on a trusted device. */
     private static final int ESCROW_TOKEN_LENGTH = 8;
 
+    private static final byte[] ACKNOWLEDGEMENT_MESSAGE = "ACK".getBytes();
+
     private final ThreadSafeCallbacks<ITrustedDeviceCallback> mTrustedDeviceCallbacks =
             new ThreadSafeCallbacks<>();
 
@@ -79,7 +81,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private byte[] mPendingToken;
 
-    private PhoneCredentials mPendingCredentials;
+    private PendingCredentials mPendingCredentials;
 
     private boolean mIsWaitingForCredentials;
 
@@ -126,12 +128,13 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
     }
 
-    private void unlockUser(@NonNull PhoneCredentials credentials) {
+    private void unlockUser(@NonNull String deviceId, @NonNull PhoneCredentials credentials) {
         logd(TAG, "Unlocking with credentials.");
         try {
             mTrustAgentDelegate.unlockUserWithToken(credentials.getEscrowToken().toByteArray(),
                     ByteUtils.bytesToLong(credentials.getHandle().toByteArray()),
                     ActivityManager.getCurrentUser());
+            mTrustedDeviceFeature.sendMessageSecurely(deviceId, ACKNOWLEDGEMENT_MESSAGE);
         } catch (RemoteException e) {
             loge(TAG, "Error while unlocking user through delegate.", e);
         }
@@ -159,18 +162,12 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
         logd(TAG, "Enrollment completed successfully! Sending handle to connected device and "
                 + "persisting trusted device record.");
-        try {
-            mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice,
-                    ByteUtils.longToBytes(handle));
-            TrustedDeviceEntity entity = new TrustedDeviceEntity();
-            entity.id = mPendingDevice.getDeviceId();
-            entity.userId = userId;
-            entity.handle = handle;
-            mDatabase.addOrReplaceTrustedDevice(entity);
-        } catch (RemoteException e) {
-            loge(TAG, "Error while sending handle to device.", e);
-        }
-
+        mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice, ByteUtils.longToBytes(handle));
+        TrustedDeviceEntity entity = new TrustedDeviceEntity();
+        entity.id = mPendingDevice.getDeviceId();
+        entity.userId = userId;
+        entity.handle = handle;
+        mDatabase.addOrReplaceTrustedDevice(entity);
         mPendingDevice = null;
     }
 
@@ -262,7 +259,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
         // Unlock with pending credentials if present.
         if (mPendingCredentials != null) {
-            unlockUser(mPendingCredentials);
+            unlockUser(mPendingCredentials.mDeviceId, mPendingCredentials.mPhoneCredentials);
             mPendingCredentials = null;
         }
     }
@@ -323,11 +320,11 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         if (mTrustAgentDelegate == null) {
             logd(TAG, "No trust agent delegate set yet. Credentials will be delivered once "
                     + "set.");
-            mPendingCredentials = credentials;
+            mPendingCredentials = new PendingCredentials(device.getDeviceId(), credentials);
             return;
         }
 
-        unlockUser(credentials);
+        unlockUser(device.getDeviceId(), credentials);
     }
 
     private final TrustedDeviceFeature.Callback mFeatureCallback =
@@ -347,4 +344,14 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         public void onDeviceError(CompanionDevice device, int error) {
         }
     };
+
+    private static class PendingCredentials {
+        final String mDeviceId;
+        final PhoneCredentials mPhoneCredentials;
+
+        PendingCredentials(@NonNull String deviceId, @NonNull PhoneCredentials credentials) {
+            mDeviceId = deviceId;
+            mPhoneCredentials = credentials;
+        }
+    }
 }

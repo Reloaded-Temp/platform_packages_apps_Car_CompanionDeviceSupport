@@ -18,6 +18,7 @@ package com.android.car.companiondevicesupport.feature;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
+import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
@@ -107,6 +108,73 @@ public abstract class RemoteFeature {
         return mFeatureId;
     }
 
+    /** Securely send message to a device. */
+    public void sendMessageSecurely(@NonNull String deviceId, @NonNull byte[] message) {
+        CompanionDevice device = getConnectedDeviceById(deviceId);
+        if (device == null) {
+            loge(TAG, "No matching device found with id " + deviceId + " when trying to send "
+                    + "secure message.");
+            onMessageFailedToSend(deviceId, message, false);
+            return;
+        }
+
+        sendMessageSecurely(device, message);
+    }
+
+    /** Securely send message to a device. */
+    public void sendMessageSecurely(@NonNull CompanionDevice device, @NonNull byte[] message) {
+        try {
+            getConnectedDeviceManager().sendMessageSecurely(device, getFeatureId(), message);
+        } catch (RemoteException e) {
+            loge(TAG, "Error while sending secure message.", e);
+            onMessageFailedToSend(device.getDeviceId(), message, true);
+        }
+    }
+
+    /** Send a message to a device without encryption. */
+    public void sendMessageUnsecurely(@NonNull String deviceId, @NonNull byte[] message) {
+        CompanionDevice device = getConnectedDeviceById(deviceId);
+        if (device == null) {
+            loge(TAG, "No matching device found with id " + deviceId + " when trying to send "
+                    + "unsecure message.");
+            onMessageFailedToSend(deviceId, message, false);
+            return;
+        }
+    }
+
+    /** Send a message to a device without encryption. */
+    public void sendMessageUnsecurely(@NonNull CompanionDevice device, @NonNull byte[] message) {
+        try {
+            getConnectedDeviceManager().sendMessageUnsecurely(device, getFeatureId(), message);
+        } catch (RemoteException e) {
+            loge(TAG, "Error while sending unsecure message.", e);
+            onMessageFailedToSend(device.getDeviceId(), message, true);
+        }
+    }
+
+    /**
+     * Return the {@link CompanionDevice} with a matching device id for the currently active user.
+     * Returns {@code null} if no match found.
+     */
+    @Nullable
+    public CompanionDevice getConnectedDeviceById(@NonNull String deviceId) {
+        List<CompanionDevice> connectedDevices;
+        try {
+            connectedDevices = getConnectedDeviceManager().getActiveUserConnectedDevices();
+        } catch (RemoteException e) {
+            loge(TAG, "Exception while retrieving connected devices.", e);
+            return null;
+        }
+
+        for (CompanionDevice device : connectedDevices) {
+            if (device.getDeviceId().equals(deviceId)) {
+                return device;
+            }
+        }
+
+        return null;
+    }
+
     // These can be overridden to perform custom actions.
 
     /** Called when a new {@link CompanionDevice} is connected. */
@@ -117,6 +185,17 @@ public abstract class RemoteFeature {
 
     /** Called when a secure channel has been established with a {@link CompanionDevice}. */
     protected void onSecureChannelEstablished(@NonNull CompanionDevice device) { }
+
+    /**
+     * Called when a message fails to send to a device.
+     *
+     * @param deviceId Id of the device the message failed to send to.
+     * @param message Message to send.
+     * @param isTransient {@code true} if cause of failure is transient and can be retried.
+     *     {@code false} if failure is permanent.
+     */
+    protected void onMessageFailedToSend(@NonNull String deviceId, @NonNull byte[] message,
+            boolean isTransient) { }
 
     /** Called when a new {@link byte[]} message is received for this feature. */
     protected void onMessageReceived(@NonNull CompanionDevice device, @NonNull byte[] message) { }

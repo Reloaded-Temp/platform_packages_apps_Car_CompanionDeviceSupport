@@ -19,9 +19,11 @@ package com.android.car.companiondevicesupport.feature;
 import static com.android.car.connecteddevice.ConnectedDeviceManager.ConnectionCallback;
 import static com.android.car.connecteddevice.ConnectedDeviceManager.DeviceCallback;
 import static com.android.car.connecteddevice.ConnectedDeviceManager.DeviceError;
+import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.content.Context;
 
 import com.android.car.connecteddevice.ConnectedDeviceManager;
@@ -93,6 +95,60 @@ public abstract class LocalFeature {
         return mFeatureId;
     }
 
+    /** Securely send message to a device. */
+    public void sendMessageSecurely(@NonNull String deviceId, @NonNull byte[] message) {
+        ConnectedDevice device = getConnectedDeviceById(deviceId);
+        if (device == null) {
+            loge(TAG, "No matching device found with id " + deviceId + " when trying to send "
+                    + "secure message.");
+            onMessageFailedToSend(deviceId, message);
+            return;
+        }
+
+       sendMessageSecurely(device, message);
+    }
+
+    /** Securely send message to a device. */
+    public void sendMessageSecurely(@NonNull ConnectedDevice device, byte[] message) {
+        getConnectedDeviceManager().sendMessageSecurely(device, getFeatureId(), message);
+    }
+
+    /** Send a message to a device without encryption. */
+    public void sendMessageUnsecurely(@NonNull String deviceId, @NonNull byte[] message) {
+        ConnectedDevice device = getConnectedDeviceById(deviceId);
+        if (device == null) {
+            loge(TAG, "No matching device found with id " + deviceId + " when trying to send "
+                    + "unsecure message.");
+            onMessageFailedToSend(deviceId, message);
+            return;
+        }
+
+        sendMessageUnsecurely(device, message);
+    }
+
+    /** Send a message to a device without encryption. */
+    public void sendMessageUnsecurely(@NonNull ConnectedDevice device, @NonNull byte[] message) {
+        getConnectedDeviceManager().sendMessageUnsecurely(device, getFeatureId(), message);
+    }
+
+    /**
+     * Return the {@link ConnectedDevice} with a matching device id for the currently active user.
+     * Returns {@code null} if no match found.
+     */
+    @Nullable
+    public ConnectedDevice getConnectedDeviceById(@NonNull String deviceId) {
+        List<ConnectedDevice> connectedDevices =
+                getConnectedDeviceManager().getActiveUserConnectedDevices();
+
+        for (ConnectedDevice device : connectedDevices) {
+            if (device.getDeviceId().equals(deviceId)) {
+                return device;
+            }
+        }
+
+        return null;
+    }
+
     // These can be overridden to perform custom actions.
 
     /** Called when a new {@link ConnectedDevice} is connected. */
@@ -106,6 +162,14 @@ public abstract class LocalFeature {
 
     /** Called when a new {@link byte[]} message is received for this feature. */
     protected void onMessageReceived(@NonNull ConnectedDevice device, @NonNull byte[] message) { }
+
+    /**
+     * Called when a message fails to send to a device.
+     *
+     * @param deviceId Id of the device the message failed to send to.
+     * @param message Message to send.
+     */
+    protected void onMessageFailedToSend(@NonNull String deviceId, @NonNull byte[] message) { }
 
     /** Called when an error has occurred with the connection. */
     protected void onDeviceError(@NonNull ConnectedDevice device, @DeviceError int error) { }
