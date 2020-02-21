@@ -104,4 +104,9 @@
     <string name="create_profile_lock_dialog_title">Create a primary profile lock</string>
     <!-- Message for create profile lock dialog [CHAR LIMIT=150]-->
     <string name="create_profile_lock_dialog_message">To use your phone to unlock your profile, you need a primary profile lock as a backup</string>
+
+    <!-- Text for disabling device connection. [CHAR LIMIT=60]-->
+    <string name="disable_device_connection_text">Disconnect this device</string>
+    <!-- Text for enabling device connection. [CHAR LIMIT=60]-->
+    <string name="enable_device_connection_text">Reconnect this device</string>
 </resources>

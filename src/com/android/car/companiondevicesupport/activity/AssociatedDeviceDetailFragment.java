@@ -18,28 +18,28 @@ package com.android.car.companiondevicesupport.activity;
 
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.NonNull;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
-import com.android.car.companiondevicesupport.api.external.CompanionDevice;
-
-import java.util.List;
 
 /** Fragment that shows the details of an associated device. */
 public class AssociatedDeviceDetailFragment extends Fragment {
     private final static String TAG = "AssociatedDeviceDetailFragment";
-    private AssociatedDevice mAssociatedDevice;
     private TextView mDeviceName;
     private TextView mConnectionStatus;
+    private TextView mConnectionText;
+    private ImageView mConnectionIcon;
+    private AssociatedDeviceViewModel mModel;
 
     @Override
     public View onCreateView(
@@ -50,43 +50,49 @@ public class AssociatedDeviceDetailFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mDeviceName = view.findViewById(R.id.device_name);
-
-        AssociatedDeviceViewModel model = ViewModelProviders.of(getActivity())
-                .get(AssociatedDeviceViewModel.class);
-        model.getAssociatedDevices().observe(this, this::setAssociatedDevices);
-        view.findViewById(R.id.remove_button)
-                .setOnClickListener(v -> model.setDeviceToRemove(mAssociatedDevice));
+        mConnectionIcon = view.findViewById(R.id.connection_icon);
+        mConnectionText = view.findViewById(R.id.connection_text);
         mConnectionStatus = view.findViewById(R.id.connection_status);
-        model.getConnectedDevices().observe(this, this::setConnectionStatus);
+
+        mModel = ViewModelProviders.of(getActivity()).get(AssociatedDeviceViewModel.class);
+        mModel.getDeviceDetails().observe(this, this::setDeviceDetails);
+
+        view.findViewById(R.id.connection_button).setOnClickListener(l -> {
+            mModel.toggleConnectionStatusForCurrentDevice();
+        });
+        view.findViewById(R.id.remove_button).setOnClickListener(v ->
+                mModel.selectCurrentDeviceToRemove());
     }
 
-    private void setAssociatedDevices(List<AssociatedDevice> devices) {
-        if (devices.isEmpty()) {
-            loge(TAG, "No device has been associated.");
+    private void setDeviceDetails(AssociatedDeviceDetails deviceDetails) {
+        if (deviceDetails == null) {
             return;
         }
-        if (devices.size() > 1) {
-            loge(TAG, "More than one devices have been associated.");
+        mDeviceName.setText(deviceDetails.getDeviceName());
+        if (!deviceDetails.isConnectionEnabled()) {
+            setConnectionDisabledStyle();
             return;
         }
-        // Currently, we only support single associated device.
-        setAssociatedDevice(devices.get(0));
-    }
-
-    private void setConnectionStatus(List<CompanionDevice> devices) {
-        if (devices.isEmpty()) {
-            mConnectionStatus.setText(getString(R.string.notDetected));
-            return;
-        }
-        // Currently, we only support single connected device.
-        CompanionDevice device = devices.get(0);
-        if (device.getDeviceId().equals(mAssociatedDevice.getDeviceId())) {
+        setConnectionEnabledStyle();
+        if (deviceDetails.isConnected()) {
             mConnectionStatus.setText(getString(R.string.connected));
+        } else {
+            mConnectionStatus.setText(getString(R.string.notDetected));
         }
     }
 
-    private void setAssociatedDevice(@NonNull AssociatedDevice device) {
-        mAssociatedDevice = device;
-        mDeviceName.setText(device.getDeviceName());
+    private void setConnectionEnabledStyle() {
+        mConnectionText.setText(getString(R.string.disable_device_connection_text));
+        mConnectionIcon.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                R.drawable.ic_phonelink_erase));
+        mConnectionStatus.setTextAppearance(R.style.ConnectionEnabled);
+    }
+
+    private void setConnectionDisabledStyle() {
+        mConnectionStatus.setText(getString(R.string.disconnected));
+        mConnectionStatus.setTextAppearance(R.style.ConnectionDisabled);
+        mConnectionText.setText(getString(R.string.enable_device_connection_text));
+        mConnectionIcon.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                R.drawable.ic_phonelink_ring));
     }
 }

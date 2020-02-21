@@ -70,16 +70,16 @@ class TrustedDeviceFeature extends RemoteFeature {
     }
 
     @Override
-    protected void onAssociatedDeviceAdded(String deviceId) {
+    protected void onAssociatedDeviceAdded(AssociatedDevice device) {
         if (mAssociatedDeviceCallback != null) {
-            mAssociatedDeviceCallback.onAssociatedDeviceAdded(deviceId);
+            mAssociatedDeviceCallback.onAssociatedDeviceAdded(device);
         }
     }
 
     @Override
-    protected void onAssociatedDeviceRemoved(String deviceId) {
+    protected void onAssociatedDeviceRemoved(AssociatedDevice device) {
         if (mAssociatedDeviceCallback != null) {
-            mAssociatedDeviceCallback.onAssociatedDeviceRemoved(deviceId);
+            mAssociatedDeviceCallback.onAssociatedDeviceRemoved(device);
         }
     }
 
@@ -100,10 +100,10 @@ class TrustedDeviceFeature extends RemoteFeature {
 
     interface AssociatedDeviceCallback {
         /** Called when a new {@link AssociatedDevice} is added for the given user. */
-        void onAssociatedDeviceAdded(@NonNull String deviceId);
+        void onAssociatedDeviceAdded(@NonNull AssociatedDevice device);
 
-        /** Called when an {@link AssociatedDevice} is removed for the given user.  */
-        void onAssociatedDeviceRemoved(@NonNull String deviceId);
+        /** Called when an {@link AssociatedDevice} is removed for the given user. */
+        void onAssociatedDeviceRemoved(AssociatedDevice device);
 
         /** Called when an {@link AssociatedDevice} is updated for the given user. */
         void onAssociatedDeviceUpdated(@NonNull AssociatedDevice device);
