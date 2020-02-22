@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class AssociatedDeviceDetailFragment extends Fragment {
     private final static String TAG = "AssociatedDeviceDetailFragment";
     private AssociatedDevice mAssociatedDevice;
     private TextView mDeviceName;
+    private TextView mConnectionStatus;
 
     @Override
     public View onCreateView(
@@ -51,18 +53,15 @@ public class AssociatedDeviceDetailFragment extends Fragment {
 
         AssociatedDeviceViewModel model = ViewModelProviders.of(getActivity())
                 .get(AssociatedDeviceViewModel.class);
-        setAssociatedDevices(model.getDevices().getValue());
-        model.getDevices().observe(this, this::setAssociatedDevices);
+        model.getAssociatedDevices().observe(this, this::setAssociatedDevices);
         view.findViewById(R.id.remove_button)
                 .setOnClickListener(v -> model.setDeviceToRemove(mAssociatedDevice));
+        mConnectionStatus = view.findViewById(R.id.connection_status);
+        model.getConnectedDevices().observe(this, this::setConnectionStatus);
     }
 
     private void setAssociatedDevices(List<AssociatedDevice> devices) {
-        if (devices == null) {
-            loge(TAG, "Device list is null.");
-            return;
-        }
-        if (devices.size() == 0) {
+        if (devices.isEmpty()) {
             loge(TAG, "No device has been associated.");
             return;
         }
@@ -72,6 +71,18 @@ public class AssociatedDeviceDetailFragment extends Fragment {
         }
         // Currently, we only support single associated device.
         setAssociatedDevice(devices.get(0));
+    }
+
+    private void setConnectionStatus(List<CompanionDevice> devices) {
+        if (devices.isEmpty()) {
+            mConnectionStatus.setText(getString(R.string.notDetected));
+            return;
+        }
+        // Currently, we only support single connected device.
+        CompanionDevice device = devices.get(0);
+        if (device.getDeviceId().equals(mAssociatedDevice.getDeviceId())) {
+            mConnectionStatus.setText(getString(R.string.connected));
+        }
     }
 
     private void setAssociatedDevice(@NonNull AssociatedDevice device) {

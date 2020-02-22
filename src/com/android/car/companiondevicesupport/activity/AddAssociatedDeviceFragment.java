@@ -21,6 +21,7 @@ import static com.android.car.connecteddevice.util.SafeLog.loge;
 import android.annotation.NonNull;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -66,11 +67,7 @@ public class AddAssociatedDeviceFragment extends Fragment {
             return;
         }
         String selectText = getString(R.string.associated_device_select_device, deviceName);
-        int startPos = selectText.length() - deviceName.length();
-        int endPos = selectText.length();
-        SpannableString spannableString = new SpannableString(selectText);
-        spannableString.setSpan(new StyleSpan(Typeface.BOLD), startPos, endPos,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        textView.setText(spannableString);
+        Spanned styledSelectText = Html.fromHtml(selectText, Html.FROM_HTML_MODE_LEGACY);
+        textView.setText(styledSelectText);
     }
 }

@@ -169,7 +169,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         }
 
         ConversationNotificationInfo convoInfo = ConversationNotificationInfo.
-                createConversationNotificationInfo(device,
+                createConversationNotificationInfo(device.getDeviceName(), device.getDeviceId(),
                 notification, notificationKey);
         mNotificationInfos.put(convoKey, convoInfo);
 

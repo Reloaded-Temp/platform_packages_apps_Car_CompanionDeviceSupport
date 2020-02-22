@@ -24,7 +24,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,17 +34,30 @@ import java.util.List;
  * {@link AssociationFragment} and {@link AssociationActivity}
  */
 public class AssociatedDeviceViewModel extends ViewModel {
-    private final MutableLiveData<List<AssociatedDevice>> mDevices = new MutableLiveData<>();
+    private final MutableLiveData<List<AssociatedDevice>> mAssociatedDevices =
+            new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<CompanionDevice>> mConnectedDevices =
+            new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> mIsSelected = new MutableLiveData<>(false);
     private final MutableLiveData<AssociatedDevice> mDeviceToRemove = new MutableLiveData<>(null);
 
     /**
-     * Set the associated devices.
+     * Set the list of the devices that has been associated with the active user.
      *
-     * @param devices Associated devices.
+     * @param associatedDevices Associated devices.
      */
-    public void setDevices(@NonNull List<AssociatedDevice> devices) {
-        mDevices.postValue(devices);
+    public void setAssociatedDevices(@NonNull List<AssociatedDevice> associatedDevices) {
+        mAssociatedDevices.postValue(associatedDevices);
+    }
+
+    /**
+     * Set the list of devices that are currently connected with the active user. The device in this
+     * list should also be in {@link #mAssociatedDevices}.
+     *
+     * @param connectedDevices Connected devices.
+     */
+    public void setConnectedDevices(@NonNull List<CompanionDevice> connectedDevices) {
+        mConnectedDevices.postValue(connectedDevices);
     }
 
     /**
@@ -63,9 +78,16 @@ public class AssociatedDeviceViewModel extends ViewModel {
         mDeviceToRemove.setValue(device);
     }
 
+    /** The List within the live data can never be null. */
     @NonNull
-    public LiveData<List<AssociatedDevice>> getDevices() {
-        return mDevices;
+    public LiveData<List<AssociatedDevice>> getAssociatedDevices() {
+        return mAssociatedDevices;
+    }
+
+    /** The List within the live data can never be null. */
+    @NonNull
+    public MutableLiveData<List<CompanionDevice>> getConnectedDevices() {
+        return mConnectedDevices;
     }
 
     public LiveData<Boolean> isSelected() {

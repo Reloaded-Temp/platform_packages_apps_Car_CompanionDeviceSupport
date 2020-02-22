@@ -18,6 +18,7 @@ package com.android.car.companiondevicesupport.feature.calendarsync;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
+import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import android.annotation.NonNull;
 import android.content.ContentProviderOperation;
@@ -33,6 +34,7 @@ import com.android.car.companiondevicesupport.feature.calendarsync.proto.Attende
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendar;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendars;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Event;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +46,14 @@ import java.util.regex.Pattern;
  * A helper class dealing with the import and deletion of calendar event data that was sent from a
  * mobile device to the head unit.
  */
-final class CalendarImporter {
+class CalendarImporter {
     private static final String TAG = "CalendarImporter";
 
     static final int INVALID_CALENDAR_ID = -1;
 
     private static final Pattern CALENDAR_ID_PATTERN = Pattern.compile(".*/calendars/(\\d+)\\?.*");
     private static final int CALENDAR_ID_GROUP = 1;
-    private static final Pattern EVENT_ID_PATTERN = Pattern.compile(".*/events/(\\d+)");
+    private static final Pattern EVENT_ID_PATTERN = Pattern.compile(".*/events/(\\d+)\\?.*");
     private static final int EVENT_ID_GROUP = 1;
 
     static final String DEFAULT_ACCOUNT_NAME = "CloudlessCalSync";
@@ -71,9 +73,14 @@ final class CalendarImporter {
      */
     void importCalendars(@NonNull Calendars calendars) {
         for (Calendar calendar : calendars.getCalendarList()) {
+            logd(TAG, String.format("Import Calendar[title=%s, uuid=%s] with %d events",
+                    calendar.getTitle(), calendar.getUuid(), calendar.getEventCount()));
+            if (calendar.getEventCount() == 0) {
+                logd(TAG, "Ignore calendar- has no events");
+                continue;
+            }
             int calId = findOrCreateCalendar(calendar);
-            logd(TAG, String.format("Calendar[title=%s, uuid=%s, id=%d] with %d events",
-                    calendar.getTitle(), calendar.getUuid(), calId, calendar.getEventCount()));
+            logd(TAG, "Importing into calendar with id: " + calId);
             for (Event event : calendar.getEventList()) {
                 insertEvent(event, calId);
             }
@@ -102,7 +109,7 @@ final class CalendarImporter {
                 new String[]{
                         CalendarContract.Calendars._ID
                 },
-                CalendarContract.Calendars._SYNC_ID + "= ?",
+                CalendarContract.Calendars._SYNC_ID + " = ?",
                 new String[]{
                         uuid
                 },
@@ -169,12 +176,25 @@ final class CalendarImporter {
 
         // Insert event to calendar
         Uri eventRowUri = insertContent(CalendarContract.Events.CONTENT_URI, values);
-        Matcher matcher = EVENT_ID_PATTERN.matcher(eventRowUri.toString());
 
-        if (event.getAttendeeCount() > 0 && matcher.matches()) {
-            String eventId = matcher.group(EVENT_ID_GROUP);
-            insertAttendees(event.getAttendeeList(), eventId);
+        if (event.getAttendeeCount() == 0) {
+            return;
         }
+
+        if (eventRowUri == null) {
+            logw(TAG, "Cannot add attendees. Missing new event row URL.");
+            return;
+        }
+
+        Matcher matcher = EVENT_ID_PATTERN.matcher(eventRowUri.toString());
+        if (!matcher.matches()) {
+            logw(TAG,
+                    "Cannot add attendees. Unable to match event id in: " + eventRowUri.toString());
+            return;
+        }
+
+        String eventId = matcher.group(EVENT_ID_GROUP);
+        insertAttendees(event.getAttendeeList(), eventId);
     }
 
     private void insertAttendees(@NonNull List<Attendee> attendees, @NonNull String eventId) {
@@ -215,7 +235,8 @@ final class CalendarImporter {
         return builder.build();
     }
 
-    private static int convertAttendeeStatus(Attendee.Status status) {
+    @VisibleForTesting
+    static int convertAttendeeStatus(Attendee.Status status) {
         switch (status) {
             case NONE_STATUS:
                 return CalendarContract.Attendees.ATTENDEE_STATUS_NONE;
@@ -233,7 +254,8 @@ final class CalendarImporter {
         }
     }
 
-    private static int convertAttendeeType(Attendee.Type type) {
+    @VisibleForTesting
+    static int convertAttendeeType(Attendee.Type type) {
         switch (type) {
             case NONE_TYPE:
                 return CalendarContract.Attendees.TYPE_NONE;
