@@ -16,7 +16,6 @@
 
 package com.android.car.companiondevicesupport.api.external;
 
-import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.annotation.Nullable;
@@ -213,18 +212,20 @@ public class ConnectedDeviceManagerBinder extends IConnectedDeviceManager.Stub {
     public void registerDeviceAssociationCallback(IDeviceAssociationCallback callback) {
         DeviceAssociationCallback associationCallback = new DeviceAssociationCallback() {
             @Override
-            public void onAssociatedDeviceAdded(String deviceId) {
+            public void onAssociatedDeviceAdded(
+                    com.android.car.connecteddevice.model.AssociatedDevice device) {
                 try {
-                    callback.onAssociatedDeviceAdded(deviceId);
+                    callback.onAssociatedDeviceAdded(new AssociatedDevice(device));
                 } catch (RemoteException exception) {
                     loge(TAG, "onAssociatedDeviceAdded failed.", exception);
                 }
             }
 
             @Override
-            public void onAssociatedDeviceRemoved(String deviceId) {
+            public void onAssociatedDeviceRemoved(
+                    com.android.car.connecteddevice.model.AssociatedDevice device) {
                 try {
-                    callback.onAssociatedDeviceRemoved(deviceId);
+                    callback.onAssociatedDeviceRemoved(new AssociatedDevice(device));
                 } catch (RemoteException exception) {
                     loge(TAG, "onAssociatedDeviceRemoved failed.", exception);
                 }

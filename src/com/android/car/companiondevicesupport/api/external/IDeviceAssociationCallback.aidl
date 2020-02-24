@@ -21,10 +21,10 @@ import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 /** Callback for triggered associated device related events. */
 oneway interface IDeviceAssociationCallback {
     /** Triggered when an associated device has been added */
-    void onAssociatedDeviceAdded(in String deviceId);
+    void onAssociatedDeviceAdded(in AssociatedDevice device);
 
     /** Triggered when an associated device has been removed.  */
-    void onAssociatedDeviceRemoved(in String deviceId);
+    void onAssociatedDeviceRemoved(in AssociatedDevice device);
 
     /** Triggered when an associated device has been updated. */
     void onAssociatedDeviceUpdated(in AssociatedDevice device);

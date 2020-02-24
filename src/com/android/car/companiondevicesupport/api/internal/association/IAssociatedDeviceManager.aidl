@@ -27,7 +27,7 @@ interface IAssociatedDeviceManager {
 
     /**
      * Set a callback for association.
-     * @param callback {@link IAssociationCallback} to register.
+     * @param callback {@link IAssociationCallback} to set.
      */
     void setAssociationCallback(in IAssociationCallback callback);
 
@@ -71,4 +71,10 @@ interface IAssociatedDeviceManager {
 
     /** Clear the connection callback from manager. */
     void clearConnectionCallback();
+
+    /** Enable connection on the associated device with the given identifier. */
+    void enableAssociatedDeviceConnection(in String deviceId);
+
+    /** Disable connection on the associated device with the given identifier. */
+    void disableAssociatedDeviceConnection(in String deviceId);
 }

@@ -72,6 +72,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         mConnectedDeviceManager = connectedDeviceManager;
     }
 
+    @Override
     public void setAssociationCallback(IAssociationCallback callback) {
         mRemoteAssociationCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
                 iBinder -> stopAssociation());
@@ -81,6 +82,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         }
     }
 
+    @Override
     public void clearAssociationCallback() {
         mIAssociationCallback = null;
         if (mRemoteAssociationCallbackBinder == null) {
@@ -125,18 +127,20 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     public void setDeviceAssociationCallback(IDeviceAssociationCallback callback) {
         mDeviceAssociationCallback = new DeviceAssociationCallback() {
             @Override
-            public void onAssociatedDeviceAdded(String deviceId) {
+            public void onAssociatedDeviceAdded(
+                    com.android.car.connecteddevice.model.AssociatedDevice device) {
                 try {
-                    callback.onAssociatedDeviceAdded(deviceId);
+                    callback.onAssociatedDeviceAdded(new AssociatedDevice(device));
                 } catch (RemoteException exception) {
                     loge(TAG, "onAssociatedDeviceAdded failed.", exception);
                 }
             }
 
             @Override
-            public void onAssociatedDeviceRemoved(String deviceId) {
+            public void onAssociatedDeviceRemoved(
+                    com.android.car.connecteddevice.model.AssociatedDevice device) {
                 try {
-                    callback.onAssociatedDeviceRemoved(deviceId);
+                    callback.onAssociatedDeviceRemoved(new AssociatedDevice(device));
                 } catch (RemoteException exception) {
                     loge(TAG, "onAssociatedDeviceRemoved failed.", exception);
                 }
@@ -218,6 +222,7 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
                 mCallbackExecutor);
     }
 
+    @Override
     public void clearConnectionCallback() {
         if (mConnectionCallback == null) {
             return;
@@ -226,6 +231,16 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
         mRemoteConnectionCallbackBinder.cleanUp();
         mRemoteConnectionCallbackBinder = null;
         mConnectionCallback = null;
+    }
+
+    @Override
+    public void enableAssociatedDeviceConnection(String deviceId) {
+        mConnectedDeviceManager.enableAssociatedDeviceConnection(deviceId);
+    }
+
+    @Override
+    public void disableAssociatedDeviceConnection(String deviceId) {
+        mConnectedDeviceManager.disableAssociatedDeviceConnection(deviceId);
     }
 
     private AssociationCallback mAssociationCallback = new AssociationCallback() {
