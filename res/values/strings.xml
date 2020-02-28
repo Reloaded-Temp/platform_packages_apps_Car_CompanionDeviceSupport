@@ -30,7 +30,7 @@
     <!-- Title for confirm pairing code fragment [CHAR LIMIT=60]-->
     <string name="associated_device_pairing_code_title">Confirm code on phone</string>
     <!-- Message text shown in confirm pairing code fragment [CHAR LIMIT=100]-->
-    <string name="associated_device_pairing_message">Confirm that this matches the code show on your phone</string>
+    <string name="associated_device_pairing_message">Confirm that this matches the code shown on your phone</string>
     <!-- Message shown when user associates a device successfully [CHAR LIMIT=100]-->
     <string name="associated_device_success">Device has been associated successfully</string>
     <!-- Adding an associated device [CHAR LIMIT=40]-->
