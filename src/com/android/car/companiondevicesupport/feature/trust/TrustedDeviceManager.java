@@ -23,14 +23,20 @@ import static com.android.car.connecteddevice.util.SafeLog.logw;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
+import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectedDeviceManager;
@@ -66,6 +72,10 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private static final String TAG = "TrustedDeviceManager";
 
+    private static final String CHANNEL_ID = "trusteddevice_notification_channel";
+
+    private static final int ENROLLMENT_NOTIFICATION_ID = 0;
+
     /** Length of token generated on a trusted device. */
     private static final int ESCROW_TOKEN_LENGTH = 8;
 
@@ -90,6 +100,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private final AtomicBoolean mIsWaitingForCredentials = new AtomicBoolean(false);
 
+    private final NotificationManager mNotificationManager;
+
     private TrustedDeviceDao mDatabase;
 
     private ITrustedDeviceAgentDelegate mTrustAgentDelegate;
@@ -109,6 +121,12 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mTrustedDeviceFeature.start();
         mDatabase = Room.databaseBuilder(context, TrustedDeviceDatabase.class,
                 TrustedDeviceDatabase.DATABASE_NAME).build().trustedDeviceDao();
+        mNotificationManager = (NotificationManager) mContext.
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelName = mContext.getString(R.string.trusted_device_notification_channel_name);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName,
+                NotificationManager.IMPORTANCE_HIGH);
+        mNotificationManager.createNotificationChannel(channel);
         logd(TAG, "TrustedDeviceManager created successfully.");
     }
 
@@ -126,10 +144,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private void startEnrollment(@NonNull CompanionDevice device, @NonNull byte[] token) {
         logd(TAG, "Starting trusted device enrollment process.");
         mPendingDevice = device;
-        Intent intent = new Intent(mContext, TrustedDeviceActivity.class);
-        intent.putExtra(TrustedDeviceConstants.INTENT_EXTRA_ENROLL_NEW_TOKEN, true);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivityAsUser(intent, UserHandle.of(ActivityManager.getCurrentUser()));
+        showEnrollmentNotification();
 
         mPendingToken = token;
         if (mTrustAgentDelegate == null) {
@@ -143,6 +158,29 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         } catch (RemoteException e) {
             loge(TAG, "Error while adding token through delegate.", e);
         }
+    }
+
+    private void showEnrollmentNotification() {
+        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
+        Intent enrollmentIntent = new Intent(mContext, TrustedDeviceActivity.class)
+                // Setting this action ensures that the TrustedDeviceActivity is resumed if it is
+                // already running.
+                .setAction("com.android.settings.action.EXTRA_SETTINGS")
+                .putExtra(TrustedDeviceConstants.INTENT_EXTRA_ENROLL_NEW_TOKEN, true)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent
+                .getActivityAsUser(mContext, /* requestCode = */ 0, enrollmentIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT, null, currentUser);
+        Notification notification = new Notification.Builder(mContext, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_directions_car_filled)
+                .setColor(ContextCompat.getColor(mContext, R.color.car_red_300))
+                .setContentTitle(mContext.getString(R.string.trusted_device_notification_title))
+                .setContentText(mContext.getString(R.string.trusted_device_notification_content))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
+        mNotificationManager.notifyAsUser(/* tag = */ null, ENROLLMENT_NOTIFICATION_ID,
+                notification, currentUser);
     }
 
     private void unlockUser(@NonNull String deviceId, @NonNull PhoneCredentials credentials) {

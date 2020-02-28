@@ -16,7 +16,7 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">Companion Device Support</string>
+    <string name="app_name" translatable="false">Companion Device</string>
     <!-- Default value for associated device list item [CHAR LIMIT = 20] -->
     <string name="default_device_name">Associated Device</string>
     <!-- Label for button to add an associated device [CHAR LIMIT=50] -->
@@ -126,9 +126,20 @@
     <string name="create_profile_lock_dialog_title">Create a primary profile lock</string>
     <!-- Message for create profile lock dialog [CHAR LIMIT=150]-->
     <string name="create_profile_lock_dialog_message">To use your phone to unlock your profile, you need a primary profile lock as a backup</string>
+    <!-- Title for unlock profile to finish dialog [CHAR LIMIT=50]-->
+    <string name="unlock_profile_to_finish_title">Unlock your profile to finish</string>
+    <!-- Message for unlock profile to finish dialog [CHAR LIMIT=150]-->
+    <string name="unlock_profile_to_finish_message">You\'ve created a new profile lock. Next, enter it again to confirm that your phone can unlock your profile automatically</string>
 
     <!-- Text for disabling device connection. [CHAR LIMIT=60]-->
     <string name="disable_device_connection_text">Disconnect this device</string>
     <!-- Text for enabling device connection. [CHAR LIMIT=60]-->
     <string name="enable_device_connection_text">Reconnect this device</string>
+
+    <!-- Notification channel name for trusted device enrollment [CHAR LIMIT=60]-->
+    <string name="trusted_device_notification_channel_name">Unlock with phone</string>
+    <!-- Notification title for trusted device enrollment [CHAR LIMIT=100]-->
+    <string name="trusted_device_notification_title">Let your phone unlock your profile</string>
+    <!-- Notification content for trusted device enrollment [CHAR LIMIT=100]-->
+    <string name="trusted_device_notification_content">Tap here to authorize this feature</string>
 </resources>
