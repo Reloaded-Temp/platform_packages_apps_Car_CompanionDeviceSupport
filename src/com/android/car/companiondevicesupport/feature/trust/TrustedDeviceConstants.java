@@ -25,4 +25,8 @@ public class TrustedDeviceConstants {
      * Intent extra key for a boolean signalling a new escrow token is being enrolled.
      */
     public static final String INTENT_EXTRA_ENROLL_NEW_TOKEN = "trusted.device.enrolling.token";
+
+    /** Intent action used to start a {@link TrustedDeviceActivity}. */
+    public static final String INTENT_ACTION_TRUSTED_DEVICE_SETTING =
+            "com.android.car.companiondevicesupport.feature.trust.TRUSTED_DEVICE_ACTIVITY";
 }

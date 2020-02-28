@@ -53,6 +53,8 @@
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <meta-data android:name="com.android.settings.icon"
+                       android:resource="@drawable/ic_smartphone" android:value="true"/>
             <meta-data android:name="com.android.settings.title"
                        android:value="@string/app_name" />
             <meta-data android:name="com.android.settings.category"
@@ -102,9 +104,12 @@
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.feature.trust.TRUSTED_DEVICE_ACTIVITY" />
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <meta-data android:name="com.android.settings.icon"
+                       android:resource="@drawable/ic_lock" android:value="true"/>
             <meta-data android:name="com.android.settings.title"
                        android:value="@string/trusted_device_feature_title" />
             <meta-data android:name="com.android.settings.category"

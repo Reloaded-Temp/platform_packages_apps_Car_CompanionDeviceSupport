@@ -23,12 +23,13 @@
         android:id="@+id/device_icon"
         android:layout_width="@dimen/icon_size"
         android:layout_height="@dimen/icon_size"
+        android:layout_marginTop="@dimen/device_detail_margin_top"
         android:src="@drawable/ic_smartphone"
-        android:tint="@color/car_ui_color_accent"
-        android:layout_marginTop="@dimen/device_detail_margin"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/device_name"
+        style="@style/AssociationTopIcon"/>
 
     <TextView
         android:id="@+id/device_name"
@@ -36,21 +37,22 @@
         android:layout_width="wrap_content"
         android:layout_marginTop="@dimen/device_detail_margin"
         android:text="@string/unknown"
-        android:textSize="@dimen/car_ui_body1_size"
-        android:textAppearance="@style/TextAppearance.CarUi"
-        app:layout_constraintTop_toBottomOf="@id/device_icon"
+        android:textAppearance="@style/AssociationTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/device_icon"
+        app:layout_constraintBottom_toTopOf="@+id/connection_status"/>
 
     <TextView
         android:id="@+id/connection_status"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:textSize="@dimen/car_ui_body3_size"
         android:layout_marginTop="@dimen/device_detail_margin"
-        app:layout_constraintTop_toBottomOf="@id/device_name"
+        android:textAppearance="@style/AssociationMessage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/device_name"
+        app:layout_constraintBottom_toTopOf="@+id/connection_button"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/start_guideline"
@@ -63,34 +65,31 @@
         android:id="@+id/connection_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        app:layout_constraintTop_toBottomOf="@id/connection_status"
-        app:layout_constraintStart_toEndOf="@id/start_guideline"
-        app:layout_constraintEnd_toStartOf="@id/end_guideline">
+        android:layout_marginTop="@dimen/device_detail_button_margin_top"
+        app:layout_constraintStart_toEndOf="@+id/start_guideline"
+        app:layout_constraintEnd_toStartOf="@+id/end_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/connection_status"
+        app:layout_constraintBottom_toTopOf="@+id/remove_button"
+        style="@style/DeviceDetailButton">
         <ImageView
             android:id="@+id/connection_icon"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:layout_marginBottom="@dimen/device_detail_margin"
-            android:layout_marginEnd="@dimen/device_detail_margin"
-            android:layout_marginTop="@dimen/device_detail_margin"
-            android:scaleType="fitCenter"
+            android:layout_marginEnd="@dimen/icon_margin_end"
             android:src="@drawable/ic_phonelink_erase"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/connection_text"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/AssociationDetailIcon"/>
         <TextView
             android:id="@+id/connection_text"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/device_detail_button_margin"
             android:text="@string/connection"
-            android:textSize="@dimen/car_ui_body1_size"
-            android:textAppearance="@style/TextAppearance.CarUi"
-            app:layout_constraintStart_toEndOf="@id/connection_icon"
+            android:textAppearance="@style/AssociationTitle"
+            app:layout_constraintStart_toEndOf="@+id/connection_icon"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -99,33 +98,73 @@
         android:id="@+id/remove_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        app:layout_constraintTop_toBottomOf="@id/connection_button"
-        app:layout_constraintStart_toEndOf="@id/start_guideline"
-        app:layout_constraintEnd_toStartOf="@id/end_guideline">
+        app:layout_constraintStart_toEndOf="@+id/start_guideline"
+        app:layout_constraintEnd_toStartOf="@+id/end_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/connection_button"
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        style="@style/DeviceDetailButton">
         <ImageView
             android:id="@+id/delete_icon"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:layout_marginBottom="@dimen/device_detail_margin"
-            android:layout_marginEnd="@dimen/device_detail_margin"
-            android:layout_marginTop="@dimen/device_detail_margin"
-            android:scaleType="fitCenter"
+            android:layout_marginEnd="@dimen/icon_margin_end"
             android:src="@drawable/ic_delete"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/remove_text"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/AssociationDetailIcon"/>
+        <TextView
+            android:id="@+id/remove_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/forget_title"
+            android:textAppearance="@style/AssociationTitle"
+            app:layout_constraintStart_toEndOf="@+id/delete_icon"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/device_detail_divider_margin"
+        app:layout_constraintStart_toEndOf="@+id/start_guideline"
+        app:layout_constraintEnd_toStartOf="@+id/end_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/remove_button"
+        app:layout_constraintBottom_toTopOf="@+id/trusted_device_feature_button"
+        style="@style/DeviceDetailDivider"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/trusted_device_feature_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/device_detail_divider_margin"
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:layout_constraintStart_toEndOf="@+id/start_guideline"
+        app:layout_constraintEnd_toStartOf="@+id/end_guideline"
+        style="@style/DeviceDetailButton">
+        <ImageView
+            android:id="@+id/trusted_device_icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_marginEnd="@dimen/icon_margin_end"
+            android:src="@drawable/ic_lock"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/trusted_device_title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/AssociationDetailIcon"/>
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/trusted_device_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/device_detail_button_margin"
-            android:text="@string/forget"
-            android:textSize="@dimen/car_ui_body1_size"
-            android:textAppearance="@style/TextAppearance.CarUi"
-            app:layout_constraintStart_toEndOf="@id/delete_icon"
+            android:text="@string/trusted_device_feature_title"
+            android:textAppearance="@style/AssociationTitle"
+            app:layout_constraintStart_toEndOf="@+id/trusted_device_icon"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -137,12 +176,4 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="@dimen/car_ui_margin" />
 
-    <com.android.car.ui.recyclerview.CarUiRecyclerView
-        android:id="@+id/feature_list"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/remove_button"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
