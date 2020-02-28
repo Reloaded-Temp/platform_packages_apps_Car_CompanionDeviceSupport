@@ -18,20 +18,30 @@
 <resources>
     <dimen name="car_button_height">@*android:dimen/car_button_height</dimen>
     <dimen name="icon_size">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="icon_margin_end">44dp</dimen>
     <dimen name="list_item_margin_top">@dimen/car_ui_preference_content_margin_top</dimen>
     <dimen name="list_item_margin_bottom">@dimen/car_ui_preference_content_margin_bottom</dimen>
     <dimen name="list_item_margin_end">@dimen/car_ui_preference_icon_margin_end</dimen>
+    <dimen name="list_item_height">116dp</dimen>
+    <dimen name="list_item_padding">36dp</dimen>
 
-    <dimen name="instruction_icon_size">@dimen/car_ui_primary_icon_size</dimen>
-    <dimen name="instruction_icon_margin">@dimen/car_ui_padding_3</dimen>
-    <dimen name="instruction_detail_margin">@dimen/car_ui_padding_3</dimen>
-    <dimen name="instruction_margin">@dimen/car_ui_padding_5</dimen>
+    <dimen name="title_margin_top">116dp</dimen>
+    <dimen name="message_margin_top">@dimen/car_ui_padding_3</dimen>
+    <dimen name="button_margin_top">48dp</dimen>
 
-    <dimen name="device_detail_top_margin">@dimen/car_ui_padding_3</dimen>
-    <dimen name="device_detail_margin">@dimen/car_ui_padding_2</dimen>
-    <dimen name="device_detail_button_margin">@dimen/car_ui_padding_3</dimen>
+    <dimen name="instruction_margin_top">48dp</dimen>
+    <dimen name="instruction_detail_margin_top">@dimen/car_ui_padding_3</dimen>
+    <dimen name="instruction_steps_margin_top">72dp</dimen>
 
-    <dimen name="car_ui_display1_size">56dp</dimen>
+    <dimen name="pairing_code_top_margin">@dimen/car_ui_padding_5</dimen>
+
+    <dimen name="device_detail_margin_top">48dp</dimen>
+    <dimen name="device_detail_margin">@dimen/car_ui_padding_3</dimen>
+    <dimen name="device_detail_text_margin">44dp</dimen>
+    <dimen name="device_detail_button_margin_top">72dp</dimen>
+    <dimen name="device_detail_divider_margin">@dimen/car_ui_padding_2</dimen>
+
+    <dimen name="car_ui_display1_size">44sp</dimen>
 
     <item name="pairing_code_text_spacing" format="float" type="dimen">0.6</item>
 </resources>

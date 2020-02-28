@@ -16,12 +16,17 @@
 
 package com.android.car.companiondevicesupport.activity;
 
+import static com.android.car.connecteddevice.util.SafeLog.logd;
+import static com.android.car.connecteddevice.util.SafeLog.loge;
+
 import android.annotation.NonNull;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -50,7 +55,10 @@ public class AssociationActivity extends FragmentActivity {
     private static final String ADD_DEVICE_FRAGMENT_TAG = "AddAssociatedDeviceFragment";
     private static final String DEVICE_DETAIL_FRAGMENT_TAG = "AssociatedDeviceDetailFragment";
     private static final String PAIRING_CODE_FRAGMENT_TAG = "ConfirmPairingCodeFragment";
+    private static final String TURN_ON_BLUETOOTH_FRAGMENT_TAG = "TurnOnBluetoothFragment";
+    private static final String ASSOCIATION_ERROR_FRAGMENT_TAG = "AssociationErrorFragment";
     private static final String REMOVE_DEVICE_DIALOG_TAG = "RemoveDeviceDialog";
+    private static final String TURN_ON_BLUETOOTH_DIALOG_TAG = "TurnOnBluetoothDialog";
 
     private Toolbar mToolbar;
     private AssociatedDeviceViewModel mModel;
@@ -78,6 +86,40 @@ public class AssociationActivity extends FragmentActivity {
     private void observeViewModel() {
         mModel = ViewModelProviders.of(this).get(AssociatedDeviceViewModel.class);
 
+        mModel.getAssociationState().observe(this, state -> {
+            switch (state) {
+                case PENDING:
+                    if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                        runOnUiThread(this::showTurnOnBluetoothFragment);
+                    }
+                    break;
+                case COMPLETED:
+                    mModel.resetAssociationState();
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                            getString(R.string.continue_setup_toast_text),
+                            Toast.LENGTH_SHORT).show());
+                    break;
+                case ERROR:
+                    mModel.resetAssociationState();
+                    runOnUiThread(this::showAssociationErrorFragment);
+                    break;
+                case NONE:
+                case STARTING:
+                case STARTED:
+                    logd(TAG, "Ignore encountered association state: " + state);
+                    break;
+                default:
+                    loge(TAG, "Encountered unexpected association state: " + state);
+            }
+        });
+
+        mModel.getBluetoothState().observe(this, state -> {
+            if (state != BluetoothAdapter.STATE_ON && getSupportFragmentManager()
+                    .findFragmentByTag(DEVICE_DETAIL_FRAGMENT_TAG) != null) {
+                runOnUiThread(this::showTurnOnBluetoothDialog);
+            }
+        });
+
         mModel.getAdvertisedCarName().observe(this, name -> {
             if (name != null) {
                 runOnUiThread(() -> showAddAssociatedDeviceFragment(name));
@@ -99,9 +141,20 @@ public class AssociationActivity extends FragmentActivity {
                 runOnUiThread(this::showAssociatedDeviceDetailFragment);
             }
         });
+
         mModel.getDeviceToRemove().observe(this, device -> {
             if (device != null) {
                 runOnUiThread(() -> showRemoveDeviceDialog(device));
+            }
+        });
+
+        mModel.getRemovedDevice().observe(this, device -> {
+            if (device != null) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                        getString(R.string.device_removed_success_toast_text,
+                                device.getDeviceName()),
+                        Toast.LENGTH_SHORT).show());
+                finish();
             }
         });
         mModel.isFinished().observe(this, isFinished -> {
@@ -109,6 +162,12 @@ public class AssociationActivity extends FragmentActivity {
                 finish();
             }
         });
+    }
+
+    private void showTurnOnBluetoothFragment() {
+        TurnOnBluetoothFragment fragment = new TurnOnBluetoothFragment();
+        mToolbar.showProgressBar();
+        launchFragment(fragment, TURN_ON_BLUETOOTH_FRAGMENT_TAG);
     }
 
     private void showAddAssociatedDeviceFragment(String deviceName) {
@@ -124,20 +183,25 @@ public class AssociationActivity extends FragmentActivity {
         mToolbar.hideProgressBar();
     }
 
+    private void showAssociationErrorFragment() {
+        dismissConfirmButtons();
+        mToolbar.showProgressBar();
+        AssociationErrorFragment fragment = new AssociationErrorFragment();
+        launchFragment(fragment,  ASSOCIATION_ERROR_FRAGMENT_TAG);
+    }
+
     private void showAssociatedDeviceDetailFragment() {
         AssociatedDeviceDetailFragment fragment = new AssociatedDeviceDetailFragment();
         launchFragment(fragment, DEVICE_DETAIL_FRAGMENT_TAG);
         mToolbar.hideProgressBar();
+        showTurnOnBluetoothDialog();
     }
 
     private void showConfirmButtons() {
         MenuItem cancelButton = MenuItem.builder(this)
-                .setTitle(R.string.cancel)
-                .setOnClickListener(i -> {
-                    mModel.stopAssociation();
-                    dismissConfirmButtons();
-                    finish();
-                }).build();
+                .setTitle(R.string.retry)
+                .setOnClickListener(i -> retryAssociation())
+                .build();
         MenuItem confirmButton = MenuItem.builder(this)
                 .setTitle(R.string.confirm)
                 .setOnClickListener(i -> {
@@ -159,6 +223,13 @@ public class AssociationActivity extends FragmentActivity {
         removeDeviceDialogFragment.show(getSupportFragmentManager(), REMOVE_DEVICE_DIALOG_TAG);
     }
 
+    private void showTurnOnBluetoothDialog() {
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            TurnOnBluetoothDialogFragment fragment = new TurnOnBluetoothDialogFragment();
+            fragment.show(getSupportFragmentManager(), TURN_ON_BLUETOOTH_DIALOG_TAG);
+        }
+    }
+
     private void resumePreviousState() {
         if (getSupportFragmentManager().findFragmentByTag(PAIRING_CODE_FRAGMENT_TAG) != null) {
             showConfirmButtons();
@@ -178,6 +249,17 @@ public class AssociationActivity extends FragmentActivity {
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment, tag)
                 .commit();
+    }
+
+    private void retryAssociation() {
+        dismissConfirmButtons();
+        mToolbar.showProgressBar();
+        Fragment fragment = getSupportFragmentManager()
+                .findFragmentByTag(PAIRING_CODE_FRAGMENT_TAG);
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        mModel.retryAssociation();
     }
 
     private void setDeviceToReturn(AssociatedDevice device) {
@@ -219,13 +301,27 @@ public class AssociationActivity extends FragmentActivity {
                     .setTitle(getString(R.string.remove_associated_device_title, deviceName))
                     .setMessage(getString(R.string.remove_associated_device_message))
                     .setNegativeButton(getString(R.string.cancel), null)
-                    .setPositiveButton(getString(R.string.remove), mOnConfirmListener)
+                    .setPositiveButton(getString(R.string.forget), mOnConfirmListener)
                     .setCancelable(true)
                     .create();
         }
 
         void setOnConfirmListener(DialogInterface.OnClickListener onConfirmListener) {
             mOnConfirmListener = onConfirmListener;
+        }
+    }
+
+    public static class TurnOnBluetoothDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(getString(R.string.turn_on_bluetooth_dialog_title))
+                    .setMessage(getString(R.string.turn_on_bluetooth_dialog_message))
+                    .setPositiveButton(getString(R.string.turn_on), (d, w) ->
+                            BluetoothAdapter.getDefaultAdapter().enable())
+                    .setNegativeButton(getString(R.string.not_now), null)
+                    .setCancelable(true)
+                    .create();
         }
     }
 }

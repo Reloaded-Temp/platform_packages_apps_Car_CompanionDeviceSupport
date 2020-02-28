@@ -198,6 +198,21 @@ public class TrustedDeviceActivity extends FragmentActivity {
         });
     }
 
+    private boolean hasAssociatedDevice() {
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (!TrustedDeviceConstants.INTENT_ACTION_TRUSTED_DEVICE_SETTING.equals(action)) {
+            return false;
+        }
+        AssociatedDevice device = intent.getParcelableExtra(ASSOCIATED_DEVICE_DATA_NAME_EXTRA);
+        if (device == null) {
+            loge(TAG, "No valid associated device.");
+            return false;
+        }
+        showTrustedDeviceDetailFragment(device);
+        return true;
+    }
+
     private void attemptInitiatingEnrollment(AssociatedDevice device) {
         if (!isCompanionDeviceConnected(device.getDeviceId())) {
             DeviceNotConnectedDialogFragment fragment = new DeviceNotConnectedDialogFragment();
@@ -309,7 +324,9 @@ public class TrustedDeviceActivity extends FragmentActivity {
 
             logd(TAG, "Successfully connected to TrustedDeviceManager.");
 
-            retrieveAssociatedDevice();
+            if (!hasAssociatedDevice()) {
+                retrieveAssociatedDevice();
+            }
 
             Intent incomingIntent = getIntent();
             if (incomingIntent == null || !incomingIntent.getBooleanExtra(

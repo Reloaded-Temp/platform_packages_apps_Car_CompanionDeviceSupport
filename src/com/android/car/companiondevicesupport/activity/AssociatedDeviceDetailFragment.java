@@ -31,6 +31,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
+import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceConstants;
+
 
 /** Fragment that shows the details of an associated device. */
 public class AssociatedDeviceDetailFragment extends Fragment {
@@ -62,6 +64,9 @@ public class AssociatedDeviceDetailFragment extends Fragment {
         });
         view.findViewById(R.id.remove_button).setOnClickListener(v ->
                 mModel.selectCurrentDeviceToRemove());
+        view.findViewById(R.id.trusted_device_feature_button).setOnClickListener(v ->
+                mModel.startFeatureActivityForCurrentDevice(
+                        TrustedDeviceConstants.INTENT_ACTION_TRUSTED_DEVICE_SETTING));
     }
 
     private void setDeviceDetails(AssociatedDeviceDetails deviceDetails) {
