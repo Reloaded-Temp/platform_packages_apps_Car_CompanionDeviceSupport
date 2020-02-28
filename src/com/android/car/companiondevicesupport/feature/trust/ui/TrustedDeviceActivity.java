@@ -363,32 +363,10 @@ public class TrustedDeviceActivity extends FragmentActivity {
 
         @Override
         public void onAssociatedDeviceRemoved(AssociatedDevice device) {
-            if (mTrustedDeviceManager == null) {
-                loge(TAG, "Failed to remove trusted device on associated device removed.");
-                return;
+            AssociatedDevice currentDevice = mModel.getAssociatedDevice().getValue();
+            if (device.equals(currentDevice)) {
+                finish();
             }
-
-            try {
-                List<TrustedDevice> trustedDevices = mTrustedDeviceManager
-                        .getTrustedDevicesForActiveUser();
-                if (trustedDevices == null || trustedDevices.isEmpty()) {
-                    return;
-                }
-                TrustedDevice deviceToRemove = null;
-                for (TrustedDevice trustedDevice : trustedDevices) {
-                    if (trustedDevice.getDeviceId().equals(device.getDeviceId())) {
-                        deviceToRemove = trustedDevice;
-                        break;
-                    }
-                }
-                if (deviceToRemove != null) {
-                    mTrustedDeviceManager.removeTrustedDevice(deviceToRemove);
-                    finish();
-                }
-            } catch (RemoteException e) {
-                loge(TAG, "Error while responding to associated device removed event.", e);
-            }
-
         }
 
         @Override
