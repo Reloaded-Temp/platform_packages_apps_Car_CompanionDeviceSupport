@@ -53,6 +53,7 @@ import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceManager
 import com.android.car.ui.toolbar.Toolbar;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /** Activity for enrolling and viewing trusted devices. */
@@ -73,8 +74,24 @@ public class TrustedDeviceActivity extends FragmentActivity {
     private static final String DEVICE_NOT_CONNECTED_DIALOG_TAG =
             "DeviceNotConnectedDialogFragmentTag";
 
-        private static final String CREATE_PROFILE_LOCK_DIALOG_TAG =
-            "CreateProfileLockdialogFragmentTag";
+    private static final String CREATE_PROFILE_LOCK_DIALOG_TAG =
+            "CreateProfileLockDialogFragmentTag";
+
+    private static final String UNLOCK_PROFILE_TO_FINISH_DIALOG_TAG =
+            "UnlockProfileToFinishDialogFragmentTag";
+
+    /** {@code true} if a PIN/Pattern/Password has just been set as a screen lock. */
+    private final AtomicBoolean mIsScreenLockNewlyCreated = new AtomicBoolean(false);
+
+    private final AtomicBoolean mIsStartedForEnrollment = new AtomicBoolean(false);
+
+    private final AtomicBoolean mHasPendingCredential = new AtomicBoolean(false);
+
+    /**
+     * {@code true} if this activity is relaunched for enrollment and the activity needs to be
+     * finished after enrollment has completed.
+     */
+    private final AtomicBoolean mWasRelaunched = new AtomicBoolean(false);
 
     private KeyguardManager mKeyguardManager;
 
@@ -93,7 +110,10 @@ public class TrustedDeviceActivity extends FragmentActivity {
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.trusted_device_feature_title);
         mToolbar.showProgressBar();
-
+        mIsScreenLockNewlyCreated.set(false);
+        mIsStartedForEnrollment.set(false);
+        mHasPendingCredential.set(false);
+        mWasRelaunched.set(false);
         Intent intent = new Intent(this, TrustedDeviceManagerService.class);
         bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
     }
@@ -116,8 +136,12 @@ public class TrustedDeviceActivity extends FragmentActivity {
                 if (!isDeviceSecure()) {
                     loge(TAG, "Set up new lock unsuccessful. Returned result code: "
                             + resultCode + ".");
-
+                    mIsScreenLockNewlyCreated.set(false);
                     return;
+                }
+
+                if (mHasPendingCredential.get()) {
+                    showUnlockProfileDialogFragment();
                 }
                 break;
             case RETRIEVE_ASSOCIATED_DEVICE_REQUEST_CODE:
@@ -138,20 +162,18 @@ public class TrustedDeviceActivity extends FragmentActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent == null || !intent.getBooleanExtra(
+        mWasRelaunched.set(true);
+        if (intent != null && intent.getBooleanExtra(
                 TrustedDeviceConstants.INTENT_EXTRA_ENROLL_NEW_TOKEN, false)) {
-            return;
+            processEnrollment();
         }
-        maybePromptToCreatePassword();
+
     }
 
     @Override
     protected void onDestroy() {
         try {
-            mTrustedDeviceManager.removeOnValidateCredentialsRequestListener(
-                    mOnValidateCredentialsListener);
-            mTrustedDeviceManager.unregisterTrustedDeviceCallback(mTrustedDeviceCallback);
-            mTrustedDeviceManager.unregisterAssociatedDeviceCallback(mDeviceAssociationCallback);
+            unregisterCallbacks();
         } catch (RemoteException e) {
             loge(TAG, "Error while disconnecting from service.", e);
         }
@@ -168,6 +190,13 @@ public class TrustedDeviceActivity extends FragmentActivity {
                 .findFragmentByTag(CREATE_PROFILE_LOCK_DIALOG_TAG);
         if (createProfileLockDialogFragment != null) {
             createProfileLockDialogFragment.setOnConfirmListener((d, w) -> createScreenLock());
+        }
+
+        UnlockProfileDialogFragment unlockProfileDialogFragment =
+                (UnlockProfileDialogFragment) getSupportFragmentManager()
+                .findFragmentByTag(UNLOCK_PROFILE_TO_FINISH_DIALOG_TAG);
+        if (unlockProfileDialogFragment != null) {
+            unlockProfileDialogFragment.setOnConfirmListener((d, w) -> validateCredentials());
         }
     }
 
@@ -256,6 +285,14 @@ public class TrustedDeviceActivity extends FragmentActivity {
         if (keyguardManager == null) {
             return;
         }
+        if (!mIsStartedForEnrollment.get()) {
+            mHasPendingCredential.set(true);
+            return;
+        }
+        if (mIsScreenLockNewlyCreated.get()) {
+            showUnlockProfileDialogFragment();
+            return;
+        }
         @SuppressWarnings("deprecation") // Car does not support Biometric lock as of now.
         Intent confirmIntent = keyguardManager.createConfirmDeviceCredentialIntent(
                 "PLACEHOLDER PROMPT TITLE", "PLACEHOLDER PROMPT MESSAGE");
@@ -263,9 +300,24 @@ public class TrustedDeviceActivity extends FragmentActivity {
             loge(TAG, "User either has no lock screen, or a token is already registered.");
             return;
         }
-
+        mHasPendingCredential.set(false);
+        mIsStartedForEnrollment.set(false);
         logd(TAG, "Prompting user to validate credentials.");
         startActivityForResult(confirmIntent, ACTIVATE_TOKEN_REQUEST_CODE);
+        if (!mWasRelaunched.get()) {
+            // If the activity is not relaunched for enrollment, it needs to be finished to make the
+            // foreground return to the previous screen.
+            finish();
+        }
+    }
+
+    private void processEnrollment() {
+        mIsStartedForEnrollment.set(true);
+        if (mHasPendingCredential.get()) {
+            validateCredentials();
+            return;
+        }
+        maybePromptToCreatePassword();
     }
 
     private void maybePromptToCreatePassword() {
@@ -284,6 +336,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
         }
         logd(TAG, "User has not set a lock screen. Redirecting to set up.");
         Intent intent = new Intent(ACTION_LOCK_SETTINGS);
+        mIsScreenLockNewlyCreated.set(true);
         startActivityForResult(intent, CREATE_LOCK_REQUEST_CODE);
     }
 
@@ -308,15 +361,41 @@ public class TrustedDeviceActivity extends FragmentActivity {
                 .commit();
     }
 
+    private void showUnlockProfileDialogFragment() {
+        mIsScreenLockNewlyCreated.set(false);
+        UnlockProfileDialogFragment fragment = UnlockProfileDialogFragment.newInstance((d, w) ->
+            validateCredentials());
+        fragment.show(getSupportFragmentManager(), UNLOCK_PROFILE_TO_FINISH_DIALOG_TAG);
+    }
+
+    private void registerCallbacks() throws RemoteException {
+        if (mTrustedDeviceManager == null) {
+            loge(TAG, "Server not connected when attempting to register callbacks.");
+            return;
+        }
+        mTrustedDeviceManager.addOnValidateCredentialsRequestListener(
+                mOnValidateCredentialsListener);
+        mTrustedDeviceManager.registerTrustedDeviceCallback(mTrustedDeviceCallback);
+        mTrustedDeviceManager.registerAssociatedDeviceCallback(mDeviceAssociationCallback);
+    }
+
+    private void unregisterCallbacks() throws RemoteException {
+        if (mTrustedDeviceManager == null) {
+            loge(TAG, "Server not connected when attempting to unregister callbacks.");
+            return;
+        }
+        mTrustedDeviceManager.removeOnValidateCredentialsRequestListener(
+                mOnValidateCredentialsListener);
+        mTrustedDeviceManager.unregisterTrustedDeviceCallback(mTrustedDeviceCallback);
+        mTrustedDeviceManager.unregisterAssociatedDeviceCallback(mDeviceAssociationCallback);
+    }
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mTrustedDeviceManager = ITrustedDeviceManager.Stub.asInterface(service);
             try {
-                mTrustedDeviceManager.addOnValidateCredentialsRequestListener(
-                        mOnValidateCredentialsListener);
-                mTrustedDeviceManager.registerTrustedDeviceCallback(mTrustedDeviceCallback);
-                mTrustedDeviceManager.registerAssociatedDeviceCallback(mDeviceAssociationCallback);
+                registerCallbacks();
                 mModel.setTrustedDevices(mTrustedDeviceManager.getTrustedDevicesForActiveUser());
             } catch (RemoteException e) {
                 loge(TAG, "Error while connecting to service.");
@@ -329,11 +408,10 @@ public class TrustedDeviceActivity extends FragmentActivity {
             }
 
             Intent incomingIntent = getIntent();
-            if (incomingIntent == null || !incomingIntent.getBooleanExtra(
+            if (incomingIntent != null && incomingIntent.getBooleanExtra(
                     TrustedDeviceConstants.INTENT_EXTRA_ENROLL_NEW_TOKEN, false)) {
-                return;
+                processEnrollment();
             }
-            maybePromptToCreatePassword();
         }
 
         @Override
@@ -426,6 +504,32 @@ public class TrustedDeviceActivity extends FragmentActivity {
             return new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.create_profile_lock_dialog_title))
                     .setMessage(getString(R.string.create_profile_lock_dialog_message))
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setPositiveButton(getString(R.string.continue_button), mOnConfirmListener)
+                    .setCancelable(true)
+                    .create();
+        }
+
+        void setOnConfirmListener(DialogInterface.OnClickListener onConfirmListener) {
+            mOnConfirmListener = onConfirmListener;
+        }
+    }
+
+    /** Dialog Fragment to notify that the user needs to unlock again to finish enrollment. */
+    public static class UnlockProfileDialogFragment extends DialogFragment {
+        private DialogInterface.OnClickListener mOnConfirmListener;
+
+        static UnlockProfileDialogFragment newInstance(DialogInterface.OnClickListener listener) {
+            UnlockProfileDialogFragment fragment = new UnlockProfileDialogFragment();
+            fragment.setOnConfirmListener(listener);
+            return fragment;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(getString(R.string.unlock_profile_to_finish_title))
+                    .setMessage(getString(R.string.unlock_profile_to_finish_message))
                     .setNegativeButton(getString(R.string.cancel), null)
                     .setPositiveButton(getString(R.string.continue_button), mOnConfirmListener)
                     .setCancelable(true)
