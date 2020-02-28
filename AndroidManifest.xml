@@ -102,7 +102,7 @@
         <activity
             android:name=".feature.trust.ui.TrustedDeviceActivity"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.android.car.companiondevicesupport.feature.trust.TRUSTED_DEVICE_ACTIVITY" />
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />

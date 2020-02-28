@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
@@ -45,14 +46,19 @@ import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDevic
 import com.android.car.companiondevicesupport.feature.trust.ui.TrustedDeviceActivity;
 import com.android.car.companiondevicesupport.protos.PhoneAuthProto.PhoneCredentials;
 import com.android.car.connecteddevice.util.ByteUtils;
-import com.android.car.connecteddevice.util.ThreadSafeCallbacks;
+import com.android.car.connecteddevice.util.RemoteCallbackBinder;
 import com.android.car.protobuf.InvalidProtocolBufferException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 
 /** Manager for the feature of unlocking the head unit with a user's trusted device. */
@@ -65,14 +71,16 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private static final byte[] ACKNOWLEDGEMENT_MESSAGE = "ACK".getBytes();
 
-    private final ThreadSafeCallbacks<ITrustedDeviceCallback> mTrustedDeviceCallbacks =
-            new ThreadSafeCallbacks<>();
+    private final Map<IBinder, ITrustedDeviceCallback> mTrustedDeviceCallbacks =
+            new ConcurrentHashMap<>();
 
-    private final ThreadSafeCallbacks<IOnValidateCredentialsRequestListener> mEnrollmentCallbacks =
-            new ThreadSafeCallbacks<>();
+    private final Map<IBinder, IOnValidateCredentialsRequestListener> mEnrollmentCallbacks
+            = new ConcurrentHashMap<>();
 
-    private final ThreadSafeCallbacks<IDeviceAssociationCallback> mAssociatedDeviceCallbacks =
-            new ThreadSafeCallbacks<>();
+    private final Map<IBinder, IDeviceAssociationCallback> mAssociatedDeviceCallbacks =
+            new ConcurrentHashMap<>();
+
+    private final Set<RemoteCallbackBinder> mCallbackBinders = new CopyOnWriteArraySet<>();
 
     private final Context mContext;
 
@@ -160,7 +168,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
 
         mIsWaitingForCredentials.set(false);
-        mEnrollmentCallbacks.invoke(callback -> {
+        notifyEnrollmentCallbacks(callback -> {
             try {
                 callback.onValidateCredentialsRequest();
             } catch (RemoteException e) {
@@ -186,7 +194,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mDatabase.addOrReplaceTrustedDevice(entity);
         mPendingDevice = null;
         TrustedDevice trustedDevice = new TrustedDevice(deviceId, userId, handle);
-        mTrustedDeviceCallbacks.invoke(callback -> {
+        notifyTrustedDeviceCallbacks(callback -> {
             try {
                 callback.onTrustedDeviceAdded(trustedDevice);
             } catch (RemoteException e) {
@@ -227,7 +235,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             loge(TAG, "Error while removing token through delegate.", e);
             return;
         }
-        mTrustedDeviceCallbacks.invoke(callback -> {
+        notifyTrustedDeviceCallbacks(callback -> {
             try {
                 callback.onTrustedDeviceRemoved(trustedDevice);
             } catch (RemoteException e) {
@@ -254,29 +262,41 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     @Override
     public void registerTrustedDeviceCallback(ITrustedDeviceCallback callback)  {
-        mTrustedDeviceCallbacks.add(callback, mExecutor);
+        mTrustedDeviceCallbacks.put(callback.asBinder(), callback);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(), iBinder ->
+                unregisterTrustedDeviceCallback(callback));
+        mCallbackBinders.add(remoteBinder);
     }
 
     @Override
     public void unregisterTrustedDeviceCallback(ITrustedDeviceCallback callback) {
-        mTrustedDeviceCallbacks.remove(callback);
+        IBinder binder = callback.asBinder();
+        mTrustedDeviceCallbacks.remove(binder);
+        removeRemoteBinder(binder);
     }
 
     @Override
     public void registerAssociatedDeviceCallback(IDeviceAssociationCallback callback) {
-        mAssociatedDeviceCallbacks.add(callback, mExecutor);
+        mAssociatedDeviceCallbacks.put(callback.asBinder(), callback);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(), iBinder ->
+                unregisterAssociatedDeviceCallback(callback));
+        mCallbackBinders.add(remoteBinder);
     }
 
     @Override
     public void unregisterAssociatedDeviceCallback(IDeviceAssociationCallback callback) {
-        mAssociatedDeviceCallbacks.remove(callback);
+        IBinder binder = callback.asBinder();
+        mAssociatedDeviceCallbacks.remove(binder);
+        removeRemoteBinder(binder);
     }
 
     @Override
     public void addOnValidateCredentialsRequestListener(
             IOnValidateCredentialsRequestListener listener) {
-        mEnrollmentCallbacks.add(listener, mExecutor);
-
+        mEnrollmentCallbacks.put(listener.asBinder(), listener);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(listener.asBinder(),
+                iBinder -> removeOnValidateCredentialsRequestListener(listener));
+        mCallbackBinders.add(remoteBinder);
         // A token has been added and is waiting on user credential validation.
         if (mIsWaitingForCredentials.getAndSet(false)) {
             mExecutor.execute(() -> {
@@ -291,8 +311,10 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     @Override
     public void removeOnValidateCredentialsRequestListener(
-            IOnValidateCredentialsRequestListener trustEnrollmentCallback)  {
-        mEnrollmentCallbacks.remove(trustEnrollmentCallback);
+            IOnValidateCredentialsRequestListener listener)  {
+        IBinder binder = listener.asBinder();
+        mEnrollmentCallbacks.remove(binder);
+        removeRemoteBinder(binder);
     }
 
     @Override
@@ -386,6 +408,37 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         unlockUser(device.getDeviceId(), credentials);
     }
 
+    private void notifyTrustedDeviceCallbacks(Consumer<ITrustedDeviceCallback> notification) {
+        mTrustedDeviceCallbacks.forEach((iBinder, callback) -> mExecutor.execute(() ->
+                notification.accept(callback)));
+    }
+
+    private void notifyEnrollmentCallbacks(
+            Consumer<IOnValidateCredentialsRequestListener> notification ) {
+        mEnrollmentCallbacks.forEach((iBinder, callback) -> mExecutor.execute(() ->
+                notification.accept(callback)));
+    }
+
+    private void notifyAssociatedDeviceCallbacks(
+            Consumer<IDeviceAssociationCallback> notification ) {
+        mAssociatedDeviceCallbacks.forEach((iBinder, callback) -> mExecutor.execute(() ->
+                notification.accept(callback)));
+    }
+
+    private void removeRemoteBinder(IBinder binder) {
+        RemoteCallbackBinder remoteBinderToRemove = null;
+        for (RemoteCallbackBinder remoteBinder : mCallbackBinders) {
+            if (remoteBinder.getCallbackBinder().equals(binder)) {
+                remoteBinderToRemove = remoteBinder;
+                break;
+            }
+        }
+        if (remoteBinderToRemove != null) {
+            remoteBinderToRemove.cleanUp();
+            mCallbackBinders.remove(remoteBinderToRemove);
+        }
+    }
+
     private final TrustedDeviceFeature.Callback mFeatureCallback =
             new TrustedDeviceFeature.Callback() {
         @Override
@@ -408,7 +461,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             new TrustedDeviceFeature.AssociatedDeviceCallback() {
         @Override
         public void onAssociatedDeviceAdded(AssociatedDevice device) {
-            mAssociatedDeviceCallbacks.invoke(callback -> {
+            notifyAssociatedDeviceCallbacks(callback -> {
                 try {
                     callback.onAssociatedDeviceAdded(device);
                 } catch (RemoteException e) {
@@ -419,11 +472,25 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
         @Override
         public void onAssociatedDeviceRemoved(AssociatedDevice device) {
-            mAssociatedDeviceCallbacks.invoke(callback -> {
+            List<TrustedDevice> devices = getTrustedDevicesForActiveUser();
+            if (devices == null || devices.isEmpty()) {
+                return;
+            }
+            TrustedDevice deviceToRemove = null;
+            for (TrustedDevice trustedDevice : devices) {
+                if (trustedDevice.getDeviceId().equals(device.getDeviceId())) {
+                    deviceToRemove = trustedDevice;
+                    break;
+                }
+            }
+            if (deviceToRemove != null) {
+                removeTrustedDevice(deviceToRemove);
+            }
+            notifyAssociatedDeviceCallbacks(callback -> {
                 try {
                     callback.onAssociatedDeviceRemoved(device);
                 } catch (RemoteException e) {
-                    loge(TAG, "Failed to notify that an associate device has been " +
+                    loge(TAG, "Failed to notify that an associated device has been " +
                             "removed.", e);
                 }
             });
@@ -431,7 +498,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
         @Override
         public void onAssociatedDeviceUpdated(AssociatedDevice device) {
-            mAssociatedDeviceCallbacks.invoke(callback -> {
+            notifyAssociatedDeviceCallbacks(callback -> {
                 try {
                     callback.onAssociatedDeviceUpdated(device);
                 } catch (RemoteException e) {
