@@ -27,7 +27,7 @@
     <style name="AssociationTitle" parent="TextAppearance.Body1"/>
     <style name="AssociationInstruction" parent="TextAppearance.Body3"/>
     <style name="AssociationMessage" parent="TextAppearance.Body3">
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
     <style name="AssociationPairingCode" parent="TextAppearance.Display1">
         <item name="android:letterSpacing">@dimen/pairing_code_text_spacing</item>
@@ -35,14 +35,14 @@
     </style>
     <style name="TrustedDeviceTitle" parent="TextAppearance.Body1"/>
     <style name="TrustedDeviceMessage" parent="TextAppearance.Body3">
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
     <style name="ConnectionDisabled">
-        <item name="android:textColor">?android:attr/colorError</item>
+        <item name="android:textColor">@*android:color/car_red_300</item>
     </style>
     <style name="ConnectionEnabled">
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
     <style name="DeviceDetailDivider">
