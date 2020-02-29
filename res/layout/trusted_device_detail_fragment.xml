@@ -25,42 +25,40 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:textSize="@dimen/car_ui_body2_size"
         android:text="@string/trusted_device_feature_instruction"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
+        android:textAppearance="@style/TrustedDeviceMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/connection_button"
+        style="@style/DeviceListItem"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/connection_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
-        app:layout_constraintTop_toBottomOf="@id/trusted_device_instruction"
+        app:layout_constraintTop_toBottomOf="@+id/trusted_device_instruction"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/DeviceListItem">
         <TextView
             android:id="@+id/trusted_device_item_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/car_ui_body1_size"
-            android:textAppearance="@style/TextAppearance.CarUi"
-            app:layout_constraintStart_toEndOf="@id/connection_icon"
+            android:textAppearance="@style/TrustedDeviceTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/trusted_device_switch"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
         <Switch
             android:id="@+id/trusted_device_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/trusted_device_item_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

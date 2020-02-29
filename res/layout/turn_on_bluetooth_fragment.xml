@@ -20,39 +20,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal">
-    <ImageView
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
-        android:layout_marginTop="@dimen/instruction_margin_top"
-        android:layout_marginStart="@dimen/car_ui_margin"
-        android:layout_marginEnd="@dimen/car_ui_margin"
-        android:src="@drawable/ic_smartphone"
-        style="@style/AssociationTopIcon"/>
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/instruction_detail_margin_top"
+        android:layout_marginTop="@dimen/title_margin_top"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
         android:gravity="center"
-        android:text="@string/associated_device_pairing_code_title"
+        android:text="@string/turn_on_bluetooth_title"
+        android:textSize="@dimen/car_ui_body1_size"
         android:textAppearance="@style/AssociationTitle"/>
     <TextView
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/instruction_detail_margin_top"
+        android:layout_marginTop="@dimen/message_margin_top"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
         android:gravity="center"
-        android:text="@string/associated_device_pairing_message"
+        android:text="@string/turn_on_bluetooth_message"
         android:textAppearance="@style/AssociationMessage"/>
-    <TextView
-        android:id="@+id/pairing_code"
-        android:layout_height="@dimen/list_item_height"
+    <Button
+        android:id="@+id/turn_on_button"
+        android:layout_marginTop="@dimen/button_margin_top"
+        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/pairing_code_top_margin"
-        android:layout_marginStart="@dimen/car_ui_margin"
-        android:layout_marginEnd="@dimen/car_ui_margin"
-        android:gravity="center"
-        android:textAppearance="@style/AssociationPairingCode"/>
+        android:text="@string/turn_on"/>
 </LinearLayout>
