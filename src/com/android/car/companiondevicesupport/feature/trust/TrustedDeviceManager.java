@@ -306,6 +306,11 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     }
 
     @Override
+    public void initiateEnrollment(String deviceId) {
+        mTrustedDeviceFeature.sendMessageSecurely(deviceId, createStartEnrollmentMessage());
+    }
+
+    @Override
     public void registerTrustedDeviceCallback(ITrustedDeviceCallback callback)  {
         mTrustedDeviceCallbacks.put(callback.asBinder(), callback);
         RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(callback.asBinder(), iBinder ->
@@ -503,6 +508,14 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
                 .setVersion(TRUSTED_DEVICE_MESSAGE_VERSION)
                 .setType(MessageType.HANDLE)
                 .setPayload(ByteString.copyFrom(ByteUtils.longToBytes(handle)))
+                .build()
+                .toByteArray();
+    }
+
+    private byte[] createStartEnrollmentMessage() {
+        return TrustedDeviceMessage.newBuilder()
+                .setVersion(TRUSTED_DEVICE_MESSAGE_VERSION)
+                .setType(MessageType.START_ENROLLMENT)
                 .build()
                 .toByteArray();
     }

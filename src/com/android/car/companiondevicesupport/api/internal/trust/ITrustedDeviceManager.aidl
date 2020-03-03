@@ -65,4 +65,7 @@ interface ITrustedDeviceManager {
 
     /** Remove a previously registered callback. */
     void unregisterAssociatedDeviceCallback(IDeviceAssociationCallback callback);
+
+    /** Attempts to initiate trusted device enrollment on the phone with the given device id. */
+    void initiateEnrollment(in String deviceId);
 }
