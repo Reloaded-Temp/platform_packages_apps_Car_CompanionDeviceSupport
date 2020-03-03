@@ -214,11 +214,12 @@ public class ConnectedDeviceManagerBinderTest {
             @NonNull final Semaphore semaphore) {
         return spy(new IDeviceAssociationCallback.Stub() {
             @Override
-            public void onAssociatedDeviceAdded(String deviceId) {
+            public void onAssociatedDeviceAdded(AssociatedDevice device) {
                 semaphore.release();
             }
+
             @Override
-            public void onAssociatedDeviceRemoved(String deviceId) {
+            public void onAssociatedDeviceRemoved(AssociatedDevice device) {
                 semaphore.release();
             }
 

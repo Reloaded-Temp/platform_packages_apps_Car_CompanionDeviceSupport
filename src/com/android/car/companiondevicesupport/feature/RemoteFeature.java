@@ -18,7 +18,6 @@ package com.android.car.companiondevicesupport.feature;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
-import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
@@ -204,10 +203,10 @@ public abstract class RemoteFeature {
     protected void onDeviceError(@NonNull CompanionDevice device, int error) { }
 
     /** Called when a new {@link AssociatedDevice} is added for the given user. */
-    protected void onAssociatedDeviceAdded(@NonNull String deviceId) { }
+    protected void onAssociatedDeviceAdded(@NonNull AssociatedDevice device) { }
 
-    /** Called when an {@link AssociatedDevice} is removed for the given user.  */
-    protected void onAssociatedDeviceRemoved(@NonNull String deviceId) { }
+    /** Called when an {@link AssociatedDevice} is removed for the given user. */
+    protected void onAssociatedDeviceRemoved(@NonNull AssociatedDevice device) { }
 
     /** Called when an {@link AssociatedDevice} is updated for the given user. */
     protected void onAssociatedDeviceUpdated(@NonNull AssociatedDevice device) { }
@@ -274,13 +273,13 @@ public abstract class RemoteFeature {
     private final IDeviceAssociationCallback mDeviceAssociationCallback =
             new IDeviceAssociationCallback.Stub() {
         @Override
-        public void onAssociatedDeviceAdded(String deviceId) {
-            RemoteFeature.this.onAssociatedDeviceAdded(deviceId);
+        public void onAssociatedDeviceAdded(AssociatedDevice device) {
+            RemoteFeature.this.onAssociatedDeviceAdded(device);
         }
 
         @Override
-        public void onAssociatedDeviceRemoved(String deviceId) {
-            RemoteFeature.this.onAssociatedDeviceRemoved(deviceId);
+        public void onAssociatedDeviceRemoved(AssociatedDevice device) {
+            RemoteFeature.this.onAssociatedDeviceRemoved(device);
         }
 
         @Override

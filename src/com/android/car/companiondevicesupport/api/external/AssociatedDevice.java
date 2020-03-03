@@ -32,19 +32,23 @@ public final class AssociatedDevice implements Parcelable {
 
     private final String mDeviceName;
 
+    private final boolean mIsConnectionEnabled;
+
     public AssociatedDevice(@NonNull String deviceId, @NonNull String deviceAddress,
-            @Nullable String deviceName) {
+            @Nullable String deviceName, boolean isConnectionEnabled) {
         mDeviceId = deviceId;
         mDeviceAddress = deviceAddress;
         mDeviceName = deviceName;
+        mIsConnectionEnabled = isConnectionEnabled;
     }
 
     public AssociatedDevice(com.android.car.connecteddevice.model.AssociatedDevice device) {
-        this(device.getDeviceId(), device.getDeviceAddress(), device.getDeviceName());
+        this(device.getDeviceId(), device.getDeviceAddress(), device.getDeviceName(),
+                device.isConnectionEnabled());
     }
 
     private AssociatedDevice(Parcel in) {
-        this(in.readString(), in.readString(), in.readString());
+        this(in.readString(), in.readString(), in.readString(), in.readBoolean());
     }
 
     @NonNull
@@ -62,6 +66,10 @@ public final class AssociatedDevice implements Parcelable {
         return mDeviceName;
     }
 
+    public boolean isConnectionEnabled() {
+        return mIsConnectionEnabled;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -72,6 +80,7 @@ public final class AssociatedDevice implements Parcelable {
         dest.writeString(mDeviceId);
         dest.writeString(mDeviceAddress);
         dest.writeString(mDeviceName);
+        dest.writeBoolean(mIsConnectionEnabled);
     }
 
     @Override
@@ -85,12 +94,13 @@ public final class AssociatedDevice implements Parcelable {
         AssociatedDevice device = (AssociatedDevice) obj;
         return Objects.equals(device.mDeviceId, mDeviceId)
                 && Objects.equals(device.mDeviceAddress, mDeviceAddress)
-                && Objects.equals(device.mDeviceName, mDeviceName);
+                && Objects.equals(device.mDeviceName, mDeviceName)
+                && device.mIsConnectionEnabled == mIsConnectionEnabled;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDeviceId, mDeviceAddress, mDeviceName);
+        return Objects.hash(mDeviceId, mDeviceAddress, mDeviceName, mIsConnectionEnabled);
     }
 
     public static final Parcelable.Creator<AssociatedDevice> CREATOR =

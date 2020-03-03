@@ -407,10 +407,10 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private final TrustedDeviceFeature.AssociatedDeviceCallback mAssociatedDeviceCallback =
             new TrustedDeviceFeature.AssociatedDeviceCallback() {
         @Override
-        public void onAssociatedDeviceAdded(String deviceId) {
+        public void onAssociatedDeviceAdded(AssociatedDevice device) {
             mAssociatedDeviceCallbacks.invoke(callback -> {
                 try {
-                    callback.onAssociatedDeviceAdded(deviceId);
+                    callback.onAssociatedDeviceAdded(device);
                 } catch (RemoteException e) {
                     loge(TAG, "Failed to notify that an associated device has been added.", e);
                 }
@@ -418,10 +418,10 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
 
         @Override
-        public void onAssociatedDeviceRemoved(String deviceId) {
+        public void onAssociatedDeviceRemoved(AssociatedDevice device) {
             mAssociatedDeviceCallbacks.invoke(callback -> {
                 try {
-                    callback.onAssociatedDeviceRemoved(deviceId);
+                    callback.onAssociatedDeviceRemoved(device);
                 } catch (RemoteException e) {
                     loge(TAG, "Failed to notify that an associate device has been " +
                             "removed.", e);

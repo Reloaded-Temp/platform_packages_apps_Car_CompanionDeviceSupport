@@ -113,7 +113,7 @@
             android:layout_marginEnd="@dimen/device_detail_margin"
             android:layout_marginTop="@dimen/device_detail_margin"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_directions_car_filled"
+            android:src="@drawable/ic_directions_car"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

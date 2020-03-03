@@ -342,25 +342,25 @@ public class TrustedDeviceActivity extends FragmentActivity {
     private final IDeviceAssociationCallback mDeviceAssociationCallback =
             new IDeviceAssociationCallback.Stub() {
         @Override
-        public void onAssociatedDeviceAdded(String deviceId) { }
+        public void onAssociatedDeviceAdded(AssociatedDevice device) { }
 
         @Override
-        public void onAssociatedDeviceRemoved(String deviceId) {
+        public void onAssociatedDeviceRemoved(AssociatedDevice device) {
             if (mTrustedDeviceManager == null) {
                 loge(TAG, "Failed to remove trusted device on associated device removed.");
                 return;
             }
 
             try {
-                List<TrustedDevice> devices = mTrustedDeviceManager
+                List<TrustedDevice> trustedDevices = mTrustedDeviceManager
                         .getTrustedDevicesForActiveUser();
-                if (devices == null || devices.isEmpty()) {
+                if (trustedDevices == null || trustedDevices.isEmpty()) {
                     return;
                 }
                 TrustedDevice deviceToRemove = null;
-                for (TrustedDevice device : devices) {
-                    if (device.getDeviceId().equals(deviceId)) {
-                        deviceToRemove = device;
+                for (TrustedDevice trustedDevice : trustedDevices) {
+                    if (trustedDevice.getDeviceId().equals(device.getDeviceId())) {
+                        deviceToRemove = trustedDevice;
                         break;
                     }
                 }
