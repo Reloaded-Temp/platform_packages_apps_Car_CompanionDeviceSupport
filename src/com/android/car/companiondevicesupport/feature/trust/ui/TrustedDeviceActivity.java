@@ -248,7 +248,11 @@ public class TrustedDeviceActivity extends FragmentActivity {
             fragment.show(getSupportFragmentManager(), DEVICE_NOT_CONNECTED_DIALOG_TAG);
             return;
         }
-        initiateEnrollment(device);
+        try {
+            mTrustedDeviceManager.initiateEnrollment(device.getDeviceId());
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to initiate enrollment. ", e);
+        }
     }
 
     private boolean isCompanionDeviceConnected(String deviceId) {
@@ -273,10 +277,6 @@ public class TrustedDeviceActivity extends FragmentActivity {
             }
         }
         return false;
-    }
-
-    private void initiateEnrollment(AssociatedDevice device) {
-        //TODO(148569416): Send message to phone to request escrow token
     }
 
     private void validateCredentials() {

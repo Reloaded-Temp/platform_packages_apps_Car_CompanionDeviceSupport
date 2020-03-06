@@ -51,8 +51,11 @@ import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDevic
 import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDeviceEntity;
 import com.android.car.companiondevicesupport.feature.trust.ui.TrustedDeviceActivity;
 import com.android.car.companiondevicesupport.protos.PhoneAuthProto.PhoneCredentials;
+import com.android.car.companiondevicesupport.protos.TrustedDeviceMessageProto.TrustedDeviceMessage.MessageType;
+import com.android.car.companiondevicesupport.protos.TrustedDeviceMessageProto.TrustedDeviceMessage;
 import com.android.car.connecteddevice.util.ByteUtils;
 import com.android.car.connecteddevice.util.RemoteCallbackBinder;
+import com.android.car.protobuf.ByteString;
 import com.android.car.protobuf.InvalidProtocolBufferException;
 
 import java.util.ArrayList;
@@ -69,17 +72,16 @@ import java.util.function.Consumer;
 
 /** Manager for the feature of unlocking the head unit with a user's trusted device. */
 public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
-
     private static final String TAG = "TrustedDeviceManager";
 
     private static final String CHANNEL_ID = "trusteddevice_notification_channel";
 
     private static final int ENROLLMENT_NOTIFICATION_ID = 0;
 
+    private static final int TRUSTED_DEVICE_MESSAGE_VERSION = 2;
+
     /** Length of token generated on a trusted device. */
     private static final int ESCROW_TOKEN_LENGTH = 8;
-
-    private static final byte[] ACKNOWLEDGEMENT_MESSAGE = "ACK".getBytes();
 
     private final Map<IBinder, ITrustedDeviceCallback> mTrustedDeviceCallbacks =
             new ConcurrentHashMap<>();
@@ -111,7 +113,6 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private byte[] mPendingToken;
 
     private PendingCredentials mPendingCredentials;
-
 
     TrustedDeviceManager(@NonNull Context context) {
         mContext = context;
@@ -189,7 +190,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             mTrustAgentDelegate.unlockUserWithToken(credentials.getEscrowToken().toByteArray(),
                     ByteUtils.bytesToLong(credentials.getHandle().toByteArray()),
                     ActivityManager.getCurrentUser());
-            mTrustedDeviceFeature.sendMessageSecurely(deviceId, ACKNOWLEDGEMENT_MESSAGE);
+            mTrustedDeviceFeature.sendMessageSecurely(deviceId, createAcknowledgmentMessage());
         } catch (RemoteException e) {
             loge(TAG, "Error while unlocking user through delegate.", e);
         }
@@ -221,16 +222,22 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             loge(TAG, "Unable to complete device enrollment. Pending device was null.");
             return;
         }
+
         logd(TAG, "Enrollment completed successfully! Sending handle to connected device and "
                 + "persisting trusted device record.");
-        mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice, ByteUtils.longToBytes(handle));
-        TrustedDeviceEntity entity = new TrustedDeviceEntity();
+
+        mTrustedDeviceFeature.sendMessageSecurely(mPendingDevice, createHandleMessage(handle));
+
         String deviceId = mPendingDevice.getDeviceId();
+
+        TrustedDeviceEntity entity = new TrustedDeviceEntity();
         entity.id = deviceId;
         entity.userId = userId;
         entity.handle = handle;
         mDatabase.addOrReplaceTrustedDevice(entity);
+
         mPendingDevice = null;
+
         TrustedDevice trustedDevice = new TrustedDevice(deviceId, userId, handle);
         notifyTrustedDeviceCallbacks(callback -> {
             try {
@@ -296,6 +303,11 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             loge(TAG, "Failed to get connected devices. ", e);
         }
         return devices;
+    }
+
+    @Override
+    public void initiateEnrollment(String deviceId) {
+        mTrustedDeviceFeature.sendMessageSecurely(deviceId, createStartEnrollmentMessage());
     }
 
     @Override
@@ -386,22 +398,14 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
                 && credentials.getHandle() != null;
     }
 
-    private void onMessageFromUntrustedDevice(@NonNull CompanionDevice device,
-            @NonNull byte[] message) {
-        logd(TAG, "Received a new message from untrusted device " + device.getDeviceId() + ".");
-        PhoneCredentials credentials = null;
-        try {
-            credentials = PhoneCredentials.parseFrom(message);
-        } catch (InvalidProtocolBufferException e) {
-            // Intentional if enrolling a new device. Error logged below if in wrong state.
-        }
-
-        // Start enrollment if escrow token was sent instead of credentials.
-        if (areCredentialsValid(credentials)) {
-            logw(TAG, "Received credentials from an untrusted device.");
-            // TODO(b/145618412) Notify device that it is no longer trusted.
+    private void processEnrollmentMessage(@NonNull CompanionDevice device,
+            @Nullable ByteString payload) {
+        if (payload == null) {
+            logw(TAG, "Received enrollment message with null payload. Ignoring.");
             return;
         }
+
+        byte[] message = payload.toByteArray();
         if (message.length != ESCROW_TOKEN_LENGTH) {
             logw(TAG, "Received invalid escrow token of length " + message.length + ". Ignoring.");
             return;
@@ -410,21 +414,32 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         startEnrollment(device, message);
     }
 
-    private void onMessageFromTrustedDevice(@NonNull CompanionDevice device,
-            @NonNull TrustedDeviceEntity entity, @NonNull byte[] message) {
-        logd(TAG, "Received a new message from trusted device " + device.getDeviceId() + ".");
+    private void processUnlockMessage(@NonNull CompanionDevice device,
+            @Nullable ByteString payload) {
+        if (payload == null) {
+            logw(TAG, "Received unlock message with null payload. Ignoring.");
+            return;
+        }
+        byte[] message = payload.toByteArray();
+
         PhoneCredentials credentials = null;
         try {
             credentials = PhoneCredentials.parseFrom(message);
         } catch (InvalidProtocolBufferException e) {
-            // Intentional if enrolling a new device. Error logged below if in wrong state.
+            loge(TAG, "Unable to parse credentials from device. Not unlocking head unit.");
+            return;
         }
 
         if (!areCredentialsValid(credentials)) {
-            loge(TAG, "Unable to parse credentials from device. Aborting unlock.");
-            if (message.length == ESCROW_TOKEN_LENGTH) {
-                startEnrollment(device, message);
-            }
+            loge(TAG, "Received invalid credentials from device. Not unlocking head unit.");
+            return;
+        }
+
+        TrustedDeviceEntity entity = mDatabase.getTrustedDevice(device.getDeviceId());
+
+        if (entity == null) {
+            logw(TAG, "Received unlock request from an untrusted device.");
+            // TODO(b/145618412) Notify device that it is no longer trusted.
             return;
         }
 
@@ -442,6 +457,9 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             mPendingCredentials = new PendingCredentials(device.getDeviceId(), credentials);
             return;
         }
+
+        logd(TAG, "Received unlock credentials from trusted device " + device.getDeviceId()
+                + ". Attempting unlock.");
 
         unlockUser(device.getDeviceId(), credentials);
     }
@@ -477,17 +495,60 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
     }
 
+    private byte[] createAcknowledgmentMessage() {
+        return TrustedDeviceMessage.newBuilder()
+                .setVersion(TRUSTED_DEVICE_MESSAGE_VERSION)
+                .setType(MessageType.ACK)
+                .build()
+                .toByteArray();
+    }
+
+    private byte[] createHandleMessage(long handle) {
+        return TrustedDeviceMessage.newBuilder()
+                .setVersion(TRUSTED_DEVICE_MESSAGE_VERSION)
+                .setType(MessageType.HANDLE)
+                .setPayload(ByteString.copyFrom(ByteUtils.longToBytes(handle)))
+                .build()
+                .toByteArray();
+    }
+
+    private byte[] createStartEnrollmentMessage() {
+        return TrustedDeviceMessage.newBuilder()
+                .setVersion(TRUSTED_DEVICE_MESSAGE_VERSION)
+                .setType(MessageType.START_ENROLLMENT)
+                .build()
+                .toByteArray();
+    }
+
     private final TrustedDeviceFeature.Callback mFeatureCallback =
             new TrustedDeviceFeature.Callback() {
         @Override
         public void onMessageReceived(CompanionDevice device, byte[] message) {
-            TrustedDeviceEntity trustedDevice = mDatabase.getTrustedDevice(device.getDeviceId());
-            if (trustedDevice == null) {
-                onMessageFromUntrustedDevice(device, message);
+            TrustedDeviceMessage trustedDeviceMessage = null;
+            try {
+                trustedDeviceMessage = TrustedDeviceMessage.parseFrom(message);
+            } catch (InvalidProtocolBufferException e) {
+                loge(TAG, "Received message from client, but cannot parse.", e);
                 return;
             }
 
-            onMessageFromTrustedDevice(device, trustedDevice, message);
+            switch (trustedDeviceMessage.getType()) {
+                case ESCROW_TOKEN:
+                    processEnrollmentMessage(device, trustedDeviceMessage.getPayload());
+                    break;
+                case UNLOCK_CREDENTIALS:
+                    processUnlockMessage(device, trustedDeviceMessage.getPayload());
+                    break;
+                case ACK:
+                    // The client sends an acknowledgment when the handle has been received, but
+                    // nothing needs to be on the IHU side. So simply log this message.
+                    logd(TAG, "Received acknowledgment message from client.");
+                    break;
+                default:
+                    // The client should only be sending requests to either enroll or unlock.
+                    loge(TAG, "Received a message from the client with an invalid MessageType ( "
+                            + trustedDeviceMessage.getType() + "). Ignoring.");
+            }
         }
 
         @Override
