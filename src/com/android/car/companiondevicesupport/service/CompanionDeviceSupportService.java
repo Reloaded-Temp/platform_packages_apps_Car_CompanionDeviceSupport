@@ -165,4 +165,9 @@ public class CompanionDeviceSupportService extends Service {
             mIsEveryFeatureInitialized.set(true);
         }).start();
     }
+
+    /** Returns the service's instance of {@link ConnectedDeviceManager}. */
+    protected ConnectedDeviceManager getConnectedDeviceManager() {
+        return mConnectedDeviceManager;
+    }
 }
