@@ -20,20 +20,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <FrameLayout
         android:id="@+id/trusted_device_instruction"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:text="@string/trusted_device_feature_instruction"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
-        android:textAppearance="@style/TrustedDeviceMessage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/connection_button"
-        style="@style/DeviceListItem"/>
+        android:gravity="center_horizontal"
+        style="@style/DeviceListItem">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/no_icon_text_margin_start"
+            android:layout_marginEnd="@dimen/text_margin_end"
+            android:text="@string/trusted_device_feature_instruction"
+            android:textAppearance="@style/TrustedDeviceMessage"/>
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/connection_button"
@@ -49,6 +51,8 @@
             android:id="@+id/trusted_device_item_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/no_icon_text_margin_start"
+            android:layout_marginEnd="@dimen/text_margin_end"
             android:textAppearance="@style/TrustedDeviceTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/trusted_device_switch"
@@ -58,6 +62,7 @@
             android:id="@+id/trusted_device_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/text_margin_end"
             app:layout_constraintStart_toEndOf="@+id/trusted_device_item_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
