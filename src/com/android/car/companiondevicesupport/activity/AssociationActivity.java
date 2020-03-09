@@ -108,7 +108,6 @@ public class AssociationActivity extends FragmentActivity {
                 case NONE:
                 case STARTING:
                 case STARTED:
-                    logd(TAG, "Ignore encountered association state: " + state);
                     break;
                 default:
                     loge(TAG, "Encountered unexpected association state: " + state);
