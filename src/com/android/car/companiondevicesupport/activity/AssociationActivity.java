@@ -26,6 +26,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
@@ -297,8 +299,10 @@ public class AssociationActivity extends FragmentActivity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle bundle = getArguments();
             String deviceName = bundle.getString(DEVICE_NAME_KEY);
+            String title = getString(R.string.remove_associated_device_title, deviceName);
+            Spanned styledTitle = Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY);
             return new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.remove_associated_device_title, deviceName))
+                    .setTitle(styledTitle)
                     .setMessage(getString(R.string.remove_associated_device_message))
                     .setNegativeButton(getString(R.string.cancel), null)
                     .setPositiveButton(getString(R.string.forget), mOnConfirmListener)

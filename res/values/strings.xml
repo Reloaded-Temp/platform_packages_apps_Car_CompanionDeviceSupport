@@ -36,7 +36,7 @@
     <!-- Adding an associated device [CHAR LIMIT=40]-->
     <string name="associated_device_select_device">Open the app and connect to &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;b></string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
-    <string name="remove_associated_device_title">Forget <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g>&#63;</string>
+    <string name="remove_associated_device_title">Forget &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;/b>&#63;</string>
     <!-- Message for remove device dialog [CHAR LIMIT=100] -->
     <string name="remove_associated_device_message">This car will no longer ne paired with this device</string>
     <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
