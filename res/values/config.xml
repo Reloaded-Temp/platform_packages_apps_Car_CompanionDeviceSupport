@@ -29,6 +29,9 @@
     <!-- Feature ids -->
     <string name="connection_howitzer_feature_id" translatable="false">b75d6a81-635b-4560-bd8d-9cdf83f32ae7</string>
     <string name="calendar_sync_feature_id" translatable="false">5a1a16fd-1ebd-4dbe-bfa7-37e40de0fd80</string>
-    <string name="trusted_device_feature_id" translatable="false">baf7b76f-d419-40ce-8aeb-2b80c6510123</string>
+    <string name="trusted_device_feature_id" translatable="false">85dff28b-3036-4662-bb22-baa7f898dc47</string>
     <string name="notification_msg_feature_id" translatable="false">b2337f58-18ff-4f92-a0cf-4df63ab2c889</string>
+
+    <!-- Trusted Device configs  -->
+    <string name="trusted_device_channel_id" translatable="false">c1f9f3cc-79dc-4465-bad0-da1ce413cf0b</string>
 </resources>
