@@ -38,6 +38,7 @@ import com.android.car.messenger.common.ConversationKey;
 import com.android.car.messenger.common.ConversationNotificationInfo;
 import com.android.car.messenger.common.Message;
 import com.android.car.messenger.common.MessageKey;
+import com.android.car.messenger.common.ProjectionStateListener;
 import com.android.car.messenger.common.SenderKey;
 import com.android.car.messenger.common.Utils;
 
@@ -64,10 +65,15 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build();
 
-    private Map<String, String> mAppNameToChannelId = new HashMap<>();
+    private Map<String, NotificationChannelWrapper> mAppNameToChannel = new HashMap<>();
+
+    /** Tracks whether a projection application is active in the foreground. **/
+    private ProjectionStateListener mProjectionStateListener;
 
     public NotificationMsgDelegate(Context context, String className) {
         super(context, className);
+        mProjectionStateListener = new ProjectionStateListener(context);
+        mProjectionStateListener.start();
     }
 
     public void onMessageReceived(CompanionDevice device, PhoneToCarMessage message) {
@@ -155,6 +161,14 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 .build();
     }
 
+    protected void onDestroy() {
+        // Erase all the notifications and local data, so that no user data stays on the device
+        // after the feature is stopped.
+        cleanupMessagesAndNotifications(key -> true);
+        mProjectionStateListener.stop();
+        mAppNameToChannel.clear();
+    }
+
     private void initializeNewConversation(CompanionDevice device,
             ConversationNotification notification, String notificationKey) {
         String deviceAddress = device.getDeviceId();
@@ -174,16 +188,13 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         mNotificationInfos.put(convoKey, convoInfo);
 
         String appDisplayName = convoInfo.getAppDisplayName();
-        if (!mAppNameToChannelId.containsKey(appDisplayName)) {
-            setupImportantNotificationChannel(generateNotificationChannelId(), appDisplayName);
-        }
 
         List<MessagingStyleMessage> messages =
                 notification.getMessagingStyle().getMessagingStyleMsgList();
         for (MessagingStyleMessage messagingStyleMessage : messages) {
             createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
         }
-        postNotification(convoKey, convoInfo, mAppNameToChannelId.get(appDisplayName));
+        postNotification(convoKey, convoInfo, getChannelId(appDisplayName));
     }
 
     private void initializeNewMessage(String deviceAddress,
@@ -202,8 +213,16 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
         ConversationNotificationInfo convoInfo = mNotificationInfos.get(convoKey);
 
-        postNotification(convoKey, convoInfo,
-                mAppNameToChannelId.get(convoInfo.getAppDisplayName()));
+        postNotification(convoKey, convoInfo, getChannelId(convoInfo.getAppDisplayName()));
+    }
+
+    private String getChannelId(String appDisplayName) {
+        if (!mAppNameToChannel.containsKey(appDisplayName)) {
+            mAppNameToChannel.put(appDisplayName,
+                    new NotificationChannelWrapper(appDisplayName));
+        }
+        return mAppNameToChannel.get(appDisplayName).getChannelId(
+                mProjectionStateListener.isProjectionInActiveForeground());
     }
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
@@ -219,19 +238,49 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         }
     }
 
-    private void setupImportantNotificationChannel(String channelId, String channelName) {
-        NotificationChannel msgChannel = new NotificationChannel(channelId,
-                channelName,
-                NotificationManager.IMPORTANCE_HIGH);
-        msgChannel.setDescription(channelName);
-        msgChannel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, AUDIO_ATTRIBUTES);
-        mNotificationManager.createNotificationChannel(msgChannel);
-        mAppNameToChannelId.put(channelName, channelId);
-    }
+    /** Creates notification channels per unique messaging application. **/
+    private class NotificationChannelWrapper {
+        private static final String SILENT_CHANNEL_NAME_SUFFIX = "-no-hun";
+        private final String mImportantChannelId;
+        private final String mSilentChannelId;
 
-    private String generateNotificationChannelId() {
-        return NotificationMsgService.NOTIFICATION_MSG_CHANNEL_ID + "|"
-                + NotificationChannelIdGenerator.generateChannelId();
+        NotificationChannelWrapper(String appDisplayName) {
+            mImportantChannelId = generateNotificationChannelId();
+            setupImportantNotificationChannel(mImportantChannelId, appDisplayName);
+            mSilentChannelId = generateNotificationChannelId();
+            setupSilentNotificationChannel(mSilentChannelId,
+                    appDisplayName + SILENT_CHANNEL_NAME_SUFFIX);
+        }
+
+        /**
+         * Returns the channel id based on whether the notification should have a heads-up
+         * notification and an alert sound.
+         */
+        String getChannelId(boolean showSilently) {
+            if (showSilently) return mSilentChannelId;
+            return mImportantChannelId;
+        }
+
+        private void setupImportantNotificationChannel(String channelId, String channelName) {
+            NotificationChannel msgChannel = new NotificationChannel(channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH);
+            msgChannel.setDescription(channelName);
+            msgChannel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, AUDIO_ATTRIBUTES);
+            mNotificationManager.createNotificationChannel(msgChannel);
+        }
+
+        private void setupSilentNotificationChannel(String channelId, String channelName) {
+            NotificationChannel msgChannel = new NotificationChannel(channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_LOW);
+            mNotificationManager.createNotificationChannel(msgChannel);
+        }
+
+        private String generateNotificationChannelId() {
+            return NotificationMsgService.NOTIFICATION_MSG_CHANNEL_ID + "|"
+                    + NotificationChannelIdGenerator.generateChannelId();
+        }
     }
 
     /** Helper class that generates unique IDs per Notification Channel. **/
