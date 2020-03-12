@@ -112,7 +112,7 @@
     <!-- Title for trusted device feature [CHAR LIMIT=40]-->
     <string name="trusted_device_feature_title">Unlock profile with phone</string>
     <!-- Instruction for trusted device feature [CHAR LIMIT=80]-->
-    <string name="trusted_device_feature_instruction">Use your companion device to unlock your profile.</string>
+    <string name="trusted_device_feature_instruction">Check your Companion App to set unlocking options</string>
     <!-- Trusted device item title [CHAR LIMIT=80]-->
     <string name="trusted_device_item_title">Let &lt;b><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g>&lt;/b> unlock my profile</string>
     <!-- Title for device not connected dialog [CHAR LIMIT=50]-->
