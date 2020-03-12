@@ -59,7 +59,7 @@
             <meta-data android:name="com.android.settings.title"
                        android:value="@string/app_name" />
             <meta-data android:name="com.android.settings.category"
-                       android:value="com.android.settings.category.ia.system" />
+                       android:value="com.android.settings.category.personal" />
         </activity>
 
         <!-- Feature specific elements below here -->
@@ -114,7 +114,7 @@
             <meta-data android:name="com.android.settings.title"
                        android:value="@string/trusted_device_feature_title" />
             <meta-data android:name="com.android.settings.category"
-                       android:value="com.android.settings.category.ia.system" />
+                       android:value="com.android.settings.category.ia.security" />
         </activity>
     </application>
 </manifest>
