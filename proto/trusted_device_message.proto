@@ -49,6 +49,11 @@ message TrustedDeviceMessage {
     // An acknowledgment for a previous message. The payload will be empty
     // for this type.
     ACK = 5;
+
+    // An error has occurred on the sender of this message. The payload will be
+    // a message of TrustedDeviceError. Both sender and receiver should reset
+    // their states after this message.
+    ERROR = 6;
   }
 
   // The type of this message.
@@ -56,4 +61,20 @@ message TrustedDeviceMessage {
 
   // The bytes that represent the content for this message.
   bytes payload = 3;
+}
+
+// An error message. Should only be sent as `TrustedDeviceMessage.payload` when
+// `type` is `MessageType.ERROR`.
+message TrustedDeviceError {
+  enum ErrorType {
+    // The contents of the payload are unknown.
+    MESSAGE_TYPE_UNKNOWN = 0;
+
+    // This device does not meet the requirement of device security to start
+    // enrollment. Instead of escrow token, send this error.
+    DEVICE_NOT_SECURED = 1;
+  }
+
+  // The type of this error.
+  ErrorType type = 1;
 }

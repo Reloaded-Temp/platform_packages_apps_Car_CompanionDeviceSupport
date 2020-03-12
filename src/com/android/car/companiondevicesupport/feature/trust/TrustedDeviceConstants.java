@@ -16,6 +16,11 @@
 
 package com.android.car.companiondevicesupport.feature.trust;
 
+import android.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** Constants for trusted device feature. */
 public class TrustedDeviceConstants {
 
@@ -29,4 +34,16 @@ public class TrustedDeviceConstants {
     /** Intent action used to start a {@link TrustedDeviceActivity}. */
     public static final String INTENT_ACTION_TRUSTED_DEVICE_SETTING =
             "com.android.car.companiondevicesupport.feature.trust.TRUSTED_DEVICE_ACTIVITY";
+
+    @IntDef(prefix = { "TRUSTED_DEVICE_ERROR_" }, value = {
+            TRUSTED_DEVICE_ERROR_MESSAGE_TYPE_UNKNOWN,
+            TRUSTED_DEVICE_ERROR_DEVICE_NOT_SECURED,
+            TRUSTED_DEVICE_ERROR_UNKNOWN
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    /** Errors that may happen in trusted device enrollment. */
+    public @interface TrustedDeviceError {}
+    public static final int TRUSTED_DEVICE_ERROR_MESSAGE_TYPE_UNKNOWN = 0;
+    public static final int TRUSTED_DEVICE_ERROR_DEVICE_NOT_SECURED = 1;
+    public static final int TRUSTED_DEVICE_ERROR_UNKNOWN = 2;
 }

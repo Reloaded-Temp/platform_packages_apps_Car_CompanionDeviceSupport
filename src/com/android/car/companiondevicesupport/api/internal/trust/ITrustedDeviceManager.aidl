@@ -20,7 +20,7 @@ import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceAgentDelegate;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceCallback;
-import com.android.car.companiondevicesupport.api.internal.trust.IOnValidateCredentialsRequestListener;
+import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceEnrollmentCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 
 /**
@@ -41,12 +41,11 @@ interface ITrustedDeviceManager {
     /** Remove a previously registered callback. */
     void unregisterTrustedDeviceCallback(in ITrustedDeviceCallback callback);
 
-    /** Add a new listener for enrollment triggered events. */
-    void addOnValidateCredentialsRequestListener(in IOnValidateCredentialsRequestListener listener);
+    /** Register a new callback for enrollment triggered events. */
+    void registerTrustedDeviceEnrollmentCallback(in ITrustedDeviceEnrollmentCallback callback);
 
-    /** Remove a previously added listener. */
-    void removeOnValidateCredentialsRequestListener(
-            in IOnValidateCredentialsRequestListener listener);
+    /** Remove a previously registered callback. */
+    void unregisterTrustedDeviceEnrollmentCallback(in ITrustedDeviceEnrollmentCallback callback);
 
     /** Set a delegate for TrustAgent operation calls. */
     void setTrustedDeviceAgentDelegate(in @nullable ITrustedDeviceAgentDelegate trustAgentDelegate);
