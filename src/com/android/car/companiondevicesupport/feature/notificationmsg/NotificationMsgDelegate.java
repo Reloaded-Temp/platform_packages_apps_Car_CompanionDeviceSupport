@@ -71,7 +71,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     private ProjectionStateListener mProjectionStateListener;
 
     public NotificationMsgDelegate(Context context, String className) {
-        super(context, className);
+        super(context, className, /* useLetterTile */ false);
         mProjectionStateListener = new ProjectionStateListener(context);
         mProjectionStateListener.start();
     }
