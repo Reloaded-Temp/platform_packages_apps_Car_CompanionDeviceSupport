@@ -38,7 +38,7 @@
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
     <string name="remove_associated_device_title">Forget &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;/b>&#63;</string>
     <!-- Message for remove device dialog [CHAR LIMIT=100] -->
-    <string name="remove_associated_device_message">This car will no longer ne paired with this device</string>
+    <string name="remove_associated_device_message">This car will no longer be paired with this device</string>
     <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
     <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> forgotten</string>
     <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
