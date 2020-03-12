@@ -142,4 +142,14 @@
     <string name="trusted_device_notification_title">Let your phone unlock your profile</string>
     <!-- Notification content for trusted device enrollment [CHAR LIMIT=100]-->
     <string name="trusted_device_notification_content">Tap here to authorize this feature</string>
+
+    <!-- Title for trusted device error dialog [CHAR LIMIT=50]-->
+    <string name="trusted_device_enrollment_error_dialog_title">Something went wrong</string>
+    <!-- Message for trusted device error dialog [CHAR LIMIT=150]-->
+    <string name="trusted_device_enrollment_error_dialog_message">Unfortunately, this feature could not be turned on at this time. Please try again.</string>
+
+    <!-- Title for create phone lock dialog [CHAR LIMIT=50]-->
+    <string name="create_phone_lock_dialog_title">Create a screen lock on your phone</string>
+    <!-- Message for create profile lock dialog [CHAR LIMIT=250]-->
+    <string name="create_phone_lock_dialog_message">Your phone doesn\'t have a screen lock set. To unlock your car profile with your phone, first create a screen lock (also known as \“passcode\”) in your phone\’s settings.</string>
 </resources>
