@@ -167,6 +167,7 @@ class CalendarImporter {
                 SECONDS.toMillis(event.getEndDate().getSeconds()));
         values.put(CalendarContract.Events.EVENT_LOCATION, event.getLocation());
         values.put(CalendarContract.Events.ORGANIZER, event.getOrganizer());
+        values.put(CalendarContract.Events.ALL_DAY, event.getIsAllDay() ? 1 : 0);
 
         if (event.hasColor()) {
             values.put(CalendarContract.Events.EVENT_COLOR, event.getColor().getArgb());
