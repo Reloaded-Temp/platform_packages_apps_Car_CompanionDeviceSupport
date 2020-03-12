@@ -28,7 +28,7 @@ import android.provider.Settings;
 
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
-import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ActionDataFieldEntry;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.CarToPhoneMessage;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ConversationNotification;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MessagingStyleMessage;
@@ -58,7 +58,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     private static final String NEW_MESSAGE_MESSAGE_TYPE = "NEW_MESSAGE";
     private static final String ACTION_STATUS_UPDATE_MESSAGE_TYPE = "ACTION_STATUS_UPDATE";
     private static final String OTHER_MESSAGE_TYPE = "OTHER";
-    /** Key for the Reply string in a {@link ActionDataFieldEntry}. **/
+    /** Key for the Reply string in a {@link MapEntry}. **/
     private static final String REPLY_KEY = "REPLY";
 
     private static final AudioAttributes AUDIO_ATTRIBUTES = new AudioAttributes.Builder()
@@ -79,29 +79,24 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     public void onMessageReceived(CompanionDevice device, PhoneToCarMessage message) {
         String notificationKey = message.getNotificationKey();
 
-        switch (message.getMessageType()) {
-            case NEW_CONVERSATION_MESSAGE_TYPE:
-                if (message.getConversation() != null) {
-                    initializeNewConversation(device, message.getConversation(), notificationKey);
-                } else {
-                    logw(TAG, "NEW_CONVERSATION_MESSAGE_TYPE is missing Conversation!");
-                }
-                break;
-            case NEW_MESSAGE_MESSAGE_TYPE:
-                if (message.getMessage() != null) {
-                    initializeNewMessage(device.getDeviceId(), message.getMessage(), notificationKey);
-                } else {
-                    logw(TAG, "NEW_MESSAGE_MESSAGE_TYPE is missing Message!");
-                }
-                break;
-            case ACTION_STATUS_UPDATE_MESSAGE_TYPE:
-                // TODO (ritwikam): implement Action Request tracking logic.
-                break;
-            case OTHER_MESSAGE_TYPE:
-                // NO-OP for now.
-                break;
+        switch (message.getMessageDataCase()) {
+            case CONVERSATION:
+                initializeNewConversation(device, message.getConversation(), notificationKey);
+            case MESSAGE:
+                initializeNewMessage(device.getDeviceId(), message.getMessage(), notificationKey);
+            case STATUS_UPDATE:
+                // TODO (b/144924164): implement Action Request tracking logic.
+            case AVATAR_ICON_SYNC:
+                // TODO(b/148412881): implement avatar icon sync.
+            case PHONE_METADATA:
+                // TODO(b/150461793): store device address to use with mProjectionStateListener
+            case CLEAR_APP_DATA_REQUEST:
+                // TODO(b/150326327): implement removal behavior.
+            case FEATURE_ENABLED_STATE_CHANGE:
+                // TODO(b/150326327): implement enabled state change behavior.
+            case MESSAGEDATA_NOT_SET:
             default:
-                logw(TAG, "Unsupported messageType " + message.getMessageType());
+                logw(TAG, "PhoneToCarMessage: message data not set!");
         }
     }
 
@@ -146,14 +141,14 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     protected CarToPhoneMessage reply(ConversationKey convoKey, String message) {
         // TODO(b/144924164): add a request id to the action.
-        ActionDataFieldEntry entry = ActionDataFieldEntry.newBuilder()
+        MapEntry entry = MapEntry.newBuilder()
                 .setKey(REPLY_KEY)
                 .setValue(message)
                 .build();
         Action action = Action.newBuilder()
                 .setActionName(Action.ActionName.REPLY)
                 .setNotificationKey(convoKey.getSubKey())
-                .addActionDataField(entry)
+                .addMapEntry(entry)
                 .build();
         return CarToPhoneMessage.newBuilder()
                 .setNotificationKey(convoKey.getSubKey())
@@ -231,8 +226,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         addMessageToNotificationInfo(message, convoKey);
         SenderKey senderKey = message.getSenderKey();
         if (!mSenderLargeIcons.containsKey(senderKey)
-                && messagingStyleMessage.getSender().getIcon() != null) {
-            byte[] iconArray = messagingStyleMessage.getSender().getIcon().toByteArray();
+                && messagingStyleMessage.getSender().getAvatar() != null) {
+            byte[] iconArray = messagingStyleMessage.getSender().getAvatar().toByteArray();
             mSenderLargeIcons.put(senderKey,
                     BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length));
         }
