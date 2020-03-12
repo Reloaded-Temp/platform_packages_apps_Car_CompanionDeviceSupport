@@ -222,7 +222,9 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
             ConversationKey convoKey) {
-        Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage);
+        String appDisplayName = mNotificationInfos.get(convoKey).getAppDisplayName();
+        Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage,
+                appDisplayName);
         addMessageToNotificationInfo(message, convoKey);
         SenderKey senderKey = message.getSenderKey();
         if (!mSenderLargeIcons.containsKey(senderKey)
