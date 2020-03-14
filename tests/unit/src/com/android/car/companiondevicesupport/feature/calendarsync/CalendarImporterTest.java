@@ -108,10 +108,12 @@ public class CalendarImporterTest {
         when(mContentResolver.insert(
                 argThat(startsWithUriMatcher(CalendarContract.Events.CONTENT_URI)),
                 any())).thenReturn(
-                CalendarContract.Events.CONTENT_URI.buildUpon().path("events/42").build());
+                CalendarContract.Events.CONTENT_URI.buildUpon().path(
+                        "events/42").appendQueryParameter("a", "b").build());
 
         when(mContentProvider.insert(
-                argThat(startsWithUriMatcher(CalendarContract.Attendees.CONTENT_URI)), any(),
+                argThat(startsWithUriMatcher(CalendarContract.Attendees.CONTENT_URI)),
+                any(),
                 any()))
                 .thenReturn(CalendarContract.Attendees.CONTENT_URI);
     }
@@ -228,7 +230,8 @@ public class CalendarImporterTest {
                             SECONDS.toMillis(event.getStartDate().getSeconds())) &&
                     argument.getAsLong(Events.DTEND).equals(
                             SECONDS.toMillis(event.getEndDate().getSeconds())) &&
-                    argument.getAsString(Events.EVENT_LOCATION).equals(event.getLocation());
+                    argument.getAsString(Events.EVENT_LOCATION).equals(event.getLocation()) &&
+                    argument.getAsString(Events.ORGANIZER).equals(event.getOrganizer());
         };
     }
 
