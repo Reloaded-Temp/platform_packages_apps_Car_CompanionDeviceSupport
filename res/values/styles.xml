@@ -55,7 +55,7 @@
     </style>
     <style name="DeviceListItem">
         <item name="android:minHeight">@dimen/list_item_height</item>
-        <item name="android:paddingStart">@dimen/list_item_padding</item>
-        <item name="android:paddingEnd">@dimen/list_item_padding</item>
+        <item name="android:paddingTop">@dimen/list_item_padding</item>
+        <item name="android:paddingBottom">@dimen/list_item_padding</item>
     </style>
 </resources>
