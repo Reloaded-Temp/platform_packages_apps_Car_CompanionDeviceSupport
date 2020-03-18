@@ -66,6 +66,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             .build();
 
     private Map<String, NotificationChannelWrapper> mAppNameToChannel = new HashMap<>();
+    private String mConnectedDeviceBluetoothAddress;
 
     /** Tracks whether a projection application is active in the foreground. **/
     private ProjectionStateListener mProjectionStateListener;
@@ -89,7 +90,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             case AVATAR_ICON_SYNC:
                 // TODO(b/148412881): implement avatar icon sync.
             case PHONE_METADATA:
-                // TODO(b/150461793): store device address to use with mProjectionStateListener
+                mConnectedDeviceBluetoothAddress =
+                        message.getPhoneMetadata().getBluetoothDeviceAddress();
             case CLEAR_APP_DATA_REQUEST:
                 // TODO(b/150326327): implement removal behavior.
             case FEATURE_ENABLED_STATE_CHANGE:
@@ -162,6 +164,12 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         cleanupMessagesAndNotifications(key -> true);
         mProjectionStateListener.stop();
         mAppNameToChannel.clear();
+        mConnectedDeviceBluetoothAddress = null;
+    }
+
+    protected void onDeviceDisconnected(String deviceId) {
+        mConnectedDeviceBluetoothAddress = null;
+        cleanupMessagesAndNotifications(key -> key.matches(deviceId));
     }
 
     private void initializeNewConversation(CompanionDevice device,
@@ -216,8 +224,9 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             mAppNameToChannel.put(appDisplayName,
                     new NotificationChannelWrapper(appDisplayName));
         }
-        return mAppNameToChannel.get(appDisplayName).getChannelId(
-                mProjectionStateListener.isProjectionInActiveForeground());
+        boolean isProjectionActive = mProjectionStateListener.isProjectionInActiveForeground(
+                        mConnectedDeviceBluetoothAddress);
+        return mAppNameToChannel.get(appDisplayName).getChannelId(isProjectionActive);
     }
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
