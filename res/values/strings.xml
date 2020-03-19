@@ -36,9 +36,9 @@
     <!-- Adding an associated device [CHAR LIMIT=40]-->
     <string name="associated_device_select_device">Open the app and connect to &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;b></string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
-    <string name="remove_associated_device_title">Forget <xliff:g id="car_name" example="MyCar"><b>%1$s</b></xliff:g>&#63;</string>
+    <string name="remove_associated_device_title">Forget &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;/b>&#63;</string>
     <!-- Message for remove device dialog [CHAR LIMIT=100] -->
-    <string name="remove_associated_device_message">This car will no longer ne paired with this device</string>
+    <string name="remove_associated_device_message">This car will no longer be paired with this device</string>
     <!-- Toast message to show when an associated device has been removed successfully [CHAR LIMIT=60] -->
     <string name="device_removed_success_toast_text"><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g> forgotten</string>
     <!-- Toast message to show when an associated device has not been removed successfully [CHAR LIMIT=100] -->
@@ -112,7 +112,7 @@
     <!-- Title for trusted device feature [CHAR LIMIT=40]-->
     <string name="trusted_device_feature_title">Unlock profile with phone</string>
     <!-- Instruction for trusted device feature [CHAR LIMIT=80]-->
-    <string name="trusted_device_feature_instruction">Use your companion device to unlock your profile.</string>
+    <string name="trusted_device_feature_instruction">Check your Companion App to set unlocking options</string>
     <!-- Trusted device item title [CHAR LIMIT=80]-->
     <string name="trusted_device_item_title">Let &lt;b><xliff:g id="phone_name" example="MyPhone">%1$s</xliff:g>&lt;/b> unlock my profile</string>
     <!-- Title for device not connected dialog [CHAR LIMIT=50]-->
@@ -142,4 +142,14 @@
     <string name="trusted_device_notification_title">Let your phone unlock your profile</string>
     <!-- Notification content for trusted device enrollment [CHAR LIMIT=100]-->
     <string name="trusted_device_notification_content">Tap here to authorize this feature</string>
+
+    <!-- Title for trusted device error dialog [CHAR LIMIT=50]-->
+    <string name="trusted_device_enrollment_error_dialog_title">Something went wrong</string>
+    <!-- Message for trusted device error dialog [CHAR LIMIT=150]-->
+    <string name="trusted_device_enrollment_error_dialog_message">Unfortunately, this feature could not be turned on at this time. Please try again.</string>
+
+    <!-- Title for create phone lock dialog [CHAR LIMIT=50]-->
+    <string name="create_phone_lock_dialog_title">Create a screen lock on your phone</string>
+    <!-- Message for create profile lock dialog [CHAR LIMIT=250]-->
+    <string name="create_phone_lock_dialog_message">Your phone doesn\'t have a screen lock set. To unlock your car profile with your phone, first create a screen lock (also known as \“passcode\”) in your phone\’s settings.</string>
 </resources>

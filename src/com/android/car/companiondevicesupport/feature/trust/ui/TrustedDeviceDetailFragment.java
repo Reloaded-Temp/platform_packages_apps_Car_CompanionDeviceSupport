@@ -19,12 +19,9 @@ package com.android.car.companiondevicesupport.feature.trust.ui;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
 import android.annotation.NonNull;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,13 +74,20 @@ public class TrustedDeviceDetailFragment extends Fragment {
         setTrustedDeviceTitle();
         mModel = ViewModelProviders.of(getActivity()).get(TrustedDeviceViewModel.class);
         mSwitch = view.findViewById(R.id.trusted_device_switch);
-        mSwitch.setOnClickListener(l -> {
-            if (mSwitch.isChecked()) {
+        mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && mTrustedDevice == null) {
+                // When the current device has not been enrolled as trusted device, turning on the
+                // switch is for enrolling the current device.
                 mModel.setDeviceToEnable(mAssociatedDevice);
-            } else {
+                mSwitch.setChecked(false);
+            } else if (!isChecked && mTrustedDevice != null) {
+                // When the current device has been enrolled as trusted device, turning off the
+                // switch is for disable trusted device feature for the current device.
                 mModel.setDeviceToDisable(mTrustedDevice);
+                mSwitch.setChecked(true);
             }
-            mSwitch.toggle();
+            // Ignore other conditions as {@link Switch#setChecked(boolean)} will always trigger
+            // this listener.
         });
         observeViewModel();
     }
@@ -142,8 +146,8 @@ public class TrustedDeviceDetailFragment extends Fragment {
             }
             mModel.setDisabledDevice(null);
             if (mTrustedDevice.equals(device)) {
-                mSwitch.setChecked(false);
                 mTrustedDevice = null;
+                mSwitch.setChecked(false);
             }
         });
 
@@ -153,8 +157,8 @@ public class TrustedDeviceDetailFragment extends Fragment {
             }
             mModel.setEnabledDevice(null);
             if (device.getDeviceId().equals(mAssociatedDevice.getDeviceId())) {
-                mSwitch.setChecked(true);
                 mTrustedDevice = device;
+                mSwitch.setChecked(true);
             }
         });
     }
