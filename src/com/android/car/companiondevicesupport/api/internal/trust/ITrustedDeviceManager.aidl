@@ -48,7 +48,10 @@ interface ITrustedDeviceManager {
     void unregisterTrustedDeviceEnrollmentCallback(in ITrustedDeviceEnrollmentCallback callback);
 
     /** Set a delegate for TrustAgent operation calls. */
-    void setTrustedDeviceAgentDelegate(in @nullable ITrustedDeviceAgentDelegate trustAgentDelegate);
+    void setTrustedDeviceAgentDelegate(in ITrustedDeviceAgentDelegate trustAgentDelegate);
+
+    /** Remove a prevoiusly set delegate. */
+    void clearTrustedDeviceAgentDelegate(in ITrustedDeviceAgentDelegate trustAgentDelegate);
 
     /** Returns a list of trusted devices for user. */
     List<TrustedDevice> getTrustedDevicesForActiveUser();
