@@ -22,12 +22,16 @@ import static com.android.car.connecteddevice.util.SafeLog.logw;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.provider.Settings;
 
+import androidx.annotation.Nullable;
+
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.AvatarIconSync;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.CarToPhoneMessage;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ConversationNotification;
@@ -83,19 +87,26 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         switch (message.getMessageDataCase()) {
             case CONVERSATION:
                 initializeNewConversation(device, message.getConversation(), notificationKey);
+                return;
             case MESSAGE:
                 initializeNewMessage(device.getDeviceId(), message.getMessage(), notificationKey);
+                return;
             case STATUS_UPDATE:
                 // TODO (b/144924164): implement Action Request tracking logic.
+                return;
             case AVATAR_ICON_SYNC:
-                // TODO(b/148412881): implement avatar icon sync.
+                storeIcon(device.getDeviceId(), message.getAvatarIconSync());
+                return;
             case PHONE_METADATA:
                 mConnectedDeviceBluetoothAddress =
                         message.getPhoneMetadata().getBluetoothDeviceAddress();
+                return;
             case CLEAR_APP_DATA_REQUEST:
                 // TODO(b/150326327): implement removal behavior.
+                return;
             case FEATURE_ENABLED_STATE_CHANGE:
                 // TODO(b/150326327): implement enabled state change behavior.
+                return;
             case MESSAGEDATA_NOT_SET:
             default:
                 logw(TAG, "PhoneToCarMessage: message data not set!");
@@ -219,6 +230,22 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         postNotification(convoKey, convoInfo, getChannelId(convoInfo.getAppDisplayName()));
     }
 
+    private void storeIcon(String deviceAddress, AvatarIconSync iconSync) {
+        if (!Utils.isValidAvatarIconSync(iconSync)) {
+            logw(TAG, "storeIcon failed due to invalid AvatarIconSync object.");
+            return;
+        }
+        SenderKey senderKey = new SenderKey(deviceAddress, iconSync.getPerson().getName(),
+                iconSync.getMessagingAppPackageName());
+        byte[] iconArray = iconSync.getPerson().getAvatar().toByteArray();
+        Bitmap bitmap = BitmapFactory.decodeByteArray(iconArray, /* offset= */ 0, iconArray.length);
+        if (bitmap != null) {
+            mSenderLargeIcons.put(senderKey, bitmap);
+        } else {
+            logw(TAG, "storeIcon: Bitmap could not be created from byteArray");
+        }
+    }
+
     private String getChannelId(String appDisplayName) {
         if (!mAppNameToChannel.containsKey(appDisplayName)) {
             mAppNameToChannel.put(appDisplayName,
@@ -231,9 +258,9 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
             ConversationKey convoKey) {
-        String appDisplayName = mNotificationInfos.get(convoKey).getAppDisplayName();
+        String appPackageName = mNotificationInfos.get(convoKey).getAppPackageName();
         Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage,
-                appDisplayName);
+                appPackageName);
         addMessageToNotificationInfo(message, convoKey);
         SenderKey senderKey = message.getSenderKey();
         if (!mSenderLargeIcons.containsKey(senderKey)
