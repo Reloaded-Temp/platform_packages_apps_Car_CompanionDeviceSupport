@@ -78,7 +78,6 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     public NotificationMsgDelegate(Context context, String className) {
         super(context, className, /* useLetterTile */ false);
         mProjectionStateListener = new ProjectionStateListener(context);
-        mProjectionStateListener.start();
     }
 
     public void onMessageReceived(CompanionDevice device, PhoneToCarMessage message) {
@@ -173,7 +172,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         // Erase all the notifications and local data, so that no user data stays on the device
         // after the feature is stopped.
         cleanupMessagesAndNotifications(key -> true);
-        mProjectionStateListener.stop();
+        mProjectionStateListener.destroy();
         mAppNameToChannel.clear();
         mConnectedDeviceBluetoothAddress = null;
     }

@@ -85,7 +85,6 @@ public class NotificationMsgService extends Service {
     public void onDestroy() {
         super.onDestroy();
         mNotificationMsgFeature.stop();
-        mNotificationMsgDelegate.onDestroy();
     }
 
     @Override
