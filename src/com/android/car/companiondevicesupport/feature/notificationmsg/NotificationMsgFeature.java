@@ -63,7 +63,7 @@ public class NotificationMsgFeature extends RemoteFeature {
     public void stop() {
         // Erase all the notifications and local data, so that no user data stays on the device
         // after the feature is stopped.
-        mNotificationMsgDelegate.cleanupMessagesAndNotifications(key -> true);
+        mNotificationMsgDelegate.onDestroy();
         super.stop();
     }
 
