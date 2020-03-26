@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:state="subpage"/>
+        app:car_ui_state="subpage"/>
 
     <FrameLayout
         android:id="@+id/fragment_container"

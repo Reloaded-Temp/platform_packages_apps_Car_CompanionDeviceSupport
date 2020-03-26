@@ -371,12 +371,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     @Override
     public void setTrustedDeviceAgentDelegate(ITrustedDeviceAgentDelegate trustAgentDelegate) {
-
+        logd(TAG, "Set trusted device agent delegate: " + trustAgentDelegate + ".");
         mTrustAgentDelegate = trustAgentDelegate;
-
-        if (trustAgentDelegate == null) {
-            return;
-        }
 
         // Add pending token if present.
         if (mPendingToken != null) {
@@ -393,6 +389,18 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             unlockUser(mPendingCredentials.mDeviceId, mPendingCredentials.mPhoneCredentials);
             mPendingCredentials = null;
         }
+    }
+
+    @Override
+    public void clearTrustedDeviceAgentDelegate(ITrustedDeviceAgentDelegate trustAgentDelegate) {
+        if (trustAgentDelegate.asBinder() != mTrustAgentDelegate.asBinder()) {
+            logd(TAG, "TrustedDeviceAgentDelegate " + trustAgentDelegate + " doesn't match the " +
+                    "current TrustedDeviceAgentDelegate: " + mTrustAgentDelegate +
+                    ". Ignoring call to clear.");
+            return;
+        }
+        logd(TAG, "Clear current TrustedDeviceAgentDelegate: " + trustAgentDelegate + ".");
+        mTrustAgentDelegate = null;
     }
 
     private boolean areCredentialsValid(@Nullable PhoneCredentials credentials) {
