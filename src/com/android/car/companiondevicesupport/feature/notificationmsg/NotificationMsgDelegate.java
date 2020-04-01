@@ -30,6 +30,7 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.AvatarIconSync;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
@@ -57,11 +58,6 @@ import java.util.Map;
 public class NotificationMsgDelegate extends BaseNotificationDelegate {
     private static final String TAG = "NotificationMsgDelegate";
 
-    /** The different {@link PhoneToCarMessage} Message Types. **/
-    private static final String NEW_CONVERSATION_MESSAGE_TYPE = "NEW_CONVERSATION";
-    private static final String NEW_MESSAGE_MESSAGE_TYPE = "NEW_MESSAGE";
-    private static final String ACTION_STATUS_UPDATE_MESSAGE_TYPE = "ACTION_STATUS_UPDATE";
-    private static final String OTHER_MESSAGE_TYPE = "OTHER";
     /** Key for the Reply string in a {@link MapEntry}. **/
     private static final String REPLY_KEY = "REPLY";
 
@@ -71,6 +67,10 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     private Map<String, NotificationChannelWrapper> mAppNameToChannel = new HashMap<>();
     private String mConnectedDeviceBluetoothAddress;
+    /**
+     * Maps a Bitmap of a sender's Large Icon to the sender's unique key for 1-1 conversations.
+     **/
+    protected final Map<SenderKey, Bitmap> mOneOnOneConversationAvatarMap = new HashMap<>();
 
     /** Tracks whether a projection application is active in the foreground. **/
     private ProjectionStateListener mProjectionStateListener;
@@ -94,7 +94,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 // TODO (b/144924164): implement Action Request tracking logic.
                 return;
             case AVATAR_ICON_SYNC:
-                storeIcon(device.getDeviceId(), message.getAvatarIconSync());
+                storeIcon(new ConversationKey(device.getDeviceId(), notificationKey),
+                        message.getAvatarIconSync());
                 return;
             case PHONE_METADATA:
                 mConnectedDeviceBluetoothAddress =
@@ -173,6 +174,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         // after the feature is stopped.
         cleanupMessagesAndNotifications(key -> true);
         mProjectionStateListener.destroy();
+        mOneOnOneConversationAvatarMap.clear();
         mAppNameToChannel.clear();
         mConnectedDeviceBluetoothAddress = null;
     }
@@ -180,6 +182,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     protected void onDeviceDisconnected(String deviceId) {
         mConnectedDeviceBluetoothAddress = null;
         cleanupMessagesAndNotifications(key -> key.matches(deviceId));
+        mOneOnOneConversationAvatarMap.entrySet().removeIf(
+                conversationKey -> conversationKey.getKey().matches(deviceId));
     }
 
     private void initializeNewConversation(CompanionDevice device,
@@ -204,10 +208,15 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
         List<MessagingStyleMessage> messages =
                 notification.getMessagingStyle().getMessagingStyleMsgList();
+        MessagingStyleMessage latestMessage = messages.get(0);
         for (MessagingStyleMessage messagingStyleMessage : messages) {
             createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
+            if (messagingStyleMessage.getTimestamp() > latestMessage.getTimestamp()) {
+                latestMessage = messagingStyleMessage;
+            }
         }
-        postNotification(convoKey, convoInfo, getChannelId(appDisplayName));
+        postNotification(convoKey, convoInfo, getChannelId(appDisplayName),
+                getAvatarIcon(convoKey, latestMessage));
     }
 
     private void initializeNewMessage(String deviceAddress,
@@ -226,20 +235,36 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         createNewMessage(deviceAddress, messagingStyleMessage, convoKey);
         ConversationNotificationInfo convoInfo = mNotificationInfos.get(convoKey);
 
-        postNotification(convoKey, convoInfo, getChannelId(convoInfo.getAppDisplayName()));
+        postNotification(convoKey, convoInfo, getChannelId(convoInfo.getAppDisplayName()),
+                getAvatarIcon(convoKey, messagingStyleMessage));
     }
 
-    private void storeIcon(String deviceAddress, AvatarIconSync iconSync) {
-        if (!Utils.isValidAvatarIconSync(iconSync)) {
-            logw(TAG, "storeIcon failed due to invalid AvatarIconSync object.");
+    @Nullable
+    private Bitmap getAvatarIcon(ConversationKey convoKey, MessagingStyleMessage message) {
+        ConversationNotificationInfo notificationInfo = mNotificationInfos.get(convoKey);
+        if (!notificationInfo.isGroupConvo()) {
+            return mOneOnOneConversationAvatarMap.get(
+                    createSenderKey(convoKey, message.getSender()));
+        } else if (message.getSender().getAvatar() != null) {
+            byte[] iconArray = message.getSender().getAvatar().toByteArray();
+            return BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length);
+        }
+        return null;
+    }
+
+    private void storeIcon(ConversationKey convoKey, AvatarIconSync iconSync) {
+        if (!Utils.isValidAvatarIconSync(iconSync) || !mNotificationInfos.containsKey(convoKey)) {
+            logw(TAG, "storeIcon: invalid AvatarIconSync obj or no conversation found.");
             return;
         }
-        SenderKey senderKey = new SenderKey(deviceAddress, iconSync.getPerson().getName(),
-                iconSync.getMessagingAppPackageName());
+        if (mNotificationInfos.get(convoKey).isGroupConvo()) {
+            return;
+        }
         byte[] iconArray = iconSync.getPerson().getAvatar().toByteArray();
         Bitmap bitmap = BitmapFactory.decodeByteArray(iconArray, /* offset= */ 0, iconArray.length);
         if (bitmap != null) {
-            mSenderLargeIcons.put(senderKey, bitmap);
+            mOneOnOneConversationAvatarMap.put(createSenderKey(convoKey, iconSync.getPerson()),
+                    bitmap);
         } else {
             logw(TAG, "storeIcon: Bitmap could not be created from byteArray");
         }
@@ -259,15 +284,17 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             ConversationKey convoKey) {
         String appPackageName = mNotificationInfos.get(convoKey).getAppPackageName();
         Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage,
-                appPackageName);
+                appPackageName + convoKey.getSubKey());
         addMessageToNotificationInfo(message, convoKey);
-        SenderKey senderKey = message.getSenderKey();
-        if (!mSenderLargeIcons.containsKey(senderKey)
-                && messagingStyleMessage.getSender().getAvatar() != null) {
-            byte[] iconArray = messagingStyleMessage.getSender().getAvatar().toByteArray();
-            mSenderLargeIcons.put(senderKey,
-                    BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length));
-        }
+        AvatarIconSync iconSync = AvatarIconSync.newBuilder()
+                .setPerson(messagingStyleMessage.getSender())
+                .setMessagingAppPackageName(appPackageName)
+                .build();
+        storeIcon(convoKey, iconSync);
+    }
+
+    private SenderKey createSenderKey(ConversationKey convoKey, NotificationMsg.Person person) {
+        return new SenderKey(convoKey.getDeviceId(), person.getName(), convoKey.getSubKey());
     }
 
     /** Creates notification channels per unique messaging application. **/
