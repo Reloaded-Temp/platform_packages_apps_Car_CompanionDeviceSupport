@@ -19,10 +19,10 @@
     <dimen name="car_button_height">@*android:dimen/car_button_height</dimen>
     <dimen name="icon_size">@*android:dimen/car_primary_icon_size</dimen>
     <dimen name="icon_margin_end">44dp</dimen>
-    <dimen name="icon_margin_start">@dimen/car_ui_keyline_1</dimen>
-    <dimen name="text_margin_start">@dimen/car_ui_keyline_3</dimen>
-    <dimen name="text_margin_end">@dimen/car_ui_keyline_1</dimen>
-    <dimen name="no_icon_text_margin_start">@dimen/car_ui_keyline_1</dimen>
+    <dimen name="icon_margin_start">@dimen/car_ui_list_item_text_start_margin</dimen>
+    <dimen name="text_margin_start">@dimen/car_ui_margin</dimen>
+    <dimen name="text_margin_end">@dimen/car_ui_list_item_text_start_margin</dimen>
+    <dimen name="no_icon_text_margin_start">@dimen/car_ui_list_item_text_start_margin</dimen>
     <dimen name="list_item_margin_top">@dimen/car_ui_preference_content_margin_top</dimen>
     <dimen name="list_item_margin_bottom">@dimen/car_ui_preference_content_margin_bottom</dimen>
     <dimen name="list_item_margin_end">@dimen/car_ui_preference_icon_margin_end</dimen>
