@@ -19,43 +19,35 @@
         <item name="android:tint">@color/car_ui_color_accent</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
-    <style name="AssociationDetailIcon">
-        <item name="android:tint">?android:attr/textColorPrimary</item>
-        <item name="android:scaleType">fitCenter</item>
-    </style>
 
     <style name="AssociationTitle" parent="TextAppearance.Body1"/>
+
     <style name="AssociationInstruction" parent="TextAppearance.Body3"/>
+
     <style name="AssociationMessage" parent="TextAppearance.Body3">
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
+
     <style name="AssociationPairingCode" parent="TextAppearance.Display1">
         <item name="android:letterSpacing">@dimen/pairing_code_text_spacing</item>
         <item name="android:textColor">@color/car_ui_color_accent</item>
     </style>
+
     <style name="TrustedDeviceTitle" parent="TextAppearance.Body1"/>
+
     <style name="TrustedDeviceMessage" parent="TextAppearance.Body3">
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
     <style name="ConnectionDisabled">
-        <item name="android:textColor">@*android:color/car_red_300</item>
+        <item name="android:textColor">@color/car_red_300</item>
     </style>
+
     <style name="ConnectionEnabled">
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
     <style name="DeviceDetailDivider">
         <item name="android:background">?android:attr/textColorPrimary</item>
-    </style>
-
-    <style name="InstructionStepItem" parent="DeviceListItem"/>
-    <style name="DeviceDetailButton" parent="DeviceListItem">
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
-    <style name="DeviceListItem">
-        <item name="android:minHeight">@dimen/list_item_height</item>
-        <item name="android:paddingTop">@dimen/list_item_padding</item>
-        <item name="android:paddingBottom">@dimen/list_item_padding</item>
     </style>
 </resources>
