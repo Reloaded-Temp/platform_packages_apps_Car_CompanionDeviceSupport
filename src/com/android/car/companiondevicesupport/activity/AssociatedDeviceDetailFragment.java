@@ -18,6 +18,7 @@ package com.android.car.companiondevicesupport.activity;
 
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +31,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.android.car.companiondevicesupport.R;
-import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceConstants;
 
 
@@ -38,7 +38,8 @@ import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceConstan
 public class AssociatedDeviceDetailFragment extends Fragment {
     private final static String TAG = "AssociatedDeviceDetailFragment";
     private TextView mDeviceName;
-    private TextView mConnectionStatus;
+    private TextView mConnectionStatusText;
+    private ImageView mConnectionStatusIndicator;
     private TextView mConnectionText;
     private ImageView mConnectionIcon;
     private AssociatedDeviceViewModel mModel;
@@ -54,7 +55,8 @@ public class AssociatedDeviceDetailFragment extends Fragment {
         mDeviceName = view.findViewById(R.id.device_name);
         mConnectionIcon = view.findViewById(R.id.connection_icon);
         mConnectionText = view.findViewById(R.id.connection_text);
-        mConnectionStatus = view.findViewById(R.id.connection_status);
+        mConnectionStatusText = view.findViewById(R.id.connection_status_text);
+        mConnectionStatusIndicator = view.findViewById(R.id.connection_status_indicator);
 
         mModel = ViewModelProviders.of(getActivity()).get(AssociatedDeviceViewModel.class);
         mModel.getDeviceDetails().observe(this, this::setDeviceDetails);
@@ -74,30 +76,33 @@ public class AssociatedDeviceDetailFragment extends Fragment {
             return;
         }
         mDeviceName.setText(deviceDetails.getDeviceName());
+
         if (!deviceDetails.isConnectionEnabled()) {
-            setConnectionDisabledStyle();
-            return;
-        }
-        setConnectionEnabledStyle();
-        if (deviceDetails.isConnected()) {
-            mConnectionStatus.setText(getString(R.string.connected));
+            setConnectionStatus(
+                    ContextCompat.getColor(getContext(), R.color.connection_color_disconnected),
+                    getString(R.string.disconnected),
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_phonelink_ring),
+                    getString(R.string.enable_device_connection_text));
+        } else if (deviceDetails.isConnected()) {
+            setConnectionStatus(
+                    ContextCompat.getColor(getContext(), R.color.connection_color_connected),
+                    getString(R.string.connected),
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_phonelink_erase),
+                    getString(R.string.disable_device_connection_text));
         } else {
-            mConnectionStatus.setText(getString(R.string.notDetected));
+            setConnectionStatus(
+                    ContextCompat.getColor(getContext(), R.color.connection_color_not_detected),
+                    getString(R.string.notDetected),
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_phonelink_erase),
+                    getString(R.string.disable_device_connection_text));
         }
     }
 
-    private void setConnectionEnabledStyle() {
-        mConnectionText.setText(getString(R.string.disable_device_connection_text));
-        mConnectionIcon.setImageDrawable(ContextCompat.getDrawable(getContext(),
-                R.drawable.ic_phonelink_erase));
-        mConnectionStatus.setTextAppearance(R.style.ConnectionEnabled);
-    }
-
-    private void setConnectionDisabledStyle() {
-        mConnectionStatus.setText(getString(R.string.disconnected));
-        mConnectionStatus.setTextAppearance(R.style.ConnectionDisabled);
-        mConnectionText.setText(getString(R.string.enable_device_connection_text));
-        mConnectionIcon.setImageDrawable(ContextCompat.getDrawable(getContext(),
-                R.drawable.ic_phonelink_ring));
+    private void setConnectionStatus(int connectionStatusColor, String connectionStatusText,
+            Drawable connectionIcon, String connectionText) {
+        mConnectionStatusText.setText(connectionStatusText);
+        mConnectionStatusIndicator.setColorFilter(connectionStatusColor);
+        mConnectionText.setText(connectionText);
+        mConnectionIcon.setImageDrawable(connectionIcon);
     }
 }

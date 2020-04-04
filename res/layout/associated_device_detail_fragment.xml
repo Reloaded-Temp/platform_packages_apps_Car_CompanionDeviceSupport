@@ -43,16 +43,29 @@
         app:layout_constraintTop_toBottomOf="@+id/device_icon"
         app:layout_constraintBottom_toTopOf="@+id/connection_status"/>
 
-    <TextView
+    <LinearLayout
         android:id="@+id/connection_status"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginTop="@dimen/device_detail_margin"
-        android:textAppearance="@style/AssociationMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/device_name"
-        app:layout_constraintBottom_toTopOf="@+id/connection_button"/>
+        app:layout_constraintBottom_toTopOf="@+id/connection_button">
+        <ImageView
+            android:id="@+id/connection_status_indicator"
+            android:layout_height="@dimen/connection_indicator_size"
+            android:layout_width="@dimen/connection_indicator_size"
+            android:layout_marginEnd="@dimen/connection_indicator_margin_end"
+            android:src="@drawable/ic_connection_indicator"/>
+        <TextView
+            android:id="@+id/connection_status_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textAppearance="@style/AssociationMessage"/>
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/start_guideline"

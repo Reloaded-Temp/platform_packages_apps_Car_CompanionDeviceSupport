@@ -42,4 +42,7 @@
 
     <dimen name="pairing_code_margin_top">@dimen/car_ui_padding_5</dimen>
     <item name="pairing_code_text_spacing" format="float" type="dimen">0.6</item>
+
+    <dimen name="connection_indicator_size">12dp</dimen>
+    <dimen name="connection_indicator_margin_end">12dp</dimen>
 </resources>

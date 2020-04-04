@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2020 The Android Open Source Project
   ~
@@ -14,10 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="connection_color_connected">@*android:color/car_green_500</color>
-    <color name="connection_color_disconnected">@*android:color/car_red_500</color>
-    <color name="connection_color_not_detected">#b7ffffff</color>
-
-    <color name="car_red_300">@*android:color/car_red_300</color>
-</resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="?android:attr/textColorPrimary" />
+    <size
+        android:width="@dimen/connection_indicator_size"
+        android:height="@dimen/connection_indicator_size" />
+</shape>
