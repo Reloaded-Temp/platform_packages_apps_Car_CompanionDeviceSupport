@@ -108,19 +108,21 @@ public class CalendarImporterTest {
         when(mContentResolver.insert(
                 argThat(startsWithUriMatcher(CalendarContract.Events.CONTENT_URI)),
                 any())).thenReturn(
-                CalendarContract.Events.CONTENT_URI.buildUpon().path("events/42").build());
+                CalendarContract.Events.CONTENT_URI.buildUpon().path(
+                        "events/42").appendQueryParameter("a", "b").build());
 
         when(mContentProvider.insert(
-                argThat(startsWithUriMatcher(CalendarContract.Attendees.CONTENT_URI)), any(),
+                argThat(startsWithUriMatcher(CalendarContract.Attendees.CONTENT_URI)),
+                any(),
                 any()))
                 .thenReturn(CalendarContract.Attendees.CONTENT_URI);
+
+        when(mCursor.getCount()).thenReturn(1);
+        when(mCursor.getString(eq(0))).thenReturn(CALENDAR_ID);
     }
 
     @Test
     public void findCalendar() {
-        when(mCursor.getCount()).thenReturn(1);
-        when(mCursor.getString(eq(0))).thenReturn(CALENDAR_ID);
-
         assertEquals(CALENDAR_ID,
                 String.valueOf(mCalendarImporter.findCalendar(CALENDAR_UNIQUE_ID)));
 
@@ -140,9 +142,6 @@ public class CalendarImporterTest {
 
     @Test
     public void importCalendarsWithExistingCalendar() throws Exception {
-        when(mCursor.getCount()).thenReturn(1);
-        when(mCursor.getString(eq(0))).thenReturn(CALENDAR_ID);
-
         ArgumentCaptor<ArrayList<ContentProviderOperation>> batchOpsCaptor =
                 ArgumentCaptor.forClass(ArrayList.class);
 
@@ -172,6 +171,27 @@ public class CalendarImporterTest {
         }
         verifyAttendeeInsert(mAttendeeProtoBuilder1.build());
         verifyAttendeeInsert(mAttendeeProtoBuilder2.build());
+    }
+
+    @Test
+    public void importCalendarAndVerifyAllDayEvent() throws Exception {
+        Event.Builder allDayEventBuilder = newEvent("UID_1", "Event A", "", "here", 1, 2,
+                "Europe/Berlin", null);
+        allDayEventBuilder.setIsAllDay(true);
+
+        mCalendarsProto = Calendars.newBuilder()
+                .addCalendar(Calendar.newBuilder()
+                        .setUuid(CALENDAR_UNIQUE_ID)
+                        .setTitle("calendar one")
+                        .addEvent(allDayEventBuilder))
+                .build();
+
+        mCalendarImporter.importCalendars(mCalendarsProto);
+
+        // Verify event insertion.
+        verify(mContentResolver).insert(
+                argThat(startsWithUriMatcher(CalendarContract.Events.CONTENT_URI)),
+                argThat(argument -> argument.getAsInteger(Events.ALL_DAY) == 1));
     }
 
     @Test
@@ -228,7 +248,9 @@ public class CalendarImporterTest {
                             SECONDS.toMillis(event.getStartDate().getSeconds())) &&
                     argument.getAsLong(Events.DTEND).equals(
                             SECONDS.toMillis(event.getEndDate().getSeconds())) &&
-                    argument.getAsString(Events.EVENT_LOCATION).equals(event.getLocation());
+                    argument.getAsString(Events.EVENT_LOCATION).equals(event.getLocation()) &&
+                    argument.getAsString(Events.ORGANIZER).equals(event.getOrganizer()) &&
+                    argument.getAsInteger(Events.ALL_DAY) == (event.getIsAllDay() ? 1 : 0);
         };
     }
 
