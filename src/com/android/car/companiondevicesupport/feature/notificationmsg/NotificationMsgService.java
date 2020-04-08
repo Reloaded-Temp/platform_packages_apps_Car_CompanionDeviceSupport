@@ -75,7 +75,7 @@ public class NotificationMsgService extends Service {
         super.onCreate();
 
         mNotificationManager = getSystemService(NotificationManager.class);
-        mNotificationMsgDelegate = new NotificationMsgDelegate(this, this.getClass().getName());
+        mNotificationMsgDelegate = new NotificationMsgDelegate(this);
         mNotificationMsgFeature = new NotificationMsgFeature(this, mNotificationMsgDelegate);
         mNotificationMsgFeature.start();
         sendServiceRunningNotification();
