@@ -15,11 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <dimen name="instruction_steps_margin_top">@dimen/car_ui_padding_4</dimen>
-
-    <dimen name="device_detail_margin_top">@dimen/car_ui_padding_1</dimen>
-    <dimen name="device_detail_margin">@dimen/car_ui_padding_1</dimen>
-    <dimen name="device_detail_button_margin_top">@dimen/car_ui_padding_1</dimen>
-    <dimen name="device_detail_divider_margin">0dp</dimen>
-</resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="?android:attr/textColorPrimary" />
+    <size
+        android:width="@dimen/connection_indicator_size"
+        android:height="@dimen/connection_indicator_size" />
+</shape>
