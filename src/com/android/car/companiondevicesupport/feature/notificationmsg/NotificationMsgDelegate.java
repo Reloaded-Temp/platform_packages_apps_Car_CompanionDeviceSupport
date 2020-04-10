@@ -30,7 +30,6 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
-import com.android.car.messenger.NotificationMsgProto.NotificationMsg;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.AvatarIconSync;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
@@ -42,7 +41,6 @@ import com.android.car.messenger.common.BaseNotificationDelegate;
 import com.android.car.messenger.common.ConversationKey;
 import com.android.car.messenger.common.ConversationNotificationInfo;
 import com.android.car.messenger.common.Message;
-import com.android.car.messenger.common.MessageKey;
 import com.android.car.messenger.common.ProjectionStateListener;
 import com.android.car.messenger.common.SenderKey;
 import com.android.car.messenger.common.Utils;
@@ -75,8 +73,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     /** Tracks whether a projection application is active in the foreground. **/
     private ProjectionStateListener mProjectionStateListener;
 
-    public NotificationMsgDelegate(Context context, String className) {
-        super(context, className, /* useLetterTile */ false);
+    public NotificationMsgDelegate(Context context) {
+        super(context, /* useLetterTile */ false);
         mProjectionStateListener = new ProjectionStateListener(context);
     }
 
@@ -114,8 +112,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     }
 
     protected CarToPhoneMessage dismiss(ConversationKey convoKey) {
-        clearNotifications(key -> key.equals(convoKey));
-        excludeFromNotification(convoKey);
+        super.dismissInternal(convoKey);
         // TODO(b/144924164): add a request id to the action.
         Action action = Action.newBuilder()
                 .setActionName(Action.ActionName.DISMISS)
@@ -138,18 +135,6 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 .setNotificationKey(convoKey.getSubKey())
                 .setActionRequest(action)
                 .build();
-    }
-
-    /**
-     * Excludes messages from a notification so that the messages are not shown to the user once
-     * the notification gets updated with newer messages.
-     */
-    private void excludeFromNotification(ConversationKey convoKey) {
-        ConversationNotificationInfo info = mNotificationInfos.get(convoKey);
-        for (MessageKey key : info.mMessageKeys) {
-            Message message = mMessages.get(key);
-            message.excludeFromNotification();
-        }
     }
 
     protected CarToPhoneMessage reply(ConversationKey convoKey, String message) {
@@ -244,7 +229,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         ConversationNotificationInfo notificationInfo = mNotificationInfos.get(convoKey);
         if (!notificationInfo.isGroupConvo()) {
             return mOneOnOneConversationAvatarMap.get(
-                    createSenderKey(convoKey, message.getSender()));
+                    SenderKey.createSenderKey(convoKey, message.getSender()));
         } else if (message.getSender().getAvatar() != null) {
             byte[] iconArray = message.getSender().getAvatar().toByteArray();
             return BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length);
@@ -263,7 +248,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         byte[] iconArray = iconSync.getPerson().getAvatar().toByteArray();
         Bitmap bitmap = BitmapFactory.decodeByteArray(iconArray, /* offset= */ 0, iconArray.length);
         if (bitmap != null) {
-            mOneOnOneConversationAvatarMap.put(createSenderKey(convoKey, iconSync.getPerson()),
+            mOneOnOneConversationAvatarMap.put(
+                    SenderKey.createSenderKey(convoKey, iconSync.getPerson()),
                     bitmap);
         } else {
             logw(TAG, "storeIcon: Bitmap could not be created from byteArray");
@@ -284,17 +270,13 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             ConversationKey convoKey) {
         String appPackageName = mNotificationInfos.get(convoKey).getAppPackageName();
         Message message = Message.parseFromMessage(deviceAddress, messagingStyleMessage,
-                appPackageName + convoKey.getSubKey());
+                SenderKey.createSenderKey(convoKey, messagingStyleMessage.getSender()));
         addMessageToNotificationInfo(message, convoKey);
         AvatarIconSync iconSync = AvatarIconSync.newBuilder()
                 .setPerson(messagingStyleMessage.getSender())
                 .setMessagingAppPackageName(appPackageName)
                 .build();
         storeIcon(convoKey, iconSync);
-    }
-
-    private SenderKey createSenderKey(ConversationKey convoKey, NotificationMsg.Person person) {
-        return new SenderKey(convoKey.getDeviceId(), person.getName(), convoKey.getSubKey());
     }
 
     /** Creates notification channels per unique messaging application. **/
