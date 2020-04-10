@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <style name="CompanionDeviceSupportTheme" parent="Theme.CarUi"/>
+    <style name="CompanionDeviceSupportTheme" parent="Theme.CarUi.WithToolbar"/>
 </resources>
