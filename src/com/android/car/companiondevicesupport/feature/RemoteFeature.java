@@ -50,6 +50,11 @@ public abstract class RemoteFeature {
 
     private static final String TAG = "RemoteFeature";
 
+    private static final String SERVICE_PACKAGE_NAME = "com.android.car.companiondevicesupport";
+
+    private static final String FULLY_QUALIFIED_SERVICE_NAME = SERVICE_PACKAGE_NAME
+            + ".service.CompanionDeviceSupportService";
+
     private final Context mContext;
 
     private final ParcelUuid mFeatureId;
@@ -64,7 +69,8 @@ public abstract class RemoteFeature {
     /** Start setup process and begin binding to {@link CompanionDeviceSupportService}. */
     @CallSuper
     public void start() {
-        Intent intent = new Intent(mContext, CompanionDeviceSupportService.class);
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(SERVICE_PACKAGE_NAME, FULLY_QUALIFIED_SERVICE_NAME));
         intent.setAction(CompanionDeviceSupportService.ACTION_BIND_CONNECTED_DEVICE_MANAGER);
         mContext.bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE,
                 UserHandle.SYSTEM);
