@@ -16,36 +16,33 @@
   -->
 
 <resources>
-    <dimen name="car_button_height">@*android:dimen/car_button_height</dimen>
-    <dimen name="icon_size">@*android:dimen/car_primary_icon_size</dimen>
-    <dimen name="icon_margin_end">44dp</dimen>
-    <dimen name="icon_margin_start">@dimen/car_ui_keyline_1</dimen>
-    <dimen name="text_margin_start">@dimen/car_ui_keyline_3</dimen>
-    <dimen name="text_margin_end">@dimen/car_ui_keyline_1</dimen>
-    <dimen name="no_icon_text_margin_start">@dimen/car_ui_keyline_1</dimen>
-    <dimen name="list_item_margin_top">@dimen/car_ui_preference_content_margin_top</dimen>
-    <dimen name="list_item_margin_bottom">@dimen/car_ui_preference_content_margin_bottom</dimen>
-    <dimen name="list_item_margin_end">@dimen/car_ui_preference_icon_margin_end</dimen>
-    <dimen name="list_item_height">116dp</dimen>
-    <dimen name="list_item_padding">36dp</dimen>
-
+    <dimen name="icon_size">@dimen/car_ui_primary_icon_size</dimen>
     <dimen name="title_margin_top">116dp</dimen>
     <dimen name="message_margin_top">@dimen/car_ui_padding_3</dimen>
     <dimen name="button_margin_top">48dp</dimen>
+
+    <dimen name="list_item_height">@dimen/car_ui_list_item_height</dimen>
+    <dimen name="list_item_icon_size">@dimen/car_ui_list_item_icon_size</dimen>
+    <dimen name="list_item_icon_container_size">@dimen/car_ui_list_item_icon_container_width</dimen>
+    <dimen name="list_item_text_margin_start">@dimen/car_ui_list_item_text_start_margin</dimen>
+    <dimen name="list_item_text_margin_end">@dimen/car_ui_list_item_text_start_margin</dimen>
+    <dimen name="list_item_text_no_icon_margin_start">@dimen/car_ui_list_item_text_no_icon_start_margin</dimen>
+    <dimen name="list_item_content_margin_top">@dimen/car_ui_preference_content_margin_top</dimen>
+    <dimen name="list_item_content_margin_bottom">@dimen/car_ui_preference_content_margin_bottom</dimen>
+    <dimen name="list_item_divider_width">@dimen/car_ui_divider_width</dimen>
 
     <dimen name="instruction_margin_top">48dp</dimen>
     <dimen name="instruction_detail_margin_top">@dimen/car_ui_padding_3</dimen>
     <dimen name="instruction_steps_margin_top">72dp</dimen>
 
-    <dimen name="pairing_code_top_margin">@dimen/car_ui_padding_5</dimen>
-
     <dimen name="device_detail_margin_top">48dp</dimen>
     <dimen name="device_detail_margin">@dimen/car_ui_padding_3</dimen>
-    <dimen name="device_detail_text_margin">44dp</dimen>
     <dimen name="device_detail_button_margin_top">72dp</dimen>
     <dimen name="device_detail_divider_margin">@dimen/car_ui_padding_2</dimen>
 
-    <dimen name="car_ui_display1_size">44sp</dimen>
-
+    <dimen name="pairing_code_margin_top">@dimen/car_ui_padding_5</dimen>
     <item name="pairing_code_text_spacing" format="float" type="dimen">0.6</item>
+
+    <dimen name="connection_indicator_size">12dp</dimen>
+    <dimen name="connection_indicator_margin_end">12dp</dimen>
 </resources>

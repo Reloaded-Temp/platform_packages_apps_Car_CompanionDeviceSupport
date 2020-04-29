@@ -75,7 +75,7 @@ public class NotificationMsgService extends Service {
         super.onCreate();
 
         mNotificationManager = getSystemService(NotificationManager.class);
-        mNotificationMsgDelegate = new NotificationMsgDelegate(this, this.getClass().getName());
+        mNotificationMsgDelegate = new NotificationMsgDelegate(this);
         mNotificationMsgFeature = new NotificationMsgFeature(this, mNotificationMsgDelegate);
         mNotificationMsgFeature.start();
         sendServiceRunningNotification();
@@ -85,7 +85,6 @@ public class NotificationMsgService extends Service {
     public void onDestroy() {
         super.onDestroy();
         mNotificationMsgFeature.stop();
-        mNotificationMsgDelegate.onDestroy();
     }
 
     @Override

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2019 The Android Open Source Project
+  ~ Copyright (C) 2020 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
+<shape
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-    <include layout="@layout/car_ui_preference_fragment" />
-</FrameLayout>
+    android:shape="oval">
+    <solid android:color="?android:attr/textColorPrimary" />
+    <size
+        android:width="@dimen/connection_indicator_size"
+        android:height="@dimen/connection_indicator_size" />
+</shape>

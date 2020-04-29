@@ -53,8 +53,9 @@ public class TrustedDeviceAgentService extends TrustAgentService {
 
     @Override
     public void onDestroy() {
+        logd(TAG, "Destroying trust agent service.");
         try {
-            mTrustedDeviceManager.setTrustedDeviceAgentDelegate(null);
+            mTrustedDeviceManager.clearTrustedDeviceAgentDelegate(mTrustedDeviceAgentDelegate);
         } catch (RemoteException e) {
             loge(TAG, "Error while disconnecting from TrustedDeviceManager.");
         }
@@ -130,6 +131,5 @@ public class TrustedDeviceAgentService extends TrustAgentService {
             logd(TAG, "Removing escrow token for user " + userId + ".");
             TrustedDeviceAgentService.this.removeEscrowToken(handle, UserHandle.of(userId));
         }
-
     };
 }

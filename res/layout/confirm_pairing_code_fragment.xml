@@ -50,7 +50,7 @@
         android:id="@+id/pairing_code"
         android:layout_height="@dimen/list_item_height"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/pairing_code_top_margin"
+        android:layout_marginTop="@dimen/pairing_code_margin_top"
         android:layout_marginStart="@dimen/car_ui_margin"
         android:layout_marginEnd="@dimen/car_ui_margin"
         android:gravity="center"

@@ -15,5 +15,9 @@
   -->
 
 <resources>
+    <color name="connection_color_connected">@*android:color/car_green_500</color>
+    <color name="connection_color_disconnected">@*android:color/car_red_500</color>
+    <color name="connection_color_not_detected">#b7ffffff</color>
+
     <color name="car_red_300">@*android:color/car_red_300</color>
 </resources>
