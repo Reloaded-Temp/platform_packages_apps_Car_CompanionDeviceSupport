@@ -60,6 +60,12 @@ class CalendarCleaner {
                                 CalendarContract.ACCOUNT_TYPE_LOCAL
                         },
                         null);
+        if (cursor == null) {
+            // This means the content provider crashed and the Activity Manager will kill this
+            // process shortly afterwards.
+            return;
+        }
+
         ArrayList<ContentProviderOperation> deleteOps = new ArrayList<>();
         while (cursor.moveToNext()) {
             buildCalendarDeletionOps(cursor.getString(0), deleteOps);
@@ -89,6 +95,11 @@ class CalendarCleaner {
                         EVENTS_CALENDAR_ID_SELECTION,
                         calendarIdArgs,
                         null);
+        if (cursor == null) {
+            // This means the content provider crashed and the Activity Manager will kill this
+            // process shortly afterwards.
+            return;
+        }
 
         while (cursor.moveToNext()) {
             operations.add(
