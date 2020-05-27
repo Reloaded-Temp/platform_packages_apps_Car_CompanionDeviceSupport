@@ -99,15 +99,11 @@
     <string name="unknown">Unknown</string>
 
     <!-- NotificationMsg Feature strings-->
-    <!-- Notification Channel name for the Companion Device Text Message notifications service [CHAR LIMIT=80]-->
-    <string name="notification_msg_channel_name">Companion Device Text Message Notifications Channel</string>
-    <!-- Notification Channel description for the Companion Device Text Message notifications service [CHAR LIMIT=50]-->
-    <string name="notification_msg_channel_description">Phone Text Message Receiver Service</string>
     <!--Notification Channel name for the silent "message notification service running" notification [CHAR LIMIT=100]-->
-    <string name="app_running_msg_channel_name">Phone Text Message service running</string>
+    <string name="app_running_msg_channel_name">Phone text message service running</string>
     <!--Notification Channel description for the silent "message notification service running" notification [CHAR LIMIT=50]-->
-    <string name="app_running_msg_notification_title">Phone Text Messaging service is active</string>
-    <string name="app_running_msg_notification_content">Receiving Messages via Companion Device</string>
+    <string name="app_running_msg_notification_title">Phone text messaging service is active</string>
+    <string name="app_running_msg_notification_content">Receiving text messages via companion device</string>
 
     <!-- Title for trusted device feature [CHAR LIMIT=40]-->
     <string name="trusted_device_feature_title">Unlock profile with phone</string>
