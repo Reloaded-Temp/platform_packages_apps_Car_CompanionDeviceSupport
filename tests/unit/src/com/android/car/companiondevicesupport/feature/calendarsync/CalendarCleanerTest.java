@@ -20,6 +20,7 @@ import static android.provider.CalendarContract.AUTHORITY;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -163,6 +164,28 @@ public class CalendarCleanerTest {
         verifyDelete(Events.CONTENT_URI, Events.CALENDAR_ID, secondCalendarId);
         verifyDelete(Calendars.CONTENT_URI, Calendars._ID, secondCalendarId);
         verifyNoMoreInteractions(mContentProvider);
+    }
+
+    @Test
+    public void eraseCalendar_failingQuery() {
+        when(mContentResolver.query(eq(Events.CONTENT_URI), any(), any(), any(),
+                eq(null))).thenReturn(null);
+        try {
+            mCalendarCleaner.eraseCalendar(CALENDAR_IDENTIFIER);
+        } catch (NullPointerException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void eraseCalendars_failingQuery() {
+        when(mContentResolver.query(eq(Events.CONTENT_URI), any(), any(), any(),
+                eq(null))).thenReturn(null);
+        try {
+            mCalendarCleaner.eraseCalendars();
+        } catch (NullPointerException e) {
+            fail();
+        }
     }
 
     // --- Helpers ---
