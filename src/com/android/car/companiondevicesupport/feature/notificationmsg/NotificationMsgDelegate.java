@@ -32,9 +32,10 @@ import androidx.annotation.Nullable;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.AvatarIconSync;
-import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.CarToPhoneMessage;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ClearAppDataRequest;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ConversationNotification;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MessagingStyleMessage;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.PhoneToCarMessage;
 import com.android.car.messenger.common.BaseNotificationDelegate;
@@ -58,12 +59,22 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     /** Key for the Reply string in a {@link MapEntry}. **/
     private static final String REPLY_KEY = "REPLY";
+    /**
+     * Value for {@link ClearAppDataRequest#getMessagingAppPackageName()}, representing
+     * when all messaging applications' data should be removed.
+     */
+    private static final String REMOVE_ALL_APP_DATA = "ALL";
 
     private static final AudioAttributes AUDIO_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build();
 
     private Map<String, NotificationChannelWrapper> mAppNameToChannel = new HashMap<>();
+
+    /**
+     * The Bluetooth Device address of the connected device. NOTE: this is NOT the same as
+     * {@link CompanionDevice#getDeviceId()}.
+     */
     private String mConnectedDeviceBluetoothAddress;
     /**
      * Maps a Bitmap of a sender's Large Icon to the sender's unique key for 1-1 conversations.
@@ -100,7 +111,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                         message.getPhoneMetadata().getBluetoothDeviceAddress();
                 return;
             case CLEAR_APP_DATA_REQUEST:
-                // TODO(b/150326327): implement removal behavior.
+                clearAppData(device.getDeviceId(),
+                        message.getClearAppDataRequest().getMessagingAppPackageName());
                 return;
             case FEATURE_ENABLED_STATE_CHANGE:
                 // TODO(b/150326327): implement enabled state change behavior.
@@ -277,6 +289,18 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 .setMessagingAppPackageName(appPackageName)
                 .build();
         storeIcon(convoKey, iconSync);
+    }
+
+    private void clearAppData(String deviceId, String packageName) {
+        if (!packageName.equals(REMOVE_ALL_APP_DATA)) {
+            // Clearing data for specific package names is not supported since this use case
+            // is not needed right now.
+            logw(TAG, "clearAppData not supported for arg: " + packageName);
+            return;
+        }
+        cleanupMessagesAndNotifications(key -> key.matches(deviceId));
+        mOneOnOneConversationAvatarMap.entrySet().removeIf(
+                conversationKey -> conversationKey.getKey().matches(deviceId));
     }
 
     /** Creates notification channels per unique messaging application. **/
