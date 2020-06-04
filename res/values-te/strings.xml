@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"గుర్తించబడలేదు"</string>
     <string name="disconnected" msgid="8526513868622591894">"డిస్‌కనెక్ట్ అయింది"</string>
     <string name="unknown" msgid="555736316465118024">"తెలియదు"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"ఫోన్ టెక్ట్స్ మెసేజ్ సర్వీస్ రన్ అవుతోంది"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"ఫోన్ టెక్ట్స్ మెసేజింగ్ సర్వీస్ యాక్టివ్‌గా ఉంది"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"సహచర పరికరం ద్వారా టెక్ట్స్ మెసేజ్‌లను స్వీకరిస్తోంది"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"ఫోన్‌తో ప్రొఫైల్‌ను అన్‌లాక్ చేయండి"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"అన్‌లాక్ చేసే ఆప్షన్‌లను సెట్ చేయడానికి మీ సహచర యాప్‌ను చెక్ చేయండి"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"నా ప్రొఫైల్‌ను అన్‌లాక్ చేయడానికి &lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించు"</string>
