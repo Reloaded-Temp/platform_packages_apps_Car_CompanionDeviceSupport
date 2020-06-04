@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"കണ്ടെത്തിയില്ല"</string>
     <string name="disconnected" msgid="8526513868622591894">"വിച്ഛേദിച്ചു"</string>
     <string name="unknown" msgid="555736316465118024">"അജ്ഞാതം"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"ഫോണിലെ ടെക്സ്റ്റ് മെസേജ് സേവനം റൺ ചെയ്യുന്നു"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"ഫോണിലെ ടെക്സ്റ്റ് മെസേജ് സേവനം സജീവമാണ്"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"സഹകാരി ഉപകരണം വഴി ടെക്സ്റ്റ് മെസേജുകൾ സ്വീകരിക്കുന്നു"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"ഫോൺ ഉപയോഗിച്ച് പ്രൊഫൈൽ അൺലോക്ക് ചെയ്യുക"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"അൺലോക്ക് ചെയ്യാനുള്ള ഓപ്ഷനുകൾ സജ്ജീകരിക്കാൻ സഹകാരി ആപ്പ് പരിശോധിക്കുക"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"എന്റെ പ്രൊഫൈൽ അൺലോക്ക് ചെയ്യാൻ &lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt; എന്നതിനെ അനുവദിക്കുക"</string>
