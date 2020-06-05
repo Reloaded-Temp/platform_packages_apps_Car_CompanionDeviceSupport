@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"મળ્યું નથી"</string>
     <string name="disconnected" msgid="8526513868622591894">"ડિસ્કનેક્ટ કર્યું"</string>
     <string name="unknown" msgid="555736316465118024">"અજાણ"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"ફોન ટેક્સ્ટ સંદેશની સેવા ચાલુ છે"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"ફોન ટેક્સ્ટ સંદેશની સેવા સક્રિય છે"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"સાથી ડિવાઇસ દ્વારા ટેક્સ્ટ સંદેશ પ્રાપ્ત કરી રહ્યાં છીએ"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"ફોન વડે પ્રોફાઇલ અનલૉક કરો"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"અનલૉક કરવાના વિકલ્પો સેટ કરવા માટે તમારી સાથી ઍપ તપાસો"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"&lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt;ને મારી પ્રોફાઇલ અનલૉક કરવા દો"</string>

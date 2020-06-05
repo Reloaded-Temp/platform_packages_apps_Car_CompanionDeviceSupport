@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"आढळले नाही"</string>
     <string name="disconnected" msgid="8526513868622591894">"डिस्कनेक्ट केले आहे"</string>
     <string name="unknown" msgid="555736316465118024">"अज्ञात"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"फोन एसएमएस सेवा रन होत आहे"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"फोन एसएमएस सेवा अ‍ॅक्टिव्ह आहे"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"सहयोगी डिव्हाइसद्वारे एसएमएस मिळवत आहे"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"फोनसह प्रोफाइल अनलॉक करा"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"अनलॉक करण्याचे पर्याय सेट करण्यासाठी तुमचे सहयोगी अ‍ॅप तपासा"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"&lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt;ला माझी प्रोफाइल अनलॉक करू द्या"</string>

@@ -58,7 +58,7 @@
     <string name="unknown" msgid="555736316465118024">"ಅಪರಿಚಿತ"</string>
     <string name="app_running_msg_channel_name" msgid="87011783084544733">"ಫೋನ್ ಪಠ್ಯ ಸಂದೇಶ ಸೇವೆಯು ಚಾಲನೆಯಲ್ಲಿದೆ"</string>
     <string name="app_running_msg_notification_title" msgid="388907180286994900">"ಫೋನ್ ಪಠ್ಯ ಸಂದೇಶ ಕಳುಹಿಸುವಿಕೆ ಸೇವೆಯು ಸಕ್ರಿಯವಾಗಿದೆ"</string>
-    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"ಕಂಪ್ಯಾನಿಯನ್ ಸಾಧನದ ಮೂಲಕ ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"ಕಂಪ್ಯಾನಿಯನ್ ಸಾಧನದ ಮೂಲಕ ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತಿದೆ"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"ಫೋನ್‌ನ ಮೂಲಕ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಿ"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"ಅನ್‌ಲಾಕ್ ಮಾಡುವ ಆಯ್ಕೆಗಳನ್ನು ಹೊಂದಿಸಲು ನಿಮ್ಮ ಕಂಪ್ಯಾನಿಯನ್ ಆ್ಯಪ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"&lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt;; ಗೆ ನನ್ನ ಪ್ರೊಫೈಲ್ ಅನ್‌ಲಾಕ್ ಮಾಡಲು ಅನುಮತಿಸಿ"</string>
