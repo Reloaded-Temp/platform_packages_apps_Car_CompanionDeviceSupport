@@ -119,7 +119,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
         mToolbar = requireToolbar(this);
         mToolbar.setState(SUBPAGE);
         mToolbar.setTitle(R.string.trusted_device_feature_title);
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         mIsScreenLockNewlyCreated.set(false);
         mIsStartedForEnrollment.set(false);
         mHasPendingCredential.set(false);
@@ -378,7 +378,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
     }
 
     private void showTrustedDeviceDetailFragment(AssociatedDevice device) {
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
         TrustedDeviceDetailFragment fragment = TrustedDeviceDetailFragment.newInstance(device);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, DEVICE_DETAIL_FRAGMENT_TAG)

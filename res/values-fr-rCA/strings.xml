@@ -57,7 +57,7 @@
     <string name="disconnected" msgid="8526513868622591894">"Déconnecté"</string>
     <string name="unknown" msgid="555736316465118024">"Inconnu"</string>
     <string name="app_running_msg_channel_name" msgid="87011783084544733">"Le service de messagerie texte du téléphone est en cours d\'exécution"</string>
-    <string name="app_running_msg_notification_title" msgid="388907180286994900">"Le service de messag. texte du téléphone est actif"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"Le service de messagerie texte du téléphone est actif"</string>
     <string name="app_running_msg_notification_content" msgid="4602261901969140233">"La réception des messages texte s\'effectue par l\'appareil compagnon"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"Déverrouiller le profil avec le téléphone"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"Vous pouvez définir les options de déverrouillage dans l\'application compagnon"</string>

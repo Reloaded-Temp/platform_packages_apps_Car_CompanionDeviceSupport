@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"לא מזוהה"</string>
     <string name="disconnected" msgid="8526513868622591894">"מנותק"</string>
     <string name="unknown" msgid="555736316465118024">"לא ידוע"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"שירות הודעות הטקסט פועל בטלפון"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"שירות הודעות הטקסט פעיל בטלפון"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"קבלת הודעות טקסט דרך מכשיר נלווה"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"ביטול נעילת הפרופיל באמצעות הטלפון"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"יש לבדוק באפליקציה הנלווית כדי להגדיר אפשרויות לביטול נעילה"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"ניתן יהיה לבטל את נעילת הפרופיל באמצעות &lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt;"</string>

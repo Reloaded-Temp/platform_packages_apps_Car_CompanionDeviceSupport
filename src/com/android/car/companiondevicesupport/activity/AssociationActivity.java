@@ -77,7 +77,7 @@ public class AssociationActivity extends FragmentActivity {
         if (saveInstanceState != null) {
             resumePreviousState();
         }
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AssociationActivity extends FragmentActivity {
         super.onBackPressed();
         mModel.stopAssociation();
         dismissConfirmButtons();
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void observeViewModel() {
@@ -170,26 +170,26 @@ public class AssociationActivity extends FragmentActivity {
 
     private void showTurnOnBluetoothFragment() {
         TurnOnBluetoothFragment fragment = new TurnOnBluetoothFragment();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         launchFragment(fragment, TURN_ON_BLUETOOTH_FRAGMENT_TAG);
     }
 
     private void showAddAssociatedDeviceFragment(String deviceName) {
         AddAssociatedDeviceFragment fragment = AddAssociatedDeviceFragment.newInstance(deviceName);
         launchFragment(fragment, ADD_DEVICE_FRAGMENT_TAG);
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
     }
 
     private void showConfirmPairingCodeFragment(String pairingCode) {
         ConfirmPairingCodeFragment fragment = ConfirmPairingCodeFragment.newInstance(pairingCode);
         launchFragment(fragment, PAIRING_CODE_FRAGMENT_TAG);
         showConfirmButtons();
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void showAssociationErrorFragment() {
         dismissConfirmButtons();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         AssociationErrorFragment fragment = new AssociationErrorFragment();
         launchFragment(fragment,  ASSOCIATION_ERROR_FRAGMENT_TAG);
     }
@@ -197,7 +197,7 @@ public class AssociationActivity extends FragmentActivity {
     private void showAssociatedDeviceDetailFragment() {
         AssociatedDeviceDetailFragment fragment = new AssociatedDeviceDetailFragment();
         launchFragment(fragment, DEVICE_DETAIL_FRAGMENT_TAG);
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
         showTurnOnBluetoothDialog();
     }
 
@@ -257,7 +257,7 @@ public class AssociationActivity extends FragmentActivity {
 
     private void retryAssociation() {
         dismissConfirmButtons();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         Fragment fragment = getSupportFragmentManager()
                 .findFragmentByTag(PAIRING_CODE_FRAGMENT_TAG);
         if (fragment != null) {
