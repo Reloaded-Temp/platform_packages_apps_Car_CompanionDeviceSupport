@@ -18,6 +18,7 @@ package com.android.car.companiondevicesupport.feature;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
+import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
@@ -26,7 +27,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -39,6 +42,7 @@ import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCal
 import com.android.car.companiondevicesupport.api.external.IDeviceCallback;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -55,11 +59,17 @@ public abstract class RemoteFeature {
     private static final String FULLY_QUALIFIED_SERVICE_NAME = SERVICE_PACKAGE_NAME
             + ".service.CompanionDeviceSupportService";
 
+    private static final Duration BIND_RETRY_DURATION = Duration.ofSeconds(1);
+
+    private static final int MAX_BIND_ATTEMPTS = 3;
+
     private final Context mContext;
 
     private final ParcelUuid mFeatureId;
 
     private IConnectedDeviceManager mConnectedDeviceManager;
+
+    private int mBindAttempts;
 
     public RemoteFeature(@NonNull Context context, @NonNull ParcelUuid featureId) {
         mContext = context;
@@ -69,11 +79,8 @@ public abstract class RemoteFeature {
     /** Start setup process and begin binding to {@link CompanionDeviceSupportService}. */
     @CallSuper
     public void start() {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName(SERVICE_PACKAGE_NAME, FULLY_QUALIFIED_SERVICE_NAME));
-        intent.setAction(CompanionDeviceSupportService.ACTION_BIND_CONNECTED_DEVICE_MANAGER);
-        mContext.bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE,
-                UserHandle.SYSTEM);
+        mBindAttempts = 0;
+        bindToService();
     }
 
     /** Called when the hosting service is being destroyed. Cleans up internal feature logic. */
@@ -216,6 +223,25 @@ public abstract class RemoteFeature {
 
     /** Called when an {@link AssociatedDevice} is updated for the given user. */
     protected void onAssociatedDeviceUpdated(@NonNull AssociatedDevice device) { }
+
+    private void bindToService() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(SERVICE_PACKAGE_NAME, FULLY_QUALIFIED_SERVICE_NAME));
+        intent.setAction(CompanionDeviceSupportService.ACTION_BIND_CONNECTED_DEVICE_MANAGER);
+        boolean success = mContext.bindServiceAsUser(intent, mServiceConnection,
+                Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
+        if (!success) {
+            mBindAttempts++;
+            if (mBindAttempts > MAX_BIND_ATTEMPTS) {
+                loge(TAG, "Failed to bind to CompanionDeviceSupportService after " + mBindAttempts
+                        + " attempts. Aborting.");
+                return;
+            }
+            logw(TAG, "Unable to bind to CompanionDeviceSupportService. Trying again.");
+            new Handler(Looper.getMainLooper()).postDelayed(this::bindToService,
+                    BIND_RETRY_DURATION.toMillis());
+        }
+    }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override

@@ -56,12 +56,9 @@
     <string name="notDetected" msgid="4115229772085594506">"पत्ता लागेन"</string>
     <string name="disconnected" msgid="8526513868622591894">"डिस्कनेक्ट गरियो"</string>
     <string name="unknown" msgid="555736316465118024">"अज्ञात"</string>
-    <!-- no translation found for app_running_msg_channel_name (87011783084544733) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_title (388907180286994900) -->
-    <skip />
-    <!-- no translation found for app_running_msg_notification_content (4602261901969140233) -->
-    <skip />
+    <string name="app_running_msg_channel_name" msgid="87011783084544733">"फोनबाट पाठ सन्देश पठाउने सेवा चालु छ"</string>
+    <string name="app_running_msg_notification_title" msgid="388907180286994900">"फोनबाट पाठ सन्देश पठाउने सेवा सक्रिय छ"</string>
+    <string name="app_running_msg_notification_content" msgid="4602261901969140233">"सहयोगी यन्त्रमार्फत पाठ सन्देशहरू प्राप्त गरिँदै"</string>
     <string name="trusted_device_feature_title" msgid="2690568414493283969">"फोन प्रयोग गरेर प्रोफाइल अनलक गर्नुहोस्"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"अनलक गर्ने विकल्पहरू सेट गर्न आफ्नो सहयोगी एपमा जानुहोस्"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"&lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt; लाई मेरो प्रोफाइल अनलक गर्न दिनुहोस्"</string>
