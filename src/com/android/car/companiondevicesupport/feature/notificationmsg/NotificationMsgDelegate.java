@@ -59,12 +59,12 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     private static final String TAG = "NotificationMsgDelegate";
 
     /** Key for the Reply string in a {@link MapEntry}. **/
-    private static final String REPLY_KEY = "REPLY";
+    protected static final String REPLY_KEY = "REPLY";
     /**
      * Value for {@link ClearAppDataRequest#getMessagingAppPackageName()}, representing
      * when all messaging applications' data should be removed.
      */
-    private static final String REMOVE_ALL_APP_DATA = "ALL";
+    protected static final String REMOVE_ALL_APP_DATA = "ALL";
 
     private static final AudioAttributes AUDIO_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -83,7 +83,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     protected final Map<SenderKey, Bitmap> mOneOnOneConversationAvatarMap = new HashMap<>();
 
     /** Tracks whether a projection application is active in the foreground. **/
-    private final ProjectionStateListener mProjectionStateListener;
+    private ProjectionStateListener mProjectionStateListener;
 
     public NotificationMsgDelegate(Context context) {
         super(context, /* useLetterTile */ false);
@@ -279,9 +279,9 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             mAppNameToChannel.put(appDisplayName,
                     new NotificationChannelWrapper(appDisplayName));
         }
-        boolean isProjectionActive = mProjectionStateListener.isProjectionInActiveForeground(
-                        mConnectedDeviceBluetoothAddress);
-        return mAppNameToChannel.get(appDisplayName).getChannelId(isProjectionActive);
+        return mAppNameToChannel.get(appDisplayName).getChannelId(
+                mProjectionStateListener.isProjectionInActiveForeground(
+                        mConnectedDeviceBluetoothAddress));
     }
 
     private void createNewMessage(String deviceAddress, MessagingStyleMessage messagingStyleMessage,
@@ -366,5 +366,10 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     @VisibleForTesting
     void setNotificationManager(NotificationManager manager) {
         mNotificationManager = manager;
+    }
+
+    @VisibleForTesting
+    void setProjectionStateListener(ProjectionStateListener listener) {
+        mProjectionStateListener = listener;
     }
 }
