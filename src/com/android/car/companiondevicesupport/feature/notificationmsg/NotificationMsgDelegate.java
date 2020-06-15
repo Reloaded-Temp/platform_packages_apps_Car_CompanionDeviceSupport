@@ -32,9 +32,10 @@ import androidx.annotation.Nullable;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.AvatarIconSync;
-import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.CarToPhoneMessage;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ClearAppDataRequest;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.ConversationNotification;
+import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MapEntry;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.MessagingStyleMessage;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.PhoneToCarMessage;
 import com.android.car.messenger.common.BaseNotificationDelegate;
@@ -44,6 +45,7 @@ import com.android.car.messenger.common.Message;
 import com.android.car.messenger.common.ProjectionStateListener;
 import com.android.car.messenger.common.SenderKey;
 import com.android.car.messenger.common.Utils;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.List;
@@ -58,12 +60,22 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
 
     /** Key for the Reply string in a {@link MapEntry}. **/
     private static final String REPLY_KEY = "REPLY";
+    /**
+     * Value for {@link ClearAppDataRequest#getMessagingAppPackageName()}, representing
+     * when all messaging applications' data should be removed.
+     */
+    private static final String REMOVE_ALL_APP_DATA = "ALL";
 
     private static final AudioAttributes AUDIO_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build();
 
     private Map<String, NotificationChannelWrapper> mAppNameToChannel = new HashMap<>();
+
+    /**
+     * The Bluetooth Device address of the connected device. NOTE: this is NOT the same as
+     * {@link CompanionDevice#getDeviceId()}.
+     */
     private String mConnectedDeviceBluetoothAddress;
     /**
      * Maps a Bitmap of a sender's Large Icon to the sender's unique key for 1-1 conversations.
@@ -71,7 +83,7 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
     protected final Map<SenderKey, Bitmap> mOneOnOneConversationAvatarMap = new HashMap<>();
 
     /** Tracks whether a projection application is active in the foreground. **/
-    private ProjectionStateListener mProjectionStateListener;
+    private final ProjectionStateListener mProjectionStateListener;
 
     public NotificationMsgDelegate(Context context) {
         super(context, /* useLetterTile */ false);
@@ -100,7 +112,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                         message.getPhoneMetadata().getBluetoothDeviceAddress();
                 return;
             case CLEAR_APP_DATA_REQUEST:
-                // TODO(b/150326327): implement removal behavior.
+                clearAppData(device.getDeviceId(),
+                        message.getClearAppDataRequest().getMessagingAppPackageName());
                 return;
             case FEATURE_ENABLED_STATE_CHANGE:
                 // TODO(b/150326327): implement enabled state change behavior.
@@ -175,19 +188,23 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
             ConversationNotification notification, String notificationKey) {
         String deviceAddress = device.getDeviceId();
         ConversationKey convoKey = new ConversationKey(deviceAddress, notificationKey);
-        if (mNotificationInfos.containsKey(convoKey)) {
-            logw(TAG, "Conversation already exists! " + notificationKey);
-        }
 
         if (!Utils.isValidConversationNotification(notification, /* isShallowCheck= */ false)) {
             logd(TAG, "Failed to initialize new Conversation, object missing required fields");
             return;
         }
 
-        ConversationNotificationInfo convoInfo = ConversationNotificationInfo.
-                createConversationNotificationInfo(device.getDeviceName(), device.getDeviceId(),
-                notification, notificationKey);
-        mNotificationInfos.put(convoKey, convoInfo);
+        ConversationNotificationInfo convoInfo;
+        if (mNotificationInfos.containsKey(convoKey)) {
+            logw(TAG, "Conversation already exists! " + notificationKey);
+            convoInfo = mNotificationInfos.get(convoKey);
+        } else {
+            convoInfo = ConversationNotificationInfo.
+                    createConversationNotificationInfo(device.getDeviceName(), device.getDeviceId(),
+                            notification, notificationKey);
+            mNotificationInfos.put(convoKey, convoInfo);
+        }
+
 
         String appDisplayName = convoInfo.getAppDisplayName();
 
@@ -230,7 +247,8 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         if (!notificationInfo.isGroupConvo()) {
             return mOneOnOneConversationAvatarMap.get(
                     SenderKey.createSenderKey(convoKey, message.getSender()));
-        } else if (message.getSender().getAvatar() != null) {
+        } else if (message.getSender().getAvatar() != null
+                || !message.getSender().getAvatar().isEmpty()) {
             byte[] iconArray = message.getSender().getAvatar().toByteArray();
             return BitmapFactory.decodeByteArray(iconArray, 0, iconArray.length);
         }
@@ -277,6 +295,18 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
                 .setMessagingAppPackageName(appPackageName)
                 .build();
         storeIcon(convoKey, iconSync);
+    }
+
+    private void clearAppData(String deviceId, String packageName) {
+        if (!packageName.equals(REMOVE_ALL_APP_DATA)) {
+            // Clearing data for specific package names is not supported since this use case
+            // is not needed right now.
+            logw(TAG, "clearAppData not supported for arg: " + packageName);
+            return;
+        }
+        cleanupMessagesAndNotifications(key -> key.matches(deviceId));
+        mOneOnOneConversationAvatarMap.entrySet().removeIf(
+                conversationKey -> conversationKey.getKey().matches(deviceId));
     }
 
     /** Creates notification channels per unique messaging application. **/
@@ -331,5 +361,10 @@ public class NotificationMsgDelegate extends BaseNotificationDelegate {
         static int generateChannelId() {
             return ++NEXT_NOTIFICATION_CHANNEL_ID;
         }
+    }
+
+    @VisibleForTesting
+    void setNotificationManager(NotificationManager manager) {
+        mNotificationManager = manager;
     }
 }
