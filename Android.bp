@@ -22,7 +22,7 @@ android_library {
         "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
     ],
 
-    manifest: "AndroidManifest_aidl.xml",
+    manifest: "AndroidManifest_empty.xml",
 
     resource_dirs: [],
 
@@ -49,6 +49,8 @@ android_library {
         "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
     ],
 
+    manifest: "AndroidManifest_empty.xml",
+
     resource_dirs: ["res"],
 
     platform_apis: true,
@@ -64,7 +66,6 @@ android_library {
     static_libs: [
         "CompanionDeviceSupport-aidl",
         "CompanionDeviceSupport-proto",
-        "EncryptionRunner-lib",
         "androidx-constraintlayout_constraintlayout",
         "androidx-constraintlayout_constraintlayout-solver",
         "androidx.legacy_legacy-support-v4",
@@ -75,6 +76,7 @@ android_library {
         "com.google.android.material_material",
         "companion-feature-calendarsync-protos",
         "connected-device-lib",
+        "encryption-runner",
     ],
 
     plugins: [
@@ -95,6 +97,8 @@ android_app {
         "CompanionDeviceSupport-aidl",
         "CompanionDeviceSupport-lib",
     ],
+
+    manifest: "AndroidManifest.xml",
 
     optimize: {
         enabled: false,

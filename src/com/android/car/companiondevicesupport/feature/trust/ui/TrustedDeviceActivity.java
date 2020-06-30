@@ -21,6 +21,8 @@ import static com.android.car.companiondevicesupport.activity.AssociationActivit
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
+import static com.android.car.ui.core.CarUi.requireToolbar;
+import static com.android.car.ui.toolbar.Toolbar.State.SUBPAGE;
 
 import android.annotation.Nullable;
 import android.app.AlertDialog;
@@ -53,7 +55,7 @@ import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceM
 import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceConstants;
 import com.android.car.companiondevicesupport.feature.trust.TrustedDeviceManagerService;
-import com.android.car.ui.toolbar.Toolbar;
+import com.android.car.ui.toolbar.ToolbarController;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -104,7 +106,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
 
     private ITrustedDeviceManager mTrustedDeviceManager;
 
-    private Toolbar mToolbar;
+    private ToolbarController mToolbar;
 
     private TrustedDeviceViewModel mModel;
 
@@ -114,9 +116,10 @@ public class TrustedDeviceActivity extends FragmentActivity {
         setContentView(R.layout.base_activity);
         observeViewModel();
         resumePreviousState(savedInstanceState);
-        mToolbar = findViewById(R.id.toolbar);
+        mToolbar = requireToolbar(this);
+        mToolbar.setState(SUBPAGE);
         mToolbar.setTitle(R.string.trusted_device_feature_title);
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         mIsScreenLockNewlyCreated.set(false);
         mIsStartedForEnrollment.set(false);
         mHasPendingCredential.set(false);
@@ -375,7 +378,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
     }
 
     private void showTrustedDeviceDetailFragment(AssociatedDevice device) {
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
         TrustedDeviceDetailFragment fragment = TrustedDeviceDetailFragment.newInstance(device);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, DEVICE_DETAIL_FRAGMENT_TAG)

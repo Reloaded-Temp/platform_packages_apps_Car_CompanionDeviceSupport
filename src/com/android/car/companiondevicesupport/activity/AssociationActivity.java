@@ -18,6 +18,8 @@ package com.android.car.companiondevicesupport.activity;
 
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
+import static com.android.car.ui.core.CarUi.requireToolbar;
+import static com.android.car.ui.toolbar.Toolbar.State.SUBPAGE;
 
 import android.annotation.NonNull;
 import android.app.AlertDialog;
@@ -38,7 +40,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.ui.toolbar.MenuItem;
-import com.android.car.ui.toolbar.Toolbar;
+import com.android.car.ui.toolbar.ToolbarController;
 
 import java.util.Arrays;
 
@@ -62,19 +64,20 @@ public class AssociationActivity extends FragmentActivity {
     private static final String REMOVE_DEVICE_DIALOG_TAG = "RemoveDeviceDialog";
     private static final String TURN_ON_BLUETOOTH_DIALOG_TAG = "TurnOnBluetoothDialog";
 
-    private Toolbar mToolbar;
+    private ToolbarController mToolbar;
     private AssociatedDeviceViewModel mModel;
 
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.base_activity);
-        mToolbar = findViewById(R.id.toolbar);
+        mToolbar = requireToolbar(this);
+        mToolbar.setState(SUBPAGE);
         observeViewModel();
         if (saveInstanceState != null) {
             resumePreviousState();
         }
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
     }
 
     @Override
@@ -82,7 +85,7 @@ public class AssociationActivity extends FragmentActivity {
         super.onBackPressed();
         mModel.stopAssociation();
         dismissConfirmButtons();
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void observeViewModel() {
@@ -167,26 +170,26 @@ public class AssociationActivity extends FragmentActivity {
 
     private void showTurnOnBluetoothFragment() {
         TurnOnBluetoothFragment fragment = new TurnOnBluetoothFragment();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         launchFragment(fragment, TURN_ON_BLUETOOTH_FRAGMENT_TAG);
     }
 
     private void showAddAssociatedDeviceFragment(String deviceName) {
         AddAssociatedDeviceFragment fragment = AddAssociatedDeviceFragment.newInstance(deviceName);
         launchFragment(fragment, ADD_DEVICE_FRAGMENT_TAG);
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
     }
 
     private void showConfirmPairingCodeFragment(String pairingCode) {
         ConfirmPairingCodeFragment fragment = ConfirmPairingCodeFragment.newInstance(pairingCode);
         launchFragment(fragment, PAIRING_CODE_FRAGMENT_TAG);
         showConfirmButtons();
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void showAssociationErrorFragment() {
         dismissConfirmButtons();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         AssociationErrorFragment fragment = new AssociationErrorFragment();
         launchFragment(fragment,  ASSOCIATION_ERROR_FRAGMENT_TAG);
     }
@@ -194,7 +197,7 @@ public class AssociationActivity extends FragmentActivity {
     private void showAssociatedDeviceDetailFragment() {
         AssociatedDeviceDetailFragment fragment = new AssociatedDeviceDetailFragment();
         launchFragment(fragment, DEVICE_DETAIL_FRAGMENT_TAG);
-        mToolbar.hideProgressBar();
+        mToolbar.getProgressBar().setVisible(false);
         showTurnOnBluetoothDialog();
     }
 
@@ -254,7 +257,7 @@ public class AssociationActivity extends FragmentActivity {
 
     private void retryAssociation() {
         dismissConfirmButtons();
-        mToolbar.showProgressBar();
+        mToolbar.getProgressBar().setVisible(true);
         Fragment fragment = getSupportFragmentManager()
                 .findFragmentByTag(PAIRING_CODE_FRAGMENT_TAG);
         if (fragment != null) {

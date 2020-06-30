@@ -48,7 +48,8 @@
             </intent-filter>
         </service>
         <activity android:name=".activity.AssociationActivity"
-                  android:exported="true">
+                  android:exported="true"
+                  android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="com.android.car.companiondevicesupport.ASSOCIATION_ACTIVITY" />
                 <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
@@ -124,5 +125,12 @@
             android:authorities="${applicationId}.lifecycle"
             android:exported="false"
             android:multiprocess="true" />
+
+        <!-- Workaround for b/113294940 -->
+        <provider
+        android:name="com.android.car.ui.core.CarUiInstaller"
+        android:authorities="${applicationId}.CarUiInstaller"
+        android:directBootAware="true"
+        android:exported="false"/>
     </application>
 </manifest>
