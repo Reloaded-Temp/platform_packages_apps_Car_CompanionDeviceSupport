@@ -227,6 +227,28 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         return mIsFinished;
     }
 
+    protected void startAssociation() {
+        if (mAssociatedDeviceManager == null) {
+            return;
+        }
+        mAssociationState.postValue(AssociationState.PENDING);
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            return;
+        }
+        try {
+            mAssociatedDeviceManager.startAssociation();
+
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to start association .", e);
+            mAssociationState.postValue(AssociationState.ERROR);
+        }
+        mAssociationState.postValue(AssociationState.STARTING);
+    }
+
+    protected IAssociatedDeviceManager getAssociatedDeviceManager() {
+        return mAssociatedDeviceManager;
+    }
+
     private void updateDeviceDetails() {
         AssociatedDevice device = getAssociatedDevice();
         if (device == null) {
@@ -273,21 +295,6 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
             mRemovedDevice.postValue(device);
             mDeviceDetails.postValue(null);
         }
-    }
-
-    private void startAssociation() {
-        mAssociationState.postValue(AssociationState.PENDING);
-        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            return;
-        }
-        try {
-            mAssociatedDeviceManager.startAssociation();
-
-        } catch (RemoteException e) {
-            loge(TAG, "Failed to start association .", e);
-            mAssociationState.postValue(AssociationState.ERROR);
-        }
-        mAssociationState.postValue(AssociationState.STARTING);
     }
 
     private void registerCallbacks() throws RemoteException {

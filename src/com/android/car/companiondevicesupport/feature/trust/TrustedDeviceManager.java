@@ -69,6 +69,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 
@@ -104,6 +105,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private final AtomicBoolean mIsWaitingForCredentials = new AtomicBoolean(false);
 
+    private final AtomicReference<String> mPendingUnlockDeviceId = new AtomicReference<>(null);
+
     private final NotificationManager mNotificationManager;
 
     private TrustedDeviceDao mDatabase;
@@ -138,6 +141,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mPendingDevice = null;
         mPendingCredentials = null;
         mIsWaitingForCredentials.set(false);
+        mPendingUnlockDeviceId.set(null);
         mTrustedDeviceCallbacks.clear();
         mEnrollmentCallbacks.clear();
         mAssociatedDeviceCallbacks.clear();
@@ -189,12 +193,13 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private void unlockUser(@NonNull String deviceId, @NonNull PhoneCredentials credentials) {
         logd(TAG, "Unlocking with credentials.");
         try {
+            mPendingUnlockDeviceId.set(deviceId);
             mTrustAgentDelegate.unlockUserWithToken(credentials.getEscrowToken().toByteArray(),
                     ByteUtils.bytesToLong(credentials.getHandle().toByteArray()),
                     ActivityManager.getCurrentUser());
-            mTrustedDeviceFeature.sendMessageSecurely(deviceId, createAcknowledgmentMessage());
         } catch (RemoteException e) {
             loge(TAG, "Error while unlocking user through delegate.", e);
+            mPendingUnlockDeviceId.set(null);
         }
     }
 
@@ -248,6 +253,17 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
                 loge(TAG, "Failed to notify that enrollment completed successfully.", e);
             }
         });
+    }
+
+    @Override
+    public void onUserUnlocked() {
+        String deviceId = mPendingUnlockDeviceId.getAndSet(null);
+        if (deviceId == null) {
+            loge(TAG, "No pending trusted device is waiting for the unlocked ACK message.");
+            return;
+        }
+        logd(TAG, "Sending ACK message to device " + deviceId);
+        mTrustedDeviceFeature.sendMessageSecurely(deviceId, createAcknowledgmentMessage());
     }
 
     @Override

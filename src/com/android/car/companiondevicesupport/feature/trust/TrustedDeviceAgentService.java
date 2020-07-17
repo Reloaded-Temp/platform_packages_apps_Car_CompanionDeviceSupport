@@ -90,6 +90,11 @@ public class TrustedDeviceAgentService extends TrustAgentService {
     public void onDeviceUnlocked() {
         super.onDeviceUnlocked();
         TrustedDeviceEventLog.onUserUnlocked();
+        try {
+            mTrustedDeviceManager.onUserUnlocked();
+        } catch (RemoteException e) {
+            loge(TAG, "Error while notifying that the device was unlocked.", e);
+        }
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {

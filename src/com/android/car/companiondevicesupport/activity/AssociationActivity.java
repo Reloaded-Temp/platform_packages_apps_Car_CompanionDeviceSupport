@@ -16,7 +16,6 @@
 
 package com.android.car.companiondevicesupport.activity;
 
-import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.ui.core.CarUi.requireToolbar;
 import static com.android.car.ui.toolbar.Toolbar.State.SUBPAGE;
@@ -77,15 +76,21 @@ public class AssociationActivity extends FragmentActivity {
         if (saveInstanceState != null) {
             resumePreviousState();
         }
-        mToolbar.getProgressBar().setVisible(true);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected void onStart() {
+        super.onStart();
+        // Only start association if a device is not already associated.
+        if (mModel.getDeviceDetails().getValue() == null) {
+            mModel.startAssociation();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         mModel.stopAssociation();
-        dismissConfirmButtons();
-        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void observeViewModel() {
@@ -105,12 +110,17 @@ public class AssociationActivity extends FragmentActivity {
                             Toast.LENGTH_SHORT).show());
                     break;
                 case ERROR:
-                    mModel.resetAssociationState();
                     runOnUiThread(this::showAssociationErrorFragment);
                     break;
                 case NONE:
+                    runOnUiThread(() -> {
+                        dismissConfirmButtons();
+                        hideProgressBar();
+                    });
+                    break;
                 case STARTING:
                 case STARTED:
+                    runOnUiThread(this::showProgressBar);
                     break;
                 default:
                     loge(TAG, "Encountered unexpected association state: " + state);
@@ -169,27 +179,25 @@ public class AssociationActivity extends FragmentActivity {
     }
 
     private void showTurnOnBluetoothFragment() {
+        showProgressBar();
         TurnOnBluetoothFragment fragment = new TurnOnBluetoothFragment();
-        mToolbar.getProgressBar().setVisible(true);
         launchFragment(fragment, TURN_ON_BLUETOOTH_FRAGMENT_TAG);
     }
 
     private void showAddAssociatedDeviceFragment(String deviceName) {
         AddAssociatedDeviceFragment fragment = AddAssociatedDeviceFragment.newInstance(deviceName);
         launchFragment(fragment, ADD_DEVICE_FRAGMENT_TAG);
-        mToolbar.getProgressBar().setVisible(true);
     }
 
     private void showConfirmPairingCodeFragment(String pairingCode) {
         ConfirmPairingCodeFragment fragment = ConfirmPairingCodeFragment.newInstance(pairingCode);
         launchFragment(fragment, PAIRING_CODE_FRAGMENT_TAG);
         showConfirmButtons();
-        mToolbar.getProgressBar().setVisible(false);
     }
 
     private void showAssociationErrorFragment() {
         dismissConfirmButtons();
-        mToolbar.getProgressBar().setVisible(true);
+        showProgressBar();
         AssociationErrorFragment fragment = new AssociationErrorFragment();
         launchFragment(fragment,  ASSOCIATION_ERROR_FRAGMENT_TAG);
     }
@@ -197,7 +205,6 @@ public class AssociationActivity extends FragmentActivity {
     private void showAssociatedDeviceDetailFragment() {
         AssociatedDeviceDetailFragment fragment = new AssociatedDeviceDetailFragment();
         launchFragment(fragment, DEVICE_DETAIL_FRAGMENT_TAG);
-        mToolbar.getProgressBar().setVisible(false);
         showTurnOnBluetoothDialog();
     }
 
@@ -220,6 +227,14 @@ public class AssociationActivity extends FragmentActivity {
         mToolbar.setMenuItems(null);
     }
 
+    private void showProgressBar() {
+        mToolbar.getProgressBar().setVisible(true);
+    }
+
+    private void hideProgressBar() {
+        mToolbar.getProgressBar().setVisible(false);
+    }
+
     private void showRemoveDeviceDialog(AssociatedDevice device) {
         RemoveDeviceDialogFragment removeDeviceDialogFragment =
                 RemoveDeviceDialogFragment.newInstance(device.getDeviceName(),
@@ -235,10 +250,6 @@ public class AssociationActivity extends FragmentActivity {
     }
 
     private void resumePreviousState() {
-        if (getSupportFragmentManager().findFragmentByTag(PAIRING_CODE_FRAGMENT_TAG) != null) {
-            showConfirmButtons();
-        }
-
         RemoveDeviceDialogFragment removeDeviceDialogFragment =
                 (RemoveDeviceDialogFragment) getSupportFragmentManager()
                 .findFragmentByTag(REMOVE_DEVICE_DIALOG_TAG);
