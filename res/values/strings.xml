@@ -35,6 +35,8 @@
     <string name="associated_device_success">Device has been associated successfully</string>
     <!-- Adding an associated device [CHAR LIMIT=40]-->
     <string name="associated_device_select_device">Open the app and connect to &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;b></string>
+    <!-- Open the companion app and follow the instructions that appear in the companion app when it is opened [CHAR LIMIT=60]-->
+    <string name="associated_device_open_app">Open the app and follow instructions in the app</string>
     <!-- Title for remove device dialog [CHAR LIMIT=40]-->
     <string name="remove_associated_device_title">Forget &lt;b><xliff:g id="car_name" example="MyCar">%1$s</xliff:g>&lt;/b>&#63;</string>
     <!-- Message for remove device dialog [CHAR LIMIT=150] -->

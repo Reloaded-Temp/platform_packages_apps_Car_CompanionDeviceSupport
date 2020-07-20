@@ -42,7 +42,8 @@ public final class AssociatedDevice implements Parcelable {
         mIsConnectionEnabled = isConnectionEnabled;
     }
 
-    public AssociatedDevice(com.android.car.connecteddevice.model.AssociatedDevice device) {
+    public AssociatedDevice(
+            @NonNull com.android.car.connecteddevice.model.AssociatedDevice device) {
         this(device.getDeviceId(), device.getDeviceAddress(), device.getDeviceName(),
                 device.isConnectionEnabled());
     }

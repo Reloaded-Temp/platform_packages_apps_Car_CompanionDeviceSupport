@@ -35,6 +35,9 @@ interface ITrustedDeviceManager {
     /** Indicate the escrow token has been activated for a user and corresponding handle. */
     void onEscrowTokenActivated(in int userId, in long handle);
 
+    /** Indicate the device has been unlocked for current user. */
+    void onUserUnlocked();
+
     /** Register a new callback for trusted device events. */
     void registerTrustedDeviceCallback(in ITrustedDeviceCallback callback);
 

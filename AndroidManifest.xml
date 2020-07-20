@@ -64,6 +64,13 @@
             <meta-data android:name="com.android.settings.category"
                        android:value="com.android.settings.category.personal" />
         </activity>
+        <activity android:name=".activity.OobAssociationActivity"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.car.companiondevicesupport.OOB_ASSOCIATION_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <!-- Feature specific elements below here -->
 
@@ -95,7 +102,8 @@
         <service
             android:name=".feature.trust.TrustedDeviceAgentService"
             android:permission="android.permission.BIND_TRUST_AGENT"
-            android:singleUser="true">
+            android:singleUser="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.trust.TrustAgentService" />
                 <category android:name="android.intent.category.DEFAULT" />
