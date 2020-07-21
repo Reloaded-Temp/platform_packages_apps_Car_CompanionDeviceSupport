@@ -299,10 +299,12 @@ public class TrustedDeviceActivity extends FragmentActivity {
         logd(TAG, "Validating credentials to activate token.");
         KeyguardManager keyguardManager = getKeyguardManager();
         if (keyguardManager == null) {
+            logd(TAG, "KeyguardManager was null. Aborting.");
             return;
         }
         if (!mIsStartedForEnrollment.get()) {
             mHasPendingCredential.set(true);
+            logd(TAG, "Activity not started for enrollment. Credentials are pending.");
             return;
         }
         if (mIsScreenLockNewlyCreated.get()) {
