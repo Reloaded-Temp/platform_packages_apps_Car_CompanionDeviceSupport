@@ -301,7 +301,8 @@ public class TrustedDeviceActivity extends FragmentActivity {
         if (keyguardManager == null) {
             return;
         }
-        if (mIsStartedForEnrollment.compareAndSet(false, true)) {
+        if (!mIsStartedForEnrollment.get()) {
+            mHasPendingCredential.set(true);
             return;
         }
         if (mIsScreenLockNewlyCreated.get()) {
