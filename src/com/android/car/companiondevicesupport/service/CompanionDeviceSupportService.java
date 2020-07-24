@@ -114,7 +114,7 @@ public class CompanionDeviceSupportService extends Service {
         int defaultMtuSize = getResources().getInteger(R.integer.car_default_mtu_size);
         ConnectedDeviceStorage storage = new ConnectedDeviceStorage(this);
         CarBluetoothManager carBluetoothManager = isSppSupported
-                ? new CarSppManager(new SppManager(mSppServiceUuid,isSecureRfcommChannel), storage)
+                ? new CarSppManager(new SppManager(isSecureRfcommChannel), storage, mSppServiceUuid)
                 : new CarBlePeripheralManager(new BlePeripheralManager(this), storage,
                         associationUuid, reconnectUuid, reconnectDataUuid, writeUuid, readUuid,
                         MAX_ADVERTISEMENT_DURATION, defaultMtuSize);
