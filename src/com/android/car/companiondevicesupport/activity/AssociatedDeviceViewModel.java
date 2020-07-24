@@ -41,6 +41,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
@@ -49,6 +50,7 @@ import com.android.car.companiondevicesupport.api.internal.association.IAssociat
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,8 @@ import java.util.List;
 public class AssociatedDeviceViewModel extends AndroidViewModel {
 
     private static final String TAG = "AssociatedDeviceViewModel";
+
+    private static final Duration DISCOVERABLE_DURATION = Duration.ofMinutes(5);
 
     public enum AssociationState { NONE, PENDING, STARTING, STARTED, COMPLETED, ERROR }
 
@@ -140,7 +144,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         mDeviceToRemove.postValue(getAssociatedDevice());
     }
 
-    /** Remove the current associated device.*/
+    /** Remove the current associated device. */
     public void removeCurrentDevice() {
         AssociatedDevice device = getAssociatedDevice();
         if (device == null) {
@@ -236,6 +240,18 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
             return;
         }
         try {
+            boolean isSppEnabled = getApplication().getApplicationContext().getResources()
+                    .getBoolean(R.bool.enable_spp_support);
+            if (isSppEnabled && BluetoothAdapter.getDefaultAdapter().getScanMode()
+                    != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                Intent discoverableIntent =
+                        new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
+                        (int)DISCOVERABLE_DURATION.getSeconds());
+                getApplication().startActivityAsUser(discoverableIntent,
+                        UserHandle.of(ActivityManager.getCurrentUser()));
+            }
+
             mAssociatedDeviceManager.startAssociation();
 
         } catch (RemoteException e) {
@@ -404,7 +420,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)  {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (!BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 return;
