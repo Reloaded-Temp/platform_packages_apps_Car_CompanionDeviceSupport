@@ -100,6 +100,8 @@ android_app {
 
     manifest: "AndroidManifest.xml",
 
+    resource_dirs: [],
+
     optimize: {
         enabled: false,
     },
