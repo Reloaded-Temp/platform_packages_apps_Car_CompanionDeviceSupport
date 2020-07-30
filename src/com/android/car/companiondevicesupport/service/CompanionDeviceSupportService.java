@@ -112,17 +112,12 @@ public class CompanionDeviceSupportService extends Service {
         UUID writeUuid = UUID.fromString(getString(R.string.car_secure_write_uuid));
         UUID readUuid = UUID.fromString(getString(R.string.car_secure_read_uuid));
         int defaultMtuSize = getResources().getInteger(R.integer.car_default_mtu_size);
-        int maxSppPacketSize = getResources().getInteger(R.integer.car_max_spp_packet_bytes);
         ConnectedDeviceStorage storage = new ConnectedDeviceStorage(this);
-        CarBluetoothManager carBluetoothManager;
-        if (isSppSupported) {
-            carBluetoothManager = new CarSppManager( new SppManager(isSecureRfcommChannel), storage,
-                    mSppServiceUuid, maxSppPacketSize);
-        } else {
-            carBluetoothManager = new CarBlePeripheralManager(new BlePeripheralManager(this),
-                    storage, associationUuid, reconnectUuid, reconnectDataUuid, writeUuid, readUuid,
-                    MAX_ADVERTISEMENT_DURATION, defaultMtuSize);
-        }
+        CarBluetoothManager carBluetoothManager = isSppSupported
+                ? new CarSppManager(new SppManager(isSecureRfcommChannel), storage, mSppServiceUuid)
+                : new CarBlePeripheralManager(new BlePeripheralManager(this), storage,
+                        associationUuid, reconnectUuid, reconnectDataUuid, writeUuid, readUuid,
+                        MAX_ADVERTISEMENT_DURATION, defaultMtuSize);
         mConnectedDeviceManager = new ConnectedDeviceManager(carBluetoothManager, storage);
         mLocalFeatures.add(new ConnectionHowitzer(this, mConnectedDeviceManager));
         mConnectedDeviceManagerBinder =
