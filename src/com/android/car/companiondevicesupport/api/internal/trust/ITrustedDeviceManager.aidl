@@ -21,6 +21,7 @@ import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCal
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceAgentDelegate;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceEnrollmentCallback;
+import com.android.car.companiondevicesupport.api.internal.trust.IOnTrustedDeviceEnrollmentNotificationRequestListener;
 import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 
 /**
@@ -49,6 +50,14 @@ interface ITrustedDeviceManager {
 
     /** Remove a previously registered callback. */
     void unregisterTrustedDeviceEnrollmentCallback(in ITrustedDeviceEnrollmentCallback callback);
+
+    /** Register a new listener for trusted device enrollment notification requrest. */
+    void registerTrustedDeviceEnrollmentNotificationRequestListener(
+             in IOnTrustedDeviceEnrollmentNotificationRequestListener listener);
+
+    /** Remove a new listener for trusted device enrollment notification requrest. */
+    void unregisterTrustedDeviceEnrollmentNotificationRequestListener(
+             in IOnTrustedDeviceEnrollmentNotificationRequestListener listener);
 
     /** Set a delegate for TrustAgent operation calls. */
     void setTrustedDeviceAgentDelegate(in ITrustedDeviceAgentDelegate trustAgentDelegate);

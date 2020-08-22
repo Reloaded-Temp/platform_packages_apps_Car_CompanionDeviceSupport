@@ -16,9 +16,10 @@
 
 package com.android.car.companiondevicesupport.api.internal.association;
 
-import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 
 import com.android.car.connecteddevice.model.OobEligibleDevice.OobType;
 
