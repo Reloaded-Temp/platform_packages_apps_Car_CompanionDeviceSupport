@@ -21,12 +21,17 @@ import static android.provider.CalendarContract.Calendars.ACCOUNT_TYPE;
 
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
+import android.Manifest;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.provider.CalendarContract;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -42,14 +47,19 @@ class CalendarCleaner {
     private static final String ATTENDEES_EVENT_ID_SELECTION =
             CalendarContract.Attendees.EVENT_ID + " = ?";
 
+    private final Context mContext;
     private final ContentResolver mContentResolver;
 
-    CalendarCleaner(ContentResolver contentResolver) {
-        mContentResolver = contentResolver;
+    CalendarCleaner(Context context) {
+        mContext = context;
+        mContentResolver = context.getContentResolver();
     }
 
     /** Erases the locally imported calendars. */
     void eraseCalendars() {
+        if (!hasRequiredPermissions()) {
+            return;
+        }
         Cursor cursor =
                 mContentResolver.query(
                         CalendarContract.Calendars.CONTENT_URI,
@@ -77,6 +87,20 @@ class CalendarCleaner {
         ArrayList<ContentProviderOperation> deleteOps = new ArrayList<>();
         buildCalendarDeletionOps(calId, deleteOps);
         executeBatchOperations(deleteOps);
+    }
+
+    private boolean hasRequiredPermissions() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR)
+                != PackageManager.PERMISSION_GRANTED) {
+            loge(TAG, "WRITE_CALENDAR permission not granted.");
+            return false;
+        }
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR)
+                != PackageManager.PERMISSION_GRANTED) {
+            loge(TAG, "READ_CALENDAR permission not granted.");
+            return false;
+        }
+        return true;
     }
 
     private void buildCalendarDeletionOps(

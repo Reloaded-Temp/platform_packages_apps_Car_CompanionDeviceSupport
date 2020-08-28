@@ -21,8 +21,6 @@ import static com.android.car.companiondevicesupport.service.CompanionDeviceSupp
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -36,6 +34,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -82,8 +82,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         super(application);
         Intent intent = new Intent(getApplication(), CompanionDeviceSupportService.class);
         intent.setAction(ACTION_BIND_ASSOCIATION);
-        getApplication().bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE,
-                UserHandle.SYSTEM);
+        getApplication().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null) {
             mBluetoothState.postValue(adapter.getState());

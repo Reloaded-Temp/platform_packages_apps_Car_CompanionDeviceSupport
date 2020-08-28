@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,6 +62,8 @@ public class CalendarCleanerTest {
     private static final int NUMBER_OF_TEST_EVENTS = 2;
 
     @Mock
+    private Context mContext;
+    @Mock
     private ContentProvider mContentProvider;
     @Mock
     private ContentResolver mContentResolver;
@@ -75,7 +78,8 @@ public class CalendarCleanerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        mCalendarCleaner = new CalendarCleaner(mContentResolver);
+        when(mContext.getContentResolver()).thenReturn(mContentResolver);
+        mCalendarCleaner = new CalendarCleaner(mContext);
 
         when(mContentResolver.query(eq(Events.CONTENT_URI), any(), any(), any(),
                 eq(null))).thenReturn(mEventsCursor);

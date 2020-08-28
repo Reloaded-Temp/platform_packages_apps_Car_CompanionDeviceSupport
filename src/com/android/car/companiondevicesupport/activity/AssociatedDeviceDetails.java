@@ -16,8 +16,8 @@
 
 package com.android.car.companiondevicesupport.activity;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 

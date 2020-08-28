@@ -16,10 +16,11 @@
 
 package com.android.car.companiondevicesupport.api.external;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 

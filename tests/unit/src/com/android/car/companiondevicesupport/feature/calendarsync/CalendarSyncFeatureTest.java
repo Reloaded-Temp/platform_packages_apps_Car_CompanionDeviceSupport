@@ -72,7 +72,7 @@ public class CalendarSyncFeatureTest {
 
         when(mContext.getString(eq(R.string.calendar_sync_feature_id))).thenReturn(
                 UUID.randomUUID().toString());
-        when(mContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
+        when(mContext.bindService(any(), any(), anyInt())).thenReturn(true);
 
         mCalendarSyncFeature = new CalendarSyncFeature(
                 mContext, mCalendarImporter,
@@ -94,8 +94,7 @@ public class CalendarSyncFeatureTest {
 
         ArgumentCaptor<ServiceConnection> serviceConnectionCaptor =
                 ArgumentCaptor.forClass(ServiceConnection.class);
-        verify(mContext).bindServiceAsUser(any(), serviceConnectionCaptor.capture(), anyInt(),
-                any());
+        verify(mContext).bindService(any(), serviceConnectionCaptor.capture(), anyInt());
         serviceConnectionCaptor.getValue().onServiceConnected(null, mIBinder);
 
         reset(mCalendarCleaner);
