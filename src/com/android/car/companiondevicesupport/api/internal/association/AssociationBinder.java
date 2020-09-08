@@ -16,7 +16,6 @@
 
 package com.android.car.companiondevicesupport.api.internal.association;
 
-import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 

@@ -20,10 +20,10 @@ import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 
-import android.annotation.NonNull;
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.os.RemoteException;
+
+import androidx.annotation.NonNull;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;

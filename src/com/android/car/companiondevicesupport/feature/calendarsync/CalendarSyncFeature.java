@@ -20,9 +20,11 @@ import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 
-import android.annotation.NonNull;
 import android.content.Context;
 import android.os.ParcelUuid;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
@@ -30,8 +32,6 @@ import com.android.car.companiondevicesupport.feature.RemoteFeature;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendar;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendars;
 import com.android.car.protobuf.InvalidProtocolBufferException;
-
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashSet;
 import java.util.List;
@@ -56,8 +56,7 @@ final class CalendarSyncFeature extends RemoteFeature {
     private final Set<String> mSyncedCalendars = new HashSet<>();
 
     CalendarSyncFeature(@NonNull Context context) {
-        this(context, new CalendarImporter(context.getContentResolver()),
-                new CalendarCleaner(context.getContentResolver()));
+        this(context, new CalendarImporter(context), new CalendarCleaner(context));
     }
 
     @VisibleForTesting

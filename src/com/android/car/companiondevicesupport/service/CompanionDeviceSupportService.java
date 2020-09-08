@@ -162,9 +162,9 @@ public class CompanionDeviceSupportService extends Service {
     }
 
     private void onBluetoothStateChanged(int state) {
-        logd(TAG, "onBluetoothStateChanged: " + BluetoothAdapter.nameForState(state));
+        logd(TAG, "onBluetoothStateChanged: " + state);
         switch (state) {
-            case BluetoothAdapter.STATE_BLE_ON:
+            case BluetoothAdapter.STATE_ON:
                 EventLog.onBleOn();
                 initializeFeatures();
                 break;
