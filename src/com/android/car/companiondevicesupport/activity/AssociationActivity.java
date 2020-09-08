@@ -20,7 +20,6 @@ import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.ui.core.CarUi.requireToolbar;
 import static com.android.car.ui.toolbar.Toolbar.State.SUBPAGE;
 
-import android.annotation.NonNull;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
@@ -31,6 +30,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;

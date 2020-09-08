@@ -15,8 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.companiondevicesupport"
-          android:sharedUserId="android.uid.system">
+          package="com.android.car.companiondevicesupport">
 
     <!--  Needed for BLE scanning/advertising -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -25,9 +24,15 @@
 
     <!--  Needed for detecting foreground user -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- Needed for the calendar sync feature -->
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+
+    <!-- Needed for the trusted device feature -->
+    <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT"/>
 
     <!-- Needed to post messaging notifications on behalf of other apps -->
     <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
@@ -60,7 +65,7 @@
             <meta-data android:name="com.android.settings.icon"
                        android:resource="@drawable/ic_smartphone" android:value="true"/>
             <meta-data android:name="com.android.settings.title"
-                       android:value="@string/app_name" />
+                       android:resource="@string/app_name" />
             <meta-data android:name="com.android.settings.category"
                        android:value="com.android.settings.category.personal" />
         </activity>
@@ -111,6 +116,9 @@
             <meta-data android:name="android.service.trust.trustagent"
                        android:resource="@xml/car_trust_agent"/>
         </service>
+        <service android:name=".feature.trust.TrustedDeviceUiDelegateService"
+                 android:exported="false">
+        </service>
         <activity
             android:name=".feature.trust.ui.TrustedDeviceActivity"
             android:exported="true"
@@ -123,7 +131,7 @@
             <meta-data android:name="com.android.settings.icon"
                        android:resource="@drawable/ic_lock" android:value="true"/>
             <meta-data android:name="com.android.settings.title"
-                       android:value="@string/trusted_device_feature_title" />
+                       android:resource="@string/trusted_device_feature_title" />
             <meta-data android:name="com.android.settings.category"
                        android:value="com.android.settings.category.ia.security" />
         </activity>

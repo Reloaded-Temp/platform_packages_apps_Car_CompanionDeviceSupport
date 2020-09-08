@@ -16,8 +16,7 @@
 
 package com.android.car.companiondevicesupport.feature.trust.ui;
 
-import android.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 

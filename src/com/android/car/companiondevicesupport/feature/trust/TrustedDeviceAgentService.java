@@ -65,7 +65,7 @@ public class TrustedDeviceAgentService extends TrustAgentService {
         logd(TAG, "Starting trust agent service.");
         TrustedDeviceEventLog.onTrustAgentStarted();
         Intent intent = new Intent(this, TrustedDeviceManagerService.class);
-        bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         mRetryThread = new HandlerThread(RETRY_HANDLER_THREAD_NAME);
         mRetryThread.start();
         mRetryHandler = new Handler(mRetryThread.getLooper());

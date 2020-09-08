@@ -20,9 +20,6 @@ import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 
-import android.annotation.CallSuper;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +29,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
-import android.os.UserHandle;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
@@ -252,8 +252,8 @@ public abstract class RemoteFeature {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName(SERVICE_PACKAGE_NAME, FULLY_QUALIFIED_SERVICE_NAME));
         intent.setAction(CompanionDeviceSupportService.ACTION_BIND_CONNECTED_DEVICE_MANAGER);
-        boolean success = mContext.bindServiceAsUser(intent, mServiceConnection,
-                Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
+        boolean success = mContext.bindService(intent, mServiceConnection,
+                Context.BIND_AUTO_CREATE);
         if (!success) {
             mBindAttempts++;
             if (mBindAttempts > MAX_BIND_ATTEMPTS) {

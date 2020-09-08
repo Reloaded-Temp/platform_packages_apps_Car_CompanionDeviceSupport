@@ -24,7 +24,6 @@ import static com.android.car.connecteddevice.util.SafeLog.logw;
 import static com.android.car.ui.core.CarUi.requireToolbar;
 import static com.android.car.ui.toolbar.Toolbar.State.SUBPAGE;
 
-import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.KeyguardManager;
@@ -36,11 +35,11 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.text.Html;
 import android.text.Spanned;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -125,7 +124,7 @@ public class TrustedDeviceActivity extends FragmentActivity {
         mHasPendingCredential.set(false);
         mWasRelaunched.set(false);
         Intent intent = new Intent(this, TrustedDeviceManagerService.class);
-        bindServiceAsUser(intent, mServiceConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

@@ -16,8 +16,9 @@
 
 package com.android.car.companiondevicesupport.feature.calendarsync;
 
-import android.annotation.NonNull;
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 /**
  * A manager class handling the {@link CalendarSyncFeature}.
