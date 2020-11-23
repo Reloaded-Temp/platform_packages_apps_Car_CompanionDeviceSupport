@@ -60,7 +60,7 @@
     <string name="app_running_msg_channel_name" msgid="87011783084544733">"SMS-skilaboðaþjónusta síma í gangi"</string>
     <string name="app_running_msg_notification_title" msgid="388907180286994900">"SMS-skilaboðaþjónusta síma er virk"</string>
     <string name="app_running_msg_notification_content" msgid="4602261901969140233">"Tekur við SMS-skilaboðum með fylgdartæki"</string>
-    <string name="trusted_device_feature_title" msgid="2690568414493283969">"Taktu prófílinn úr lás með símanum"</string>
+    <string name="trusted_device_feature_title" msgid="2690568414493283969">"Taka prófílinn úr lás með símanum"</string>
     <string name="trusted_device_feature_instruction" msgid="2546439818978826962">"Farðu í fylgiforritið til að stilla valkosti til að taka úr lás"</string>
     <string name="trusted_device_item_title" msgid="4390572381407233745">"Leyfa &lt;b&gt;<xliff:g id="PHONE_NAME">%1$s</xliff:g>&lt;/b&gt; að taka prófílinn minn úr lás"</string>
     <string name="device_not_connected_dialog_title" msgid="1157155922752758658">"Síminn verður að vera með virka tengingu"</string>

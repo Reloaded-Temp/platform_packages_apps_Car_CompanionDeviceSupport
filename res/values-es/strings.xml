@@ -50,7 +50,7 @@
     <string name="disable" msgid="4619854429066283970">"Inhabilitar"</string>
     <string name="enable" msgid="7656386199154111316">"Habilitar"</string>
     <string name="continue_button" msgid="2748318968566159950">"Continuar"</string>
-    <string name="retry" msgid="3783419451480721367">"Volver a intentar"</string>
+    <string name="retry" msgid="3783419451480721367">"Reintentar"</string>
     <string name="turn_on" msgid="4288754850470994812">"Activar"</string>
     <string name="not_now" msgid="8764692269093707622">"Ahora no"</string>
     <string name="connected" msgid="8051190714042020471">"Conectado"</string>

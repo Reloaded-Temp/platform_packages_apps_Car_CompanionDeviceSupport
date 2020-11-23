@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="default_device_name" msgid="405493967512651629">"Perangkat Terkait"</string>
     <string name="add_device_title" msgid="6166003577845888151">"Tambahkan Perangkat Terkait"</string>
-    <string name="add_associated_device_title" msgid="3275596124326477381">"Sambungkan perangkat pendamping"</string>
+    <string name="add_associated_device_title" msgid="3275596124326477381">"Hubungkan perangkat pendamping"</string>
     <string name="add_associated_device_instruction" msgid="1015406964657139291">"Gunakan ponsel sebagai perangkat pendamping untuk mengatur pengalaman berkendara"</string>
     <string name="associated_device_install_app" msgid="981663561198924864">"Pastikan "<b>"Aplikasi Pendamping"</b>" telah diinstal di ponsel"</string>
     <string name="associated_device_pairing_code_title" msgid="5118861901337336309">"Konfirmasi kode di ponsel"</string>

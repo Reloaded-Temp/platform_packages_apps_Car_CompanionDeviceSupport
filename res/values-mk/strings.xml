@@ -33,7 +33,7 @@
     <string name="device_removed_failure_toast_text" msgid="3756625943664982395">"Не успеа да се заборави <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
     <string name="continue_setup_toast_text" msgid="8487187853051037413">"Продолжете со поставување на телефонот"</string>
     <string name="error_screen_title" msgid="3977744142045194903">"Нешто тргна наопаку"</string>
-    <string name="error_screen_message" msgid="1217200461704367056">"За жал, екранов не можеше да се прикаже правилно. Обидете се повторно."</string>
+    <string name="error_screen_message" msgid="1217200461704367056">"За жал, екранов не може да се прикаже правилно. Обидете се повторно."</string>
     <string name="turn_on_bluetooth_title" msgid="2877749869113938263">"Вклучи Bluetooth"</string>
     <string name="turn_on_bluetooth_message" msgid="5087006108685547788">"За да се постави телефонот како придружен уред, на автомобилот му треба Bluetooth."</string>
     <string name="turn_on_bluetooth_dialog_title" msgid="8693712073791430461">"Да се вклучи Bluetooth?"</string>
@@ -76,7 +76,7 @@
     <string name="trusted_device_notification_title" msgid="249913439061543209">"Дозволете телефонот да го отклучува вашиот профил"</string>
     <string name="trusted_device_notification_content" msgid="7536321078698712456">"Допрете тука за да ја одобрите функцијава"</string>
     <string name="trusted_device_enrollment_error_dialog_title" msgid="8120284275374458606">"Нешто тргна наопаку"</string>
-    <string name="trusted_device_enrollment_error_dialog_message" msgid="7205036748277720461">"За жал, функцијава не можеше да се вклучи во моментов. Обидете се повторно."</string>
+    <string name="trusted_device_enrollment_error_dialog_message" msgid="7205036748277720461">"За жал, функцијава не може да се вклучи во моментов. Обидете се повторно."</string>
     <string name="create_phone_lock_dialog_title" msgid="9160142569534569820">"Создајте заклучување екран на телефонот"</string>
     <string name="create_phone_lock_dialog_message" msgid="8209460622086922427">"Немате поставено заклучување екран на телефонот. За да го отклучите профилот на автомобилот преку телефонот, прво создајте заклучување екран (познато како лозинка) во поставките за телефонот."</string>
 </resources>
