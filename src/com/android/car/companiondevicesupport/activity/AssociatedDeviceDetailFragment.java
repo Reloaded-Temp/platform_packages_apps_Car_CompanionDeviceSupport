@@ -16,8 +16,6 @@
 
 package com.android.car.companiondevicesupport.activity;
 
-import static com.android.car.connecteddevice.util.SafeLog.loge;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;

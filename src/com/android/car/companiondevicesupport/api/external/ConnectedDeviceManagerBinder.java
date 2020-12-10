@@ -18,10 +18,11 @@ package com.android.car.companiondevicesupport.api.external;
 
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.Nullable;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
+
+import androidx.annotation.Nullable;
 
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.ConnectedDeviceManager.ConnectionCallback;

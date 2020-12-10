@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"이 코드가 휴대전화에 표시된 코드와 일치하는지 확인하세요."</string>
     <string name="associated_device_success" msgid="584760065696870256">"기기가 연결되었습니다."</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"앱을 열고 &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;에 연결"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"앱을 열어 앱에 표시된 안내를 따르세요."</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; 차량을 삭제하시겠습니까?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"차량이 더 이상 이 기기와 페어링되지 않습니다. 컴패니언 앱에서도 차량을 삭제해야 합니다."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> 휴대전화가 삭제됨"</string>

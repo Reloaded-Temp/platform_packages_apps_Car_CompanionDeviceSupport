@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Հաստատեք, որ հեռախոսում նույն կոդն է ցուցադրվում"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Սարքը կապվեց"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Բացեք հավելվածը և միացեք &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;-ին"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Բացեք հավելվածը և հետևեք ցուցումներին"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Հեռացնե՞լ &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; մեքենան"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Մեքենան այլևս չի զուգակցվի այս սարքի հետ։ Ձեզ նաև անհրաժեշտ կլինի մեքենան հեռացնել ուղեկցող հավելվածից։"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> սարքը հեռացվեց"</string>

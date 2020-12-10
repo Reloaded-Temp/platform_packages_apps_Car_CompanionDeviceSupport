@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Patvirtinkite, kad kodas atitinka telefone rodomą kodą"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Įrenginys sėkmingai prijungtas"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Atid. pr. ir prisij. prie &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Atid. pr. ir vadov. joje pat. instrukc."</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Pamiršti &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Šis automobilis nebebus susietas su šiuo įrenginiu. Turėsite taip pat pašalinti šį automobilį iš papildomos programos."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"„<xliff:g id="PHONE_NAME">%1$s</xliff:g>“ pamirštas"</string>

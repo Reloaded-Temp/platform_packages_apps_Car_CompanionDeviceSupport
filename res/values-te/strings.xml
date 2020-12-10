@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"ఇది మీ ఫోన్‌లో చూపించిన కోడ్‌తో మ్యాచ్ అవుతున్నట్లు నిర్ధారించండి"</string>
     <string name="associated_device_success" msgid="584760065696870256">"పరికరం విజయవంతంగా అనుబంధించబడింది"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"యాప్‌ తెరిచి, &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;కు కనెక్ట్ చేయండి"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"యాప్ తెరిచి, దానిలో సూచనలు ఫాలో అవ్వండి"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;ను విస్మరించాలా?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"ఇకపై ఈ కారు ఈ పరికరంతో పెయిర్ చేయబడదు. అంతే కాదు, మీరు ఈ కారును సహచర యాప్ నుండి తీసివేయాలి."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> విస్మరించబడింది"</string>

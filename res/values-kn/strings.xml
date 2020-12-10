@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"ನಿಮ್ಮ ಫೋನ್‌ನಲ್ಲಿ ತೋರಿಸಲಾಗುವ ಕೋಡ್‌ಗೆ ಇದು ಹೊಂದಾಣಿಕೆಯಾಗುತ್ತಿರುವುದೇ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ"</string>
     <string name="associated_device_success" msgid="584760065696870256">"ಸಾಧನವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಂಯೋಜಿಸಲಾಗಿದೆ"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"ಆ್ಯಪ್ ತೆರೆಯಿರಿ ಹಾಗೂ &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; ಗೆ ಸಂಪರ್ಕಿಸಿ"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"ಆ್ಯಪ್ ತೆರೆಯಿರಿ, ಆ್ಯಪ್‌ನ ಸೂಚನೆ ಅನುಸರಿಸಿ"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; ಅನ್ನು ತೆಗೆದುಹಾಕುವುದೇ?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"ಈ ಕಾರ್ ಅನ್ನು ಇನ್ನು ಮುಂದೆ ಈ ಸಾಧನದ ಜೊತೆಗೆ ಜೋಡಿಸಲಾಗುವುದಿಲ್ಲ. ಹೆಚ್ಚುವರಿಯಾಗಿ, ಈ ಕಾರ್ ಅನ್ನು ಕಂಪ್ಯಾನಿಯನ್ ಆ್ಯಪ್‌ನಿಂದ ನೀವು ತೆಗೆದುಹಾಕಬೇಕಾಗುತ್ತದೆ."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> ಅನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ"</string>

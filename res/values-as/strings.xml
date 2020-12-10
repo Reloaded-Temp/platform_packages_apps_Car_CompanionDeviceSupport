@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"এইটো আপোনাৰ ফ’নটোত দেখুওৱা ক’ডটোৰ সৈতে মিলাটো নিশ্চিত কৰক"</string>
     <string name="associated_device_success" msgid="584760065696870256">"ডিভাইচটো সফলতাৰে জড়িত কৰা হৈছে"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"এপ্‌টো খুলি &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;ৰে সংযোগ কৰক"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"এপ্‌টো খুলি তাত থকা নিৰ্দেশাৱলী অনুসৰণ কৰক"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;ক আঁতৰাবনে?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"এই গাড়ীখনক আৰু এই ডিভাইচটোৰ সৈতে পেয়াৰ কৰা নহ’ব। ইয়াৰ উপৰিও আপুনি সহযোগী এপ্‌টোৰ পৰা এই গাড়ীখন আঁতৰাব লাগিব।"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g>ক আঁতৰোৱা হৈছে"</string>

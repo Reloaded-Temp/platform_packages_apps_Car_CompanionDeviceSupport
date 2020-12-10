@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Βεβαιωθείτε ότι συμφωνεί με τον κωδικό που εμφανίζεται στο τηλέφωνό σας."</string>
     <string name="associated_device_success" msgid="584760065696870256">"Η συσκευή συσχετίστηκε με επιτυχία."</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Ανοίξτε την εφ. και συνδ. στο &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Άνοιγμα εφαρμογής και εφαρμογή οδηγιών"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Διαγραφή του &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;;"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Δεν θα γίνεται πλέον σύζευξη του αυτοκινήτου με αυτήν τη συσκευή. Επίσης, θα χρειαστεί να καταργήσετε αυτό το αυτοκίνητο από τη συνοδευτική εφαρμογή."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Το <xliff:g id="PHONE_NAME">%1$s</xliff:g> διαγράφηκε."</string>

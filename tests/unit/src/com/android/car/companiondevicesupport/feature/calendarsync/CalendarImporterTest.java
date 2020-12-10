@@ -32,6 +32,7 @@ import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
@@ -65,6 +66,8 @@ public class CalendarImporterTest {
     private static final String CALENDAR_ID = "42";
 
     @Mock
+    private Context mContext;
+    @Mock
     private ContentProvider mContentProvider;
     @Mock
     private ContentResolver mContentResolver;
@@ -82,7 +85,9 @@ public class CalendarImporterTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        mCalendarImporter = new CalendarImporter(mContentResolver);
+
+        when(mContext.getContentResolver()).thenReturn(mContentResolver);
+        mCalendarImporter = new CalendarImporter(mContext);
 
         mEventProtoBuilder1 = newEvent("UID_1", "Event A", "", "here", 1, 2, "Europe/Berlin", null);
         mEventProtoBuilder2 = newEvent("UID_2", "Event B", "there", "somwhere", 4, 6,

@@ -20,22 +20,23 @@
         <item name="android:scaleType">fitCenter</item>
     </style>
 
-    <style name="AssociationTitle" parent="TextAppearance.Body1"/>
+    <style name="AssociationTitle" parent="TextAppearance.CarUi.Body1"/>
 
-    <style name="AssociationInstruction" parent="TextAppearance.Body3"/>
+    <style name="AssociationInstruction" parent="TextAppearance.CarUi.Body3"/>
 
-    <style name="AssociationMessage" parent="TextAppearance.Body3">
+    <style name="AssociationMessage" parent="TextAppearance.CarUi.Body3">
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 
-    <style name="AssociationPairingCode" parent="TextAppearance.Display1">
+    <style name="AssociationPairingCode" parent="TextAppearance.CarUi">
+        <item name="android:textSize">56sp</item>
         <item name="android:letterSpacing">@dimen/pairing_code_text_spacing</item>
         <item name="android:textColor">@color/car_ui_color_accent</item>
     </style>
 
-    <style name="TrustedDeviceTitle" parent="TextAppearance.Body1"/>
+    <style name="TrustedDeviceTitle" parent="TextAppearance.CarUi.Body1"/>
 
-    <style name="TrustedDeviceMessage" parent="TextAppearance.Body3">
+    <style name="TrustedDeviceMessage" parent="TextAppearance.CarUi.Body3">
         <item name="android:textColor">?android:attr/textColorTertiary</item>
     </style>
 

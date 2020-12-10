@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Confirma que coincideix amb el codi que es mostra al teu telèfon"</string>
     <string name="associated_device_success" msgid="584760065696870256">"El dispositiu s\'ha associat correctament"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Obre l\'app i connecta\'t a &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Obre l\'app i segueix les instruccions"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Vols oblidar &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Aquest cotxe ja no estarà vinculat amb aquest dispositiu. També hauràs de suprimir el cotxe de l\'aplicació complementària."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> s\'ha oblidat"</string>

@@ -18,7 +18,6 @@ package com.android.car.companiondevicesupport.feature.trust.ui;
 
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.NonNull;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 

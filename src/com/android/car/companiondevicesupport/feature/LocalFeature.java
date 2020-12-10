@@ -21,10 +21,11 @@ import static com.android.car.connecteddevice.ConnectedDeviceManager.DeviceCallb
 import static com.android.car.connecteddevice.ConnectedDeviceManager.DeviceError;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.CallSuper;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.content.Context;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.connecteddevice.ConnectedDeviceManager;
 import com.android.car.connecteddevice.model.ConnectedDevice;
