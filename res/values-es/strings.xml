@@ -31,7 +31,7 @@
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Este coche ya no estará vinculado con el dispositivo. También tendrás que quitar este coche de la aplicación complementaria."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Se ha olvidado este dispositivo: <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
     <string name="device_removed_failure_toast_text" msgid="3756625943664982395">"No se ha podido olvidar este dispositivo: <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
-    <string name="continue_setup_toast_text" msgid="8487187853051037413">"Sigue con la configuración en tu teléfono"</string>
+    <string name="continue_setup_toast_text" msgid="8487187853051037413">"Continúa la configuración en tu teléfono"</string>
     <string name="error_screen_title" msgid="3977744142045194903">"Se ha producido un error"</string>
     <string name="error_screen_message" msgid="1217200461704367056">"Lo sentimos, pero la pantalla no se ha podido mostrar correctamente. Inténtalo de nuevo."</string>
     <string name="turn_on_bluetooth_title" msgid="2877749869113938263">"Activar Bluetooth"</string>
