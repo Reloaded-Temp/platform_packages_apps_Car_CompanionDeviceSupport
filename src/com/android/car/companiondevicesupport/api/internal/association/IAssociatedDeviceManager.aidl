@@ -21,6 +21,7 @@ import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
 import com.android.car.companiondevicesupport.api.external.IDeviceAssociationCallback;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
+import com.android.car.companiondevicesupport.api.internal.association.OobEligibleDevice;
 
 /** Manager of devices associated with the car. */
 interface IAssociatedDeviceManager {
@@ -37,10 +38,13 @@ interface IAssociatedDeviceManager {
     /** Starts the association with a new device. */
     void startAssociation();
 
+    /** Start an out-of-band association with the given device. */
+    void startOobAssociation(in OobEligibleDevice eligibleDevice);
+
     /** Stops the association with current device. */
     void stopAssociation();
 
-    /** Returns {@link List<AssociatedDevice>} of devices associated with the given user. */
+    /** Returns a {@link List<AssociatedDevice>} of devices associated with the given user. */
     List<AssociatedDevice> getActiveUserAssociatedDevices();
 
     /** Confirms the paring code. */

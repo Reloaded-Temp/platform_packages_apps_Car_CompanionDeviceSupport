@@ -16,10 +16,11 @@
 
 package com.android.car.companiondevicesupport.feature.trust;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.content.Context;
 import android.os.ParcelUuid;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;

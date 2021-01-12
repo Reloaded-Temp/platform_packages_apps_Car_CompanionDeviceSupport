@@ -21,8 +21,6 @@ import static com.android.car.companiondevicesupport.service.CompanionDeviceSupp
 import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -36,11 +34,14 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectionCallback;
@@ -49,6 +50,7 @@ import com.android.car.companiondevicesupport.api.internal.association.IAssociat
 import com.android.car.companiondevicesupport.api.internal.association.IAssociationCallback;
 import com.android.car.companiondevicesupport.service.CompanionDeviceSupportService;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,8 @@ import java.util.List;
 public class AssociatedDeviceViewModel extends AndroidViewModel {
 
     private static final String TAG = "AssociatedDeviceViewModel";
+
+    private static final Duration DISCOVERABLE_DURATION = Duration.ofMinutes(5);
 
     public enum AssociationState { NONE, PENDING, STARTING, STARTED, COMPLETED, ERROR }
 
@@ -82,8 +86,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         super(application);
         Intent intent = new Intent(getApplication(), CompanionDeviceSupportService.class);
         intent.setAction(ACTION_BIND_ASSOCIATION);
-        getApplication().bindServiceAsUser(intent, mConnection, Context.BIND_AUTO_CREATE,
-                UserHandle.SYSTEM);
+        getApplication().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null) {
             mBluetoothState.postValue(adapter.getState());
@@ -140,7 +143,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         mDeviceToRemove.postValue(getAssociatedDevice());
     }
 
-    /** Remove the current associated device.*/
+    /** Remove the current associated device. */
     public void removeCurrentDevice() {
         AssociatedDevice device = getAssociatedDevice();
         if (device == null) {
@@ -227,6 +230,40 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         return mIsFinished;
     }
 
+    protected void startAssociation() {
+        if (mAssociatedDeviceManager == null) {
+            return;
+        }
+        mAssociationState.postValue(AssociationState.PENDING);
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+            return;
+        }
+        try {
+            boolean isSppEnabled = getApplication().getApplicationContext().getResources()
+                    .getBoolean(R.bool.enable_spp_support);
+            if (isSppEnabled && BluetoothAdapter.getDefaultAdapter().getScanMode()
+                    != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                Intent discoverableIntent =
+                        new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
+                        (int)DISCOVERABLE_DURATION.getSeconds());
+                getApplication().startActivityAsUser(discoverableIntent,
+                        UserHandle.of(ActivityManager.getCurrentUser()));
+            }
+
+            mAssociatedDeviceManager.startAssociation();
+
+        } catch (RemoteException e) {
+            loge(TAG, "Failed to start association .", e);
+            mAssociationState.postValue(AssociationState.ERROR);
+        }
+        mAssociationState.postValue(AssociationState.STARTING);
+    }
+
+    protected IAssociatedDeviceManager getAssociatedDeviceManager() {
+        return mAssociatedDeviceManager;
+    }
+
     private void updateDeviceDetails() {
         AssociatedDevice device = getAssociatedDevice();
         if (device == null) {
@@ -275,21 +312,6 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         }
     }
 
-    private void startAssociation() {
-        mAssociationState.postValue(AssociationState.PENDING);
-        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            return;
-        }
-        try {
-            mAssociatedDeviceManager.startAssociation();
-
-        } catch (RemoteException e) {
-            loge(TAG, "Failed to start association .", e);
-            mAssociationState.postValue(AssociationState.ERROR);
-        }
-        mAssociationState.postValue(AssociationState.STARTING);
-    }
-
     private void registerCallbacks() throws RemoteException {
         mAssociatedDeviceManager.setAssociationCallback(mAssociationCallback);
         mAssociatedDeviceManager.setDeviceAssociationCallback(mDeviceAssociationCallback);
@@ -336,6 +358,11 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
         @Override
         public void onAssociationStartSuccess(String deviceName) {
             mAssociationState.postValue(AssociationState.STARTED);
+            if (deviceName == null) {
+                deviceName = BluetoothAdapter.getDefaultAdapter().getName();
+                logd(TAG, "Association advertising started with null device name, falling back to "
+                        + "display bluetooth adapter name: " + deviceName + ".");
+            }
             mAdvertisedCarName.postValue(deviceName);
         }
 
@@ -397,7 +424,7 @@ public class AssociatedDeviceViewModel extends AndroidViewModel {
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)  {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (!BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 return;

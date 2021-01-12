@@ -22,9 +22,12 @@ android_library {
         "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
     ],
 
-    manifest: "AndroidManifest_aidl.xml",
+    manifest: "AndroidManifest_empty.xml",
 
     resource_dirs: [],
+
+    sdk_version: "system_current",
+    min_sdk_version: "28",
 
     static_libs: [
         "connected-device-lib",
@@ -49,16 +52,19 @@ android_library {
         "src/com/android/car/companiondevicesupport/api/**/I*.aidl",
     ],
 
+    manifest: "AndroidManifest_empty.xml",
+
     resource_dirs: ["res"],
 
-    platform_apis: true,
+    sdk_version: "system_current",
+    min_sdk_version: "28",
 
     optimize: {
         enabled: false,
     },
 
     libs: [
-        "android.car",
+        "android.car-system-stubs",
     ],
 
     static_libs: [
@@ -66,7 +72,8 @@ android_library {
         "CompanionDeviceSupport-proto",
         "androidx-constraintlayout_constraintlayout",
         "androidx-constraintlayout_constraintlayout-solver",
-        "androidx.legacy_legacy-support-v4",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
         "androidx.room_room-runtime",
         "car-messenger-common",
         "car-messenger-protos",
@@ -85,7 +92,9 @@ android_library {
 android_app {
     name: "CompanionDeviceSupport",
 
-    platform_apis: true,
+    sdk_version: "system_current",
+    min_sdk_version: "28",
+    target_sdk_version: "28",
 
     certificate: "platform",
 
@@ -95,6 +104,10 @@ android_app {
         "CompanionDeviceSupport-aidl",
         "CompanionDeviceSupport-lib",
     ],
+
+    manifest: "AndroidManifest.xml",
+
+    resource_dirs: [],
 
     optimize: {
         enabled: false,

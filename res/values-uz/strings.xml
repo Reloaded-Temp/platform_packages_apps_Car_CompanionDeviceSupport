@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Bu kod telefoningizdagi bilan mos ekanini tasdiqlang"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Qurilma ulandi"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Ilovani ochib, &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; bilan ulang"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Ilovani oching va koʻrsatmalarga amal qiling"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; olib tashlansinmi?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Bu avtomobil endi mazkur qurilma bilan ulanmaydi. Hamroh ilovadan bu avtomobilni olib tashlashingiz kerak boʻladi."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> olib tashlandi"</string>

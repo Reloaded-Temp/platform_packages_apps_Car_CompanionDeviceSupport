@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"تصدیق کریں کہ یہ آپ کے فون پر دکھائے گئے کوڈ سے مماثلت ہے"</string>
     <string name="associated_device_success" msgid="584760065696870256">"آلہ کامیابی کے ساتھ وابستہ کر دیا گیا ہے"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"ایپ کھولیں اور lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;‎&amp; سے منسلک کریں"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"ایپ کھولیں اور ایپ میں ہدایات کی پیروی کریں"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;‎&amp; کو بھول جائیں؟"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"اس کار کو اس آلہ کے ساتھ مزید نہیں جوڑا جائے گا۔ آپ کو اضافی طور پر اس کار ساتھی ایپ سے ہٹانے کی ضرورت ہوگی۔"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> بھول چکا"</string>

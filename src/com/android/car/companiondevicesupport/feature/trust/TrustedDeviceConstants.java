@@ -16,7 +16,7 @@
 
 package com.android.car.companiondevicesupport.feature.trust;
 
-import android.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,7 +35,7 @@ public class TrustedDeviceConstants {
     public static final String INTENT_ACTION_TRUSTED_DEVICE_SETTING =
             "com.android.car.companiondevicesupport.feature.trust.TRUSTED_DEVICE_ACTIVITY";
 
-    @IntDef(prefix = { "TRUSTED_DEVICE_ERROR_" }, value = {
+    @IntDef(value = {
             TRUSTED_DEVICE_ERROR_MESSAGE_TYPE_UNKNOWN,
             TRUSTED_DEVICE_ERROR_DEVICE_NOT_SECURED,
             TRUSTED_DEVICE_ERROR_UNKNOWN

@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"請確認這個配對碼與手機上顯示的配對碼相符"</string>
     <string name="associated_device_success" msgid="584760065696870256">"已成功建立裝置關聯"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"開啟應用程式並連線到「<xliff:g id="CAR_NAME">%1$s</xliff:g>」"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"開啟應用程式並按照當中的指示操作"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"要清除「<xliff:g id="CAR_NAME">%1$s</xliff:g>」嗎？"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"這輛車將與這部裝置解除配對。你必須另外將這輛車從隨附應用程式中移除。"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"已清除「<xliff:g id="PHONE_NAME">%1$s</xliff:g>」"</string>

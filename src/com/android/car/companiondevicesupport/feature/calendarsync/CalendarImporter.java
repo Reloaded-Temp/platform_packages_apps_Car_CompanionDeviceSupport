@@ -22,21 +22,23 @@ import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import android.annotation.NonNull;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.CalendarContract;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Attendee;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendar;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Calendars;
 import com.android.car.companiondevicesupport.feature.calendarsync.proto.Event;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +65,9 @@ class CalendarImporter {
     private final ContentResolver mContentResolver;
     private final CalendarCleaner mCalendarCleaner;
 
-    CalendarImporter(@NonNull ContentResolver contentResolver) {
-        mContentResolver = contentResolver;
-        mCalendarCleaner = new CalendarCleaner(mContentResolver);
+    CalendarImporter(@NonNull Context context) {
+        mContentResolver = context.getContentResolver();
+        mCalendarCleaner = new CalendarCleaner(context);
     }
 
     /**

@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"மொபைலில் காட்டும் குறியீட்டுடன் இது பொருந்துகிறது என்பதை உறுதிசெய்யவும்"</string>
     <string name="associated_device_success" msgid="584760065696870256">"சாதனம் தொடர்புபடுத்தப்பட்டது"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"ஆப்ஸை திறந்து &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; இல் இணை"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"ஆப்ஸைத் திறந்து வழிமுறைகளைப் பின்பற்றுங்கள்"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;? அகற்றுதல்"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"உங்கள் கார் இனி இந்தச் சாதனத்துடன் இணைக்கப்பட்டிருக்காது. கூடுதலாக நீங்கள் இந்தக் காரைக் கம்பேனியன் ஆப்ஸிலிருந்து அகற்ற வேண்டியிருக்கும்."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> அகற்றப்பட்டது"</string>

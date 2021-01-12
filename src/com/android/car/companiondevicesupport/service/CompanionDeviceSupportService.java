@@ -28,16 +28,25 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.ConnectedDeviceManagerBinder;
 import com.android.car.companiondevicesupport.api.internal.association.AssociationBinder;
 import com.android.car.companiondevicesupport.api.internal.association.IAssociatedDeviceManager;
 import com.android.car.companiondevicesupport.feature.LocalFeature;
 import com.android.car.companiondevicesupport.feature.howitzer.ConnectionHowitzer;
 import com.android.car.connecteddevice.ConnectedDeviceManager;
+import com.android.car.connecteddevice.connection.CarBluetoothManager;
+import com.android.car.connecteddevice.connection.ble.BlePeripheralManager;
+import com.android.car.connecteddevice.connection.ble.CarBlePeripheralManager;
+import com.android.car.connecteddevice.connection.spp.CarSppManager;
+import com.android.car.connecteddevice.connection.spp.SppManager;
+import com.android.car.connecteddevice.storage.ConnectedDeviceStorage;
 import com.android.car.connecteddevice.util.EventLog;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -48,6 +57,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CompanionDeviceSupportService extends Service {
 
     private static final String TAG = "CompanionDeviceSupportService";
+
+    // The mac address randomly rotates every 7-15 minutes. To be safe, we will rotate our
+    // reconnect advertisement every 6 minutes to avoid crossing a rotation.
+    private static final Duration MAX_ADVERTISEMENT_DURATION = Duration.ofMinutes(6);
 
     /**
      * When a client calls {@link Context#bindService(Intent, ServiceConnection, int)} to get the
@@ -87,7 +100,30 @@ public class CompanionDeviceSupportService extends Service {
         super.onCreate();
         logd(TAG, "Service created.");
         EventLog.onServiceStarted();
-        mConnectedDeviceManager = new ConnectedDeviceManager(this);
+        boolean isSppSupported = getResources().getBoolean(R.bool.enable_spp_support);
+        boolean isSecureRfcommChannel =
+                getResources().getBoolean(R.bool.enable_secure_rfcomm_channel);
+        UUID mSppServiceUuid = isSecureRfcommChannel ? UUID.fromString(
+                getString(R.string.car_spp_service_uuid_secure)) :
+                UUID.fromString(getString(R.string.car_spp_service_uuid_insecure));
+        UUID associationUuid = UUID.fromString(getString(R.string.car_association_service_uuid));
+        UUID reconnectUuid = UUID.fromString(getString(R.string.car_reconnect_service_uuid));
+        UUID reconnectDataUuid = UUID.fromString(getString(R.string.car_reconnect_data_uuid));
+        UUID writeUuid = UUID.fromString(getString(R.string.car_secure_write_uuid));
+        UUID readUuid = UUID.fromString(getString(R.string.car_secure_read_uuid));
+        int defaultMtuSize = getResources().getInteger(R.integer.car_default_mtu_size);
+        int maxSppPacketSize = getResources().getInteger(R.integer.car_max_spp_packet_bytes);
+        ConnectedDeviceStorage storage = new ConnectedDeviceStorage(this);
+        CarBluetoothManager carBluetoothManager;
+        if (isSppSupported) {
+            carBluetoothManager = new CarSppManager( new SppManager(isSecureRfcommChannel), storage,
+                    mSppServiceUuid, maxSppPacketSize);
+        } else {
+            carBluetoothManager = new CarBlePeripheralManager(new BlePeripheralManager(this),
+                    storage, associationUuid, reconnectUuid, reconnectDataUuid, writeUuid, readUuid,
+                    MAX_ADVERTISEMENT_DURATION, defaultMtuSize);
+        }
+        mConnectedDeviceManager = new ConnectedDeviceManager(carBluetoothManager, storage);
         mLocalFeatures.add(new ConnectionHowitzer(this, mConnectedDeviceManager));
         mConnectedDeviceManagerBinder =
                 new ConnectedDeviceManagerBinder(mConnectedDeviceManager);
@@ -126,9 +162,9 @@ public class CompanionDeviceSupportService extends Service {
     }
 
     private void onBluetoothStateChanged(int state) {
-        logd(TAG, "onBluetoothStateChanged: " + BluetoothAdapter.nameForState(state));
+        logd(TAG, "onBluetoothStateChanged: " + state);
         switch (state) {
-            case BluetoothAdapter.STATE_BLE_ON:
+            case BluetoothAdapter.STATE_ON:
                 EventLog.onBleOn();
                 initializeFeatures();
                 break;

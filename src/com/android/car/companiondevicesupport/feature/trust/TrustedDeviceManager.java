@@ -20,23 +20,15 @@ import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
 import static com.android.car.connecteddevice.util.SafeLog.logw;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.UserHandle;
 
-import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Room;
 
-import com.android.car.companiondevicesupport.R;
 import com.android.car.companiondevicesupport.api.external.AssociatedDevice;
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.companiondevicesupport.api.external.IConnectedDeviceManager;
@@ -45,11 +37,11 @@ import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceE
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceAgentDelegate;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceCallback;
 import com.android.car.companiondevicesupport.api.internal.trust.ITrustedDeviceManager;
+import com.android.car.companiondevicesupport.api.internal.trust.IOnTrustedDeviceEnrollmentNotificationRequestListener;
 import com.android.car.companiondevicesupport.api.internal.trust.TrustedDevice;
 import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDeviceDao;
 import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDeviceDatabase;
 import com.android.car.companiondevicesupport.feature.trust.storage.TrustedDeviceEntity;
-import com.android.car.companiondevicesupport.feature.trust.ui.TrustedDeviceActivity;
 import com.android.car.companiondevicesupport.protos.PhoneAuthProto.PhoneCredentials;
 import com.android.car.companiondevicesupport.protos.TrustedDeviceMessageProto.TrustedDeviceError;
 import com.android.car.companiondevicesupport.protos.TrustedDeviceMessageProto.TrustedDeviceError.ErrorType;
@@ -69,16 +61,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 
 /** Manager for the feature of unlocking the head unit with a user's trusted device. */
 public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private static final String TAG = "TrustedDeviceManager";
-
-    private static final String CHANNEL_ID = "trusteddevice_notification_channel";
-
-    private static final int ENROLLMENT_NOTIFICATION_ID = 0;
 
     private static final int TRUSTED_DEVICE_MESSAGE_VERSION = 2;
 
@@ -91,12 +80,13 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private final Map<IBinder, ITrustedDeviceEnrollmentCallback> mEnrollmentCallbacks
             = new ConcurrentHashMap<>();
 
+    private final Map<IBinder, IOnTrustedDeviceEnrollmentNotificationRequestListener>
+            mEnrollmentNotificationRequestListeners = new ConcurrentHashMap<>();
+
     private final Map<IBinder, IDeviceAssociationCallback> mAssociatedDeviceCallbacks =
             new ConcurrentHashMap<>();
 
     private final Set<RemoteCallbackBinder> mCallbackBinders = new CopyOnWriteArraySet<>();
-
-    private final Context mContext;
 
     private final TrustedDeviceFeature mTrustedDeviceFeature;
 
@@ -104,7 +94,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
 
     private final AtomicBoolean mIsWaitingForCredentials = new AtomicBoolean(false);
 
-    private final NotificationManager mNotificationManager;
+    private final AtomicReference<String> mPendingUnlockDeviceId = new AtomicReference<>(null);
 
     private TrustedDeviceDao mDatabase;
 
@@ -117,19 +107,12 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private PendingCredentials mPendingCredentials;
 
     TrustedDeviceManager(@NonNull Context context) {
-        mContext = context;
         mTrustedDeviceFeature = new TrustedDeviceFeature(context);
         mTrustedDeviceFeature.setCallback(mFeatureCallback);
         mTrustedDeviceFeature.setAssociatedDeviceCallback(mAssociatedDeviceCallback);
         mTrustedDeviceFeature.start();
         mDatabase = Room.databaseBuilder(context, TrustedDeviceDatabase.class,
                 TrustedDeviceDatabase.DATABASE_NAME).build().trustedDeviceDao();
-        mNotificationManager = (NotificationManager) mContext.
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        String channelName = mContext.getString(R.string.trusted_device_notification_channel_name);
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName,
-                NotificationManager.IMPORTANCE_HIGH);
-        mNotificationManager.createNotificationChannel(channel);
         logd(TAG, "TrustedDeviceManager created successfully.");
     }
 
@@ -138,6 +121,7 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mPendingDevice = null;
         mPendingCredentials = null;
         mIsWaitingForCredentials.set(false);
+        mPendingUnlockDeviceId.set(null);
         mTrustedDeviceCallbacks.clear();
         mEnrollmentCallbacks.clear();
         mAssociatedDeviceCallbacks.clear();
@@ -147,7 +131,8 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
     private void startEnrollment(@NonNull CompanionDevice device, @NonNull byte[] token) {
         logd(TAG, "Starting trusted device enrollment process.");
         mPendingDevice = device;
-        showEnrollmentNotification();
+
+        notifyEnrollmentNotificationRequestListeners();
 
         mPendingToken = token;
         if (mTrustAgentDelegate == null) {
@@ -163,38 +148,16 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         }
     }
 
-    private void showEnrollmentNotification() {
-        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
-        Intent enrollmentIntent = new Intent(mContext, TrustedDeviceActivity.class)
-                // Setting this action ensures that the TrustedDeviceActivity is resumed if it is
-                // already running.
-                .setAction("com.android.settings.action.EXTRA_SETTINGS")
-                .putExtra(TrustedDeviceConstants.INTENT_EXTRA_ENROLL_NEW_TOKEN, true)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent
-                .getActivityAsUser(mContext, /* requestCode = */ 0, enrollmentIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT, null, currentUser);
-        Notification notification = new Notification.Builder(mContext, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_directions_car_filled)
-                .setColor(ContextCompat.getColor(mContext, R.color.car_red_300))
-                .setContentTitle(mContext.getString(R.string.trusted_device_notification_title))
-                .setContentText(mContext.getString(R.string.trusted_device_notification_content))
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .build();
-        mNotificationManager.notifyAsUser(/* tag = */ null, ENROLLMENT_NOTIFICATION_ID,
-                notification, currentUser);
-    }
-
     private void unlockUser(@NonNull String deviceId, @NonNull PhoneCredentials credentials) {
         logd(TAG, "Unlocking with credentials.");
         try {
+            mPendingUnlockDeviceId.set(deviceId);
             mTrustAgentDelegate.unlockUserWithToken(credentials.getEscrowToken().toByteArray(),
                     ByteUtils.bytesToLong(credentials.getHandle().toByteArray()),
                     ActivityManager.getCurrentUser());
-            mTrustedDeviceFeature.sendMessageSecurely(deviceId, createAcknowledgmentMessage());
         } catch (RemoteException e) {
             loge(TAG, "Error while unlocking user through delegate.", e);
+            mPendingUnlockDeviceId.set(null);
         }
     }
 
@@ -236,7 +199,9 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         entity.id = deviceId;
         entity.userId = userId;
         entity.handle = handle;
-        mDatabase.addOrReplaceTrustedDevice(entity);
+
+        Executors.newSingleThreadExecutor().execute(() ->
+                mDatabase.addOrReplaceTrustedDevice(entity));
 
         mPendingDevice = null;
 
@@ -248,6 +213,17 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
                 loge(TAG, "Failed to notify that enrollment completed successfully.", e);
             }
         });
+    }
+
+    @Override
+    public void onUserUnlocked() {
+        String deviceId = mPendingUnlockDeviceId.getAndSet(null);
+        if (deviceId == null) {
+            loge(TAG, "No pending trusted device is waiting for the unlocked ACK message.");
+            return;
+        }
+        logd(TAG, "Sending ACK message to device " + deviceId);
+        mTrustedDeviceFeature.sendMessageSecurely(deviceId, createAcknowledgmentMessage());
     }
 
     @Override
@@ -368,6 +344,24 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
         mEnrollmentCallbacks.remove(binder);
         removeRemoteBinder(binder);
     }
+
+    @Override
+    public void registerTrustedDeviceEnrollmentNotificationRequestListener(
+            IOnTrustedDeviceEnrollmentNotificationRequestListener listener) {
+        mEnrollmentNotificationRequestListeners.put(listener.asBinder(), listener);
+        RemoteCallbackBinder remoteBinder = new RemoteCallbackBinder(listener.asBinder(),
+                iBinder -> unregisterTrustedDeviceEnrollmentNotificationRequestListener(listener));
+        mCallbackBinders.add(remoteBinder);
+    }
+
+    @Override
+    public void unregisterTrustedDeviceEnrollmentNotificationRequestListener(
+            IOnTrustedDeviceEnrollmentNotificationRequestListener listener) {
+        IBinder binder = listener.asBinder();
+        mEnrollmentNotificationRequestListeners.remove(binder);
+        removeRemoteBinder(binder);
+    }
+
 
     @Override
     public void setTrustedDeviceAgentDelegate(ITrustedDeviceAgentDelegate trustAgentDelegate) {
@@ -528,6 +522,17 @@ public class TrustedDeviceManager extends ITrustedDeviceManager.Stub {
             Consumer<IDeviceAssociationCallback> notification ) {
         mAssociatedDeviceCallbacks.forEach((iBinder, callback) -> mExecutor.execute(() ->
                 notification.accept(callback)));
+    }
+
+    private void notifyEnrollmentNotificationRequestListeners() {
+        mEnrollmentNotificationRequestListeners.forEach((iBinder, listener) ->
+                mExecutor.execute(() -> {
+                    try {
+                        listener.onTrustedDeviceEnrollmentNotificationRequest();
+                    } catch (RemoteException e) {
+                        loge(TAG, "Failed to notify the enrollment notification request.");
+                    }
+                }));
     }
 
     private void removeRemoteBinder(IBinder binder) {

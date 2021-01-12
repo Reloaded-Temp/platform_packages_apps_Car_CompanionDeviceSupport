@@ -16,9 +16,10 @@
 
 package com.android.car.companiondevicesupport.api.internal.trust;
 
-import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 
 import java.util.Objects;
 
