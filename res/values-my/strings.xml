@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"ဤကုဒ်သည် သင့်ဖုန်းပေါ်တွင် ပေါ်သည့်ကုဒ်နှင့် တူညီကြောင်း အတည်ပြုပါ"</string>
     <string name="associated_device_success" msgid="584760065696870256">"စက်ကို ချိတ်ဆက်ပြီးပါပြီ"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"အက်ပ်ကိုဖွင့်ပြီး &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; သို့ ချိတ်ပါ"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"အက်ပ်ဖွင့်ပြီး လမ်းညွှန်အတိုင်းလုပ်ပါ"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; ကို မေ့မလား။"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"ဤကားကို ဤစက်ဖြင့် တွဲချိတ်ထားတော့မည် မဟုတ်ပါ။ ဤကားကို \'တွဲဖက်အက်ပ်\' မှနေ၍ ထပ်မံဖယ်ရှားရန် လိုအပ်ပါမည်။"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> ကို မေ့လိုက်ပါပြီ"</string>

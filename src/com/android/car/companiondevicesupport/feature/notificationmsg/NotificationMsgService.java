@@ -24,7 +24,6 @@ import static com.android.car.messenger.common.BaseNotificationDelegate.ACTION_R
 import static com.android.car.messenger.common.BaseNotificationDelegate.EXTRA_CONVERSATION_KEY;
 import static com.android.car.messenger.common.BaseNotificationDelegate.EXTRA_REMOTE_INPUT_KEY;
 
-import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -34,6 +33,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 

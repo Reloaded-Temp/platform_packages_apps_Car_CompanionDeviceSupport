@@ -16,10 +16,11 @@
 
 package com.android.car.companiondevicesupport.api.external;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -42,7 +43,8 @@ public final class AssociatedDevice implements Parcelable {
         mIsConnectionEnabled = isConnectionEnabled;
     }
 
-    public AssociatedDevice(com.android.car.connecteddevice.model.AssociatedDevice device) {
+    public AssociatedDevice(
+            @NonNull com.android.car.connecteddevice.model.AssociatedDevice device) {
         this(device.getDeviceId(), device.getDeviceAddress(), device.getDeviceName(),
                 device.isConnectionEnabled());
     }

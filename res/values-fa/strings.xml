@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"تأیید کنید که این کد مطابق کدی است که در تلفنتان نشان داده شده است"</string>
     <string name="associated_device_success" msgid="584760065696870256">"دستگاه باموفقیت مرتبط شده است"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"برنامه را باز کنید و به &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; وصل شوید"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"برنامه را باز کنید و دستورالعمل‌های درون آن را دنبال کنید"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; فراموش شود؟"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"این خودرو دیگر با این دستگاه مرتبط نمی‌شود. به‌علاوه، باید این خودرو را از برنامه همراه بردارید."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> فراموش شد"</string>

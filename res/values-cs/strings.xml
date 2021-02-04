@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Ověřte, zda se kód shoduje s kódem v telefonu"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Zařízení bylo úspěšně přidruženo"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Otevřete aplikaci a připojte se k &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Postupujte podle pokynů v aplikaci"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Zapomenout auto &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Auto již s tímto zařízením nebude spárováno. Také budete muset auto odstranit z doprovodné aplikace."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Zařízení <xliff:g id="PHONE_NAME">%1$s</xliff:g> bylo zapomenuto"</string>

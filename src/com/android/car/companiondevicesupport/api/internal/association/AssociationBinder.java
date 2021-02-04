@@ -16,8 +16,8 @@
 
 package com.android.car.companiondevicesupport.api.internal.association;
 
-import static com.android.car.connecteddevice.util.SafeLog.logd;
 import static com.android.car.connecteddevice.util.SafeLog.loge;
+import static com.android.car.connecteddevice.util.SafeLog.logw;
 
 import android.os.RemoteException;
 
@@ -74,12 +74,12 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
 
     @Override
     public void setAssociationCallback(IAssociationCallback callback) {
+        if (callback == null) {
+            return;
+        }
         mRemoteAssociationCallbackBinder = new RemoteCallbackBinder(callback.asBinder(),
                 iBinder -> stopAssociation());
         mIAssociationCallback = callback;
-        if (mIAssociationCallback == null) {
-            logd(TAG, "mIAssociationCallback is null");
-        }
     }
 
     @Override
@@ -95,6 +95,17 @@ public class AssociationBinder extends IAssociatedDeviceManager.Stub {
     @Override
     public void startAssociation() {
         mConnectedDeviceManager.startAssociation(mAssociationCallback);
+    }
+
+    @Override
+    public void startOobAssociation(OobEligibleDevice eligibleDevice) {
+        if (eligibleDevice == null) {
+            logw(TAG, "Attempted to start OOB association with null device. Ignoring.");
+            return;
+        }
+
+        mConnectedDeviceManager.startOutOfBandAssociation(eligibleDevice.toModel(),
+                mAssociationCallback);
     }
 
     @Override

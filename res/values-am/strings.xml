@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"ይህ በስልክዎ ላይ ከሚታየው ኮድ ጋር እንደሚዛመድ ያረጋግጡ"</string>
     <string name="associated_device_success" msgid="584760065696870256">"መሣሪያ በተሳካ ሁኔታ ተገናኝቷል"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"መተግበሪያውን ይክፈቱትና ከ&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; ጋር ያገናኙት"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"መተግበሪያውን ይክፈቱ እና በመተግበሪያው ውስጥ መመሪያዎችን ይከተሉ"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; ይረሳ?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"ይህ መኪና ከእንግዲህ ከዚህ መሣሪያ ጋር አይጣመርም። በተጨማሪም ይህን መኪና ከአጃቢ መተግበሪያው ማስወገድ አለብዎት።"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> ተረስቷል"</string>

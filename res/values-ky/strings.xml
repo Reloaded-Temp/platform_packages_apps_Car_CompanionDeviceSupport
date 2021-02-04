@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Бул телефонуңуздагы кодго дал келерин ырастаңыз"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Түзмөк ийгиликтүү байланыштырылды"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Колдонмону ачып, &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; туташтырыңыз"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Колдонмону ачып, нускамаларды аткарыңыз"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; унутулсунбу?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Бул унаа бул түзмөк менен мындан ары жупташтырылбайт. Бул унааны Өнөктөш колдонмодон өчүрүшүңүз керек."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> унутулду"</string>

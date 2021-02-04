@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"Xác nhận rằng mã này khớp với mã hiển thị trên điện thoại của bạn"</string>
     <string name="associated_device_success" msgid="584760065696870256">"Đã liên kết thành công thiết bị"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"Mở ứng dụng rồi kết nối với &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt;"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"Mở ứng dụng rồi làm theo hướng dẫn trong ứng dụng"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"Xóa &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Ô tô này sẽ không được ghép nối với thiết bị này nữa. Ngoài ra, bạn cần xóa ô tô này khỏi Ứng dụng đồng hành."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Đã xóa <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>

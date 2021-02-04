@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"നിങ്ങളുടെ ഫോണിൽ കാണിക്കുന്ന കോഡുമായി ഇത് പൊരുത്തപ്പെടുന്നുണ്ടെന്ന് സ്ഥിരീകരിക്കുക"</string>
     <string name="associated_device_success" msgid="584760065696870256">"ഉപകരണം കാറുമായി ബന്ധിപ്പിച്ചു"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"ആപ്പ് തുറന്ന് &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; എന്നതിലേക്ക് കണക്റ്റ് ചെയ്യൂ"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"ആപ്പ് തുറന്ന്, നിർദ്ദേശങ്ങൾ പിന്തുടരുക"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; മറക്കണോ?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"ഈ കാർ ഇനി ഈ ഉപകരണവുമായി ജോടിയാകില്ല. നിങ്ങൾ സഹകാരി ആപ്പിൽ നിന്ന് ഈ കാർ നീക്കം ചെയ്യേണ്ടതുണ്ട്."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> മറന്നു"</string>

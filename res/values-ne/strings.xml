@@ -26,6 +26,7 @@
     <string name="associated_device_pairing_message" msgid="7319249426394299109">"यो कोड तपाईंको फोनमा देखाइएको कोडसँग मिल्छ भन्ने कुरा पुष्टि गर्नुहोस्"</string>
     <string name="associated_device_success" msgid="584760065696870256">"यन्त्र सम्बद्ध गर्ने कार्य सफल भएको छ"</string>
     <string name="associated_device_select_device" msgid="1931869046289060602">"एप खोल्नुहोस् र &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; सँग कनेक्ट गर्नुहोस्"</string>
+    <string name="associated_device_open_app" msgid="6602241720850890521">"एप खोलेर त्यसभित्र दिइएका निर्देशनहरूको पालना गर्नुहोस्"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; हटाउने हो?"</string>
     <string name="remove_associated_device_message" msgid="3991333597951462900">"यो कारलाई अब उप्रान्त यस यन्त्रसँग जोडा बनाइने छैन। तपाईंले यो कारलाई सहयोगी एपबाट पनि हटाउनु पर्ने हुन्छ।"</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> हटाइयो"</string>

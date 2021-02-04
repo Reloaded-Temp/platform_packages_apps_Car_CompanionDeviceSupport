@@ -28,6 +28,7 @@ import android.media.AudioAttributes;
 import android.provider.Settings;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.companiondevicesupport.api.external.CompanionDevice;
 import com.android.car.messenger.NotificationMsgProto.NotificationMsg.Action;
@@ -45,7 +46,6 @@ import com.android.car.messenger.common.Message;
 import com.android.car.messenger.common.ProjectionStateListener;
 import com.android.car.messenger.common.SenderKey;
 import com.android.car.messenger.common.Utils;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.List;
