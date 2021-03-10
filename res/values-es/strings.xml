@@ -31,7 +31,7 @@
     <string name="remove_associated_device_message" msgid="3991333597951462900">"Este coche ya no estará vinculado con el dispositivo. También tendrás que quitar este coche de la aplicación complementaria."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Se ha olvidado este dispositivo: <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
     <string name="device_removed_failure_toast_text" msgid="3756625943664982395">"No se ha podido olvidar este dispositivo: <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
-    <string name="continue_setup_toast_text" msgid="8487187853051037413">"Sigue con la configuración en tu teléfono"</string>
+    <string name="continue_setup_toast_text" msgid="8487187853051037413">"Continúa la configuración en tu teléfono"</string>
     <string name="error_screen_title" msgid="3977744142045194903">"Se ha producido un error"</string>
     <string name="error_screen_message" msgid="1217200461704367056">"Lo sentimos, pero la pantalla no se ha podido mostrar correctamente. Inténtalo de nuevo."</string>
     <string name="turn_on_bluetooth_title" msgid="2877749869113938263">"Activar Bluetooth"</string>
@@ -50,7 +50,7 @@
     <string name="disable" msgid="4619854429066283970">"Inhabilitar"</string>
     <string name="enable" msgid="7656386199154111316">"Habilitar"</string>
     <string name="continue_button" msgid="2748318968566159950">"Continuar"</string>
-    <string name="retry" msgid="3783419451480721367">"Volver a intentar"</string>
+    <string name="retry" msgid="3783419451480721367">"Reintentar"</string>
     <string name="turn_on" msgid="4288754850470994812">"Activar"</string>
     <string name="not_now" msgid="8764692269093707622">"Ahora no"</string>
     <string name="connected" msgid="8051190714042020471">"Conectado"</string>

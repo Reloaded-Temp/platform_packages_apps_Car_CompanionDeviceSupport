@@ -32,7 +32,7 @@
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> blev glemt"</string>
     <string name="device_removed_failure_toast_text" msgid="3756625943664982395">"<xliff:g id="PHONE_NAME">%1$s</xliff:g> kunne ikke glemmes"</string>
     <string name="continue_setup_toast_text" msgid="8487187853051037413">"Fortsæt konfigurationen på din telefon"</string>
-    <string name="error_screen_title" msgid="3977744142045194903">"Der opstod en fejl"</string>
+    <string name="error_screen_title" msgid="3977744142045194903">"Noget gik galt"</string>
     <string name="error_screen_message" msgid="1217200461704367056">"Denne skærm kunne ikke vises korrekt. Prøv igen."</string>
     <string name="turn_on_bluetooth_title" msgid="2877749869113938263">"Aktivér Bluetooth"</string>
     <string name="turn_on_bluetooth_message" msgid="5087006108685547788">"Din bil skal aktivere Bluetooth for at konfigurere din telefon som en ledsagende enhed."</string>
@@ -75,7 +75,7 @@
     <string name="trusted_device_notification_channel_name" msgid="6717174570621750321">"Lås op med telefonen"</string>
     <string name="trusted_device_notification_title" msgid="249913439061543209">"Tillad, at din telefon låser din profil op"</string>
     <string name="trusted_device_notification_content" msgid="7536321078698712456">"Tryk her for at godkende denne funktion"</string>
-    <string name="trusted_device_enrollment_error_dialog_title" msgid="8120284275374458606">"Der opstod en fejl"</string>
+    <string name="trusted_device_enrollment_error_dialog_title" msgid="8120284275374458606">"Noget gik galt"</string>
     <string name="trusted_device_enrollment_error_dialog_message" msgid="7205036748277720461">"Denne funktion kunne ikke aktiveres. Prøv igen."</string>
     <string name="create_phone_lock_dialog_title" msgid="9160142569534569820">"Opret en skærmlås på din telefon"</string>
     <string name="create_phone_lock_dialog_message" msgid="8209460622086922427">"Der er ikke konfigureret en skærmlås på din telefon. Hvis du vil låse bilprofilen op med din telefon, skal du først oprette en skærmlås (også kaldet en adgangskode) i indstillingerne på din telefon."</string>
