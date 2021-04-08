@@ -28,7 +28,7 @@
     <string name="associated_device_select_device" msgid="1931869046289060602">"Ireki aplikazioa eta konektatu &lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;b&gt; autora"</string>
     <string name="associated_device_open_app" msgid="6602241720850890521">"Ireki aplikazioa eta jarraitu argibideei"</string>
     <string name="remove_associated_device_title" msgid="4060806982019423895">"&lt;b&gt;<xliff:g id="CAR_NAME">%1$s</xliff:g>&lt;/b&gt; ahaztu nahi duzu?"</string>
-    <string name="remove_associated_device_message" msgid="3991333597951462900">"Aurrerantzean, auto hau ez da parekatuko gailu honekin. Aplikazio osagarritik ere kendu beharko duzu autoa."</string>
+    <string name="remove_associated_device_message" msgid="3991333597951462900">"Aurrerantzean, auto hau ez da parekatuko gailu honekin. Companion App-etik ere kendu beharko duzu autoa."</string>
     <string name="device_removed_success_toast_text" msgid="3242832156490823936">"Ahaztu da <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
     <string name="device_removed_failure_toast_text" msgid="3756625943664982395">"Ezin izan da ahaztu <xliff:g id="PHONE_NAME">%1$s</xliff:g>"</string>
     <string name="continue_setup_toast_text" msgid="8487187853051037413">"Jarraitu konfiguratzen telefonoan"</string>
